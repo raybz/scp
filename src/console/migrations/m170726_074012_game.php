@@ -1,30 +1,24 @@
 <?php
-/**
- * This view is used by console/controllers/MigrateController.php
- * The following variables are available in this view:
- */
-/* @var $className string the new migration class name */
-echo "<?php\n";
-?>
 
 use Components\Database\Migration;
 use yii\helpers\Console;
 
-class <?= $className ?> extends Migration
+class m170726_074012_game extends Migration
 {
-    protected $tableName = '{{%table}}';
+    protected $tableName = 'game';
     
     public function up()
     {
         $this->createTable($this->tableName, [
             'id' => $this->primaryKey(),
+            'gkey' => $this->string(10)->notNull()->comment('唯一码'),
+            'name' => $this->string()->notNull()->comment('游戏名称'),
+            'status' => $this->smallInteger(6)->notNull()->defaultValue(1)->comment('状态'),
             'created_at' => $this->dateTime()->notNull(),
-            'created_by' => $this->integer()->notNull(),
             'updated_at' => $this->dateTime()->notNull()->defaultValue('0000-00-00 00:00:00'),
-            'updated_by' => $this->integer()->notNull()->defaultValue(0),
         ]);
 
-        $this->addCommentOnTable($this->tableName, '表');
+        $this->execute("ALTER TABLE ".$this->tableName." AUTO_INCREMENT= 1001");
     }
     
     public function down()

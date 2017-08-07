@@ -10,6 +10,7 @@ return [
     'id' => 'scp.2144.cn',
     'name' => 'SCP后台管理',
     'basePath' => dirname(__DIR__),
+    'defaultRoute' => 'site/index',
     'language' => 'zh-CN',
     'timezone' => 'Asia/Shanghai',
     'controllerNamespace' => 'backend\controllers',
@@ -18,6 +19,9 @@ return [
         "admin" => [
             "class" => \mdm\admin\Module::class,
 //            'layout' => 'left-menu'
+        ],
+        'gridview' => [
+            'class' => '\kartik\grid\Module',
         ],
     ],
     'as access' => [
@@ -29,7 +33,6 @@ return [
             'site/idlogin',
             'site/idregister',
             'api/*',
-            'task/*',
         ],
     ],
     'components' => [

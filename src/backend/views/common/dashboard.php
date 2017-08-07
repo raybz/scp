@@ -1,149 +1,297 @@
 <?php
 
 use kartik\grid\GridView;
-use yii\helpers\Html;
-use kartik\widgets\DatePicker;
 
 \backend\assets\HighChartsAssets::register($this);
-$this->title = '平台近日概况';
-
-$columns = [
-    ['attribute' => 'date', 'label' => '日期', 'pageSummary' => '总计'],
-    ['label' => '活跃用户数', 'attribute' => 'active_user_count', 'pageSummary' => true],
-    ['attribute' => 'register_user_count', 'label' => '注册用户数', 'pageSummary' => true],
-    ['label' => '注册用户占比(%)', 'value' => function ($data) {
-        if ($data['active_user_count']) {
-            return round($data['register_user_count'] / $data['active_user_count'], 4) * 100;
-        }
-    }],
-    ['label' => '付费人数', 'attribute' => 'user_pay_count', 'pageSummary' => true],
-    ['label' => '付费渗透率(%)', 'value' => function ($data) {
-        if ($data['active_user_count']) {
-            return round($data['user_pay_count'] / $data['active_user_count'], 4) * 100;
-        }
-        return 0;
-    }],
-    ['label' => '付费金额', 'attribute' => 'user_pay_money', 'value' => function ($data) {
-        return $data['user_pay_money'] / 100;
-    }, 'pageSummary' => true],
-    ['label' => 'ARPU', 'value' => function ($data) {
-        $money = $data['user_pay_money'] / 100;
-        $count = $data['user_pay_count'];
-        if ($count) {
-            return round($money / $data['user_pay_count'], 2);
-        }
-        return 0;
-    }]
-
-];
+$this->title = '概况';
+/* @var $searchModel \backend\models\search\DashBoardSearch*/
+/* @var $threeDayDataProvider \backend\models\search\DashBoardSearch*/
+/* @var $monthDataProvider \backend\models\search\DashBoardSearch*/
 ?>
+<div class="box box-default">
+    <!--折线图-->
+    <div class="box-header with-border">
+        <h3 class="box-title">图表</h3>
+        <div class="box-tools pull-right">
+            <button class="btn btn-box-tool" data-widget="collapse">
+                <i class="fa fa-minus"></i>
+            </button>
+            <button class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+        </div>
+    </div>
+    <div class="box-body">
+        <div id="per-hour-money-container"></div>
+    </div>
+</div>
 
+<div class="box box-default">
+    <!--折线图-->
+    <div class="box-header with-border">
+        <h3 class="box-title">图表</h3>
+        <div class="box-tools pull-right">
+            <button class="btn btn-box-tool" data-widget="collapse">
+                <i class="fa fa-minus"></i>
+            </button>
+            <button class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+        </div>
+    </div>
+    <div class="box-body">
+        <div id="per-hour-man-container"></div>
+    </div>
+</div>
 
-    <div class="box box-default">
-        <div class="box-body">
-            <div class="row">
-                <?php $form = \yii\widgets\ActiveForm::begin([
+<div class="box box-default">
+    <div class="box-body">
+        <div class="row">
+            <?php $form = \yii\widgets\ActiveForm::begin(
+                [
                     'method' => 'get',
-                    'action' => '/common/dashboard'
+                    'action' => '/common/dashboard',
+                ]
+            ); ?>
 
-                ]); ?>
-                <div class="col-md-12">
+            <div class="col-md-12">
 
-                    <div class="col-md-3">
-                        <label class="control-label">日期</label>
-                        <?= DatePicker::widget([
-                            'model' => $searchModel,
-                            'attribute' => 'from',
-                            'attribute2' => 'to',
-                            'value' => '',
-                            'value2' => '',
-                            'options' => ['placeholder' => '注册时间', 'id' => 'from'],
-                            'options2' => ['placeholder' => '注册时间', 'id' => 'to', 'display' => 'hidden'],
-                            'type' => DatePicker::TYPE_RANGE,
-                            'separator' => '到',
-                            'pluginOptions' => [
-                                'format' => 'yyyy-mm-dd',
-                                'autoclose' => true,
-                            ]
-                        ]);
-                        ?>
-                    </div>
-                    <div class="col-md-2" style="line-height: 74px;">
-                        <?= Html::submitButton('搜索', ['class' => 'btn btn-default']) ?>
-                    </div>
+                <div class="col-md-1">
+                    <?= $form->field($searchModel, 'gid')->widget(\kartik\select2\Select2::className(),[
+                        'data' => \common\models\Game::gameDropDownData(),
+                        'options' => ['placeholder' => '请选择游戏'],
+                    ]) ?>
                 </div>
-
-                <?php \yii\widgets\ActiveForm::end(); ?>
+                <div class="col-md-1">
+                    <?= $form->field($searchModel, 'to')->widget(\kartik\date\DatePicker::className(),[
+                        'value' => '',
+                        'options' => ['placeholder' => '日期'],
+                        'type' => \kartik\date\DatePicker::TYPE_INPUT,
+                        'pluginOptions' => [
+                            'format' => 'yyyy-mm-dd',
+                            'autoclose' => true,
+                        ],
+                    ])->label('日期') ?>
+                </div>
+                <div class="col-md-1">
+                    <?= \yii\helpers\Html::submitButton('搜索', ['class' => 'btn btn-success btn-flat', 'style' => 'margin-top: 25px;'])?>
+                </div>
             </div>
+            <?php \yii\widgets\ActiveForm::end()?>
         </div>
     </div>
-
-
-    <div class="box box-default">
-        <!--折线图-->
-        <div class="box-header with-border">
-            <h3 class="box-title">图表</h3>
-            <div class="box-tools pull-right">
-                <button class="btn btn-box-tool" data-widget="collapse">
-                    <i class="fa fa-minus"></i>
-                </button>
-                <button class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
-            </div>
-
-        </div>
-        <div class="box-body">
-            <div id="higcharts-container"></div>
-
-        </div>
-    </div>
-
-
-<?= GridView::widget([
-    'autoXlFormat' => true,
-    'showPageSummary' => true,
-    'pageSummaryRowOptions' => ['class' => 'kv-page-summary default'],
-    'export' => [
-        'fontAwesome' => true,
-        'showConfirmAlert' => false,
-        'target' => GridView::TARGET_BLANK
+</div>
+<?php $columns = [
+    [
+        'attribute' => 'date',
+        'hAlign' => 'center',
+        'label' => '日期',
+        'width' => '16%',
+        'pageSummary' => '增幅'
     ],
-    'dataProvider' => $dataProvider,
-    'pjax' => true,
-    'toolbar' => [
-        ['content' => '',]
-    ],
-    'striped' => false,
-    'hover' => true,
-    'floatHeader' => false,
-    'columns' => $columns,
-    'responsive' => true,
-    'condensed' => true,
-    'panel' => [
-        'heading' => '平台近日概况[付费金额包含mpay数据]',
-        'type' => 'default',
-        'before' => false,
-        'after' => false,
-    ],
-]); ?>
+    [
+        'attribute' => 'register',
+        'hAlign' => 'center',
+        'label' => '注册(%)',
+        'pageSummary' => function ($data, $key) {
+            if (isset($key[0]) && isset($key[1]) && $key[0] > 0) {
+                $diff = $key[1] - $key[0];
+                $MoM = ($diff / $key[0]) * 100;
 
-    <!--actionPlatformDateCharts-->
-<?php
-//每日注册/活跃走势图
-$hcharts = <<<EOL
-        var param = {
-            api: '/api/platform-date-charts?',
-            title: '',
-            subtitle:'',
-            container: 'higcharts-container',
-            param: {
-                from: '{$searchModel->from}',
-                to: '{$searchModel->to}',
+                return Yii::$app->formatter->asDecimal($MoM);
+            } else {
+                return '-';
             }
+        },
+        'format' => 'raw',
+    ],
+    [
+        'attribute' => 'max_online',
+        'hAlign' => 'center',
+        'label' => '最高在线(%)',
+        'pageSummary' => function ($data, $key) {
+            if (isset($key[0]) && isset($key[1]) && $key[0] > 0) {
+                $diff = $key[1] - $key[0];
+                $MoM = ($diff / $key[0]) * 100;
+
+                return Yii::$app->formatter->asDecimal($MoM);
+            } else {
+                return '-';
+            }
+        },
+        'format' => 'raw',
+    ],
+    [
+        'attribute' => 'avg_online',
+        'hAlign' => 'center',
+        'label' => '平均在线(%)',
+        'pageSummary' => function ($data, $key) {
+            if (isset($key[0]) && isset($key[1]) && $key[0] > 0) {
+                $diff = $key[1] - $key[0];
+                $MoM = ($diff / $key[0]) * 100;
+
+                return Yii::$app->formatter->asDecimal($MoM);
+            } else {
+                return '-';
+            }
+        },
+        'format' => 'raw',
+    ],
+    [
+        'attribute' => 'pay_money_sum',
+        'hAlign' => 'center',
+        'label' => '充值金额(%)',
+        'pageSummary' => function ($data, $key) {
+            if (isset($key[0]) && isset($key[1]) && $key[0] > 0) {
+                $diff = $key[1] - $key[0];
+                $MoM = ($diff / $key[0]) * 100;
+
+                return Yii::$app->formatter->asDecimal($MoM);
+            } else {
+                return '-';
+            }
+        },
+        'format' => 'raw',
+    ],
+    [
+        'attribute' => 'pay_man_sum',
+        'hAlign' => 'center',
+        'label' => '充值人数(%)',
+        'pageSummary' => function ($data, $key) {
+            if (isset($key[0]) && isset($key[1]) && $key[0] > 0) {
+                $diff = $key[1] - $key[0];
+                $MoM = ($diff / $key[0]) * 100;
+
+                return Yii::$app->formatter->asDecimal($MoM);
+            } else {
+                return '-';
+            }
+        },
+        'format' => 'raw',
+    ],
+];?>
+<?= GridView::widget(
+    [
+        'autoXlFormat' => true,
+        'showPageSummary' => true,
+        'pageSummaryRowOptions' => ['class' => 'kv-page-summary default'],
+        'export' => [
+            'fontAwesome' => true,
+            'showConfirmAlert' => false,
+            'target' => GridView::TARGET_BLANK,
+        ],
+        'dataProvider' => $dataProvider,
+        'pjax' => true,
+        'toolbar' => [
+//            $fullExport,
+        ],
+        'id' => 'dashboard',
+        'striped' => false,
+        'hover' => false,
+        'floatHeader' => false,
+        'columns' => $columns,
+        'responsive' => true,
+        'condensed' => true,
+        'panel' => [
+            'heading' => '两日数据对比',
+            'type' => 'default',
+            'after' => false,
+            'before' => false,
+        ],
+    ]
+); ?>
+<?= GridView::widget(
+    [
+        'autoXlFormat' => true,
+        'showPageSummary' => true,
+        'pageSummaryRowOptions' => ['class' => 'kv-page-summary default'],
+        'export' => [
+            'fontAwesome' => true,
+            'showConfirmAlert' => false,
+            'target' => GridView::TARGET_BLANK,
+        ],
+        'dataProvider' => $threeDayDataProvider,
+        'pjax' => true,
+        'toolbar' => [
+//            $fullExport,
+        ],
+        'id' => 'dashboard-three-day',
+        'striped' => false,
+        'hover' => false,
+        'floatHeader' => false,
+        'columns' => $columns,
+        'responsive' => true,
+        'condensed' => true,
+        'panel' => [
+            'heading' => '三日数据对比',
+            'type' => 'default',
+            'after' => false,
+            'before' => false,
+        ],
+    ]
+); ?>
+<?= GridView::widget(
+    [
+        'autoXlFormat' => true,
+        'showPageSummary' => true,
+        'pageSummaryRowOptions' => ['class' => 'kv-page-summary default'],
+        'export' => [
+            'fontAwesome' => true,
+            'showConfirmAlert' => false,
+            'target' => GridView::TARGET_BLANK,
+        ],
+        'dataProvider' => $monthDataProvider,
+        'pjax' => true,
+        'toolbar' => [
+//            $fullExport,
+        ],
+        'id' => 'dashboard-one-month',
+        'striped' => false,
+        'hover' => false,
+        'floatHeader' => false,
+        'columns' => $columns,
+        'responsive' => true,
+        'condensed' => true,
+        'panel' => [
+            'heading' => '月数据对比',
+            'type' => 'default',
+            'after' => false,
+            'before' => false,
+        ],
+    ]
+); ?>
+<!--actionPlatformDateCharts-->
+<?php
+//每时/充值走势图
+$pay_charts = <<<EOL
+        var param = {
+            api: '/api/today-payment-spline?',
+            title: {
+                text: '今日充值金额：',
+                align: 'left',
+                x: 70
+            },
+            subtitle:'',
+            container: 'per-hour-money-container',
+            xAxis: 'dateTimeLabelFormats',
         };
         var chart = new Hcharts(param);
         chart.showSpline();
 EOL;
-$this->registerJs($hcharts);
-
-
+$this->registerJs($pay_charts);
+//每时/充值人数走势图
+$charts = <<<EOL
+        var param = {
+            api: '/api/today-payment-spline?type=money',
+            title: {
+                text: '今日充值人数：',
+                align: 'left',
+                x: 70
+            },
+            subtitle:'',
+            container: 'per-hour-man-container',
+            xAxis: 'dateTimeLabelFormats',
+        };
+        var chart = new Hcharts(param);
+        chart.showSpline();
+EOL;
+$this->registerJs($charts);
 ?>
+
+

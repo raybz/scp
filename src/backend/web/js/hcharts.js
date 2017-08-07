@@ -10,6 +10,7 @@ function Hcharts(args) {
     this.title = args.title;
     this.subtitle = args.subtitle;
     this.param = args.param;
+    this.xAxis = args.xAxis;
 }
 
 Hcharts.prototype = {
@@ -51,18 +52,21 @@ Hcharts.prototype = {
     //曲线图
     showSpline: function() {
         var _this = this;
+        var xA = _this.xAxis;
         $.getJSON(this.api, this.param, function(data) {
             Highcharts.chart(_this.container, {
                 chart: {
                     type: 'spline'
                 },
                 title: {
-                    text: _this.title
+                    text: _this.title.text+data.data.title,
+                    align: _this.title.align,
+                    x: _this.title.x
                 },
                 subtitle: {
                     text: _this.subtitle
                 },
-                xAxis: {'categories':data.data.xAxis},
+                xAxis: {xA: data.data.xAxis},
                 yAxis: {
                 },
                 tooltip: {
@@ -71,13 +75,13 @@ Hcharts.prototype = {
                 plotOptions: {
                     spline: {
                         marker: {
-                            enabled: true
+                            enabled: false
                         }
                     }
                 },
                 series:data.data.series
             });
-        })
+        });
     }
 };
 
