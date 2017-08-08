@@ -23,6 +23,8 @@ class Platform
     public static function savePay()
     {
         $payObj = self::parse(static::uniformPayData(self::paramData()));
+        //添加平台
+        \common\models\Platform::storeData($payObj);
         $result = Payment::storeData($payObj);
 
         return $result;
@@ -33,13 +35,16 @@ class Platform
         $loginObj = self::parse(static::uniformLoginData(self::paramData()));
 
         if (isset($loginObj->time) && $loginObj->time > 0 && isset($loginObj->uid) && $loginObj->uid) {
+            //添加平台
+            \common\models\Platform::storeData($loginObj);
+
             LoginLogTable::newTable($loginObj->time);
             $result = LoginLogTable::storeData($loginObj);
 
             return $result;
         }
 
-        return ['',''];
+        return ['', '', ''];
     }
 
     protected static function parse($paramArr)

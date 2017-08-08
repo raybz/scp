@@ -58,6 +58,7 @@ class Game extends \yii\db\ActiveRecord
         $res = self::find()
             ->select(['id', 'gkey', 'name'])
             ->where(['status' => Status::ACTIVE])
+            ->asArray()
             ->all();
 
         return $res ?: [];

@@ -3,6 +3,7 @@
 namespace console\models;
 
 use common\models\Game;
+use common\models\User;
 use Components\Database\Migration;
 
 /**
@@ -46,7 +47,7 @@ class LoginLogTable extends LogTable
             'gkey' => $m->string()->notNull()->comment('游戏名'),
             'gid' => $m->integer()->notNull()->comment('游戏ID'),
             'server_id' => $m->string()->notNull()->comment('区服ID'),
-            'time' => $m->integer(10)->notNull()->comment('登录时间'),
+            'time' => $m->dateTime()->notNull()->defaultValue('0000-00-00 00:00:00')->comment('登录时间'),
             'is_adult' => $m->smallInteger(4)->notNull(),
             'back_url' => $m->string()->notNull()->defaultValue('')->comment('登录失败跳转URL'),
             'type' => $m->string()->notNull()->comment('登录类型'),
@@ -78,7 +79,7 @@ class LoginLogTable extends LogTable
         $model->gkey = $data->gkey;
         $model->gid = $game['id'];
         $model->server_id = $data->server_id ?? '';
-        $model->time = $data->time;
+        $model->time = date('Y-m-d H:i:s', $data->time);
         $model->is_adult = $data->is_adult;
         $model->back_url = $data->back_url;
         $model->type = $data->type;
@@ -126,10 +127,18 @@ class LoginLogTable extends LogTable
         }
         $have = self::getLogin($data->uid, $data->platform, $game->id, $data->time);
         if ($have) {
-            return ['old', $have->id];
+            return ['old', $have->id, ''];
         } else {
             self::$month = date('Ym', $data->time);
-            return ['new', self::newData($data)];
+            //加入 用户表
+            $userId = null;
+            $login = self::newData($data);
+            if ($login){
+                $userData = self::findOne($login);
+                $userId = User::newUser($userData);
+            }
+
+            return ['new', $login, $userId];
         }
     }
 }

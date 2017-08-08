@@ -25,15 +25,14 @@ class PayController extends Controller
     public function actionRun($from = null, $to = null)
     {
         if ($from == null || $to == null) {
-            $from = date('Y-m-d', strtotime('-1 hour'));
-            $to = date('Y-m-d', strtotime('now'));
+            $from = date('Y-m-d H:i', strtotime('-1 hour'));
+            $to = date('Y-m-d H:i', strtotime('now'));
         } else {
-            $from = date('Y-m-d', strtotime($from));
-            $to = date('Y-m-d', strtotime($to));
+            $from = date('Y-m-d H:i', strtotime($from));
+            $to = date('Y-m-d H:i', strtotime($to));
         }
 
         //记录日志
-//        $this->SlaveUrl();
         $this->logPay($from, $to);
     }
 
@@ -41,14 +40,17 @@ class PayController extends Controller
     {
         $monthArr = LogTable::logTableMonth($from, $to);
         foreach ($monthArr as $month) {
-            $this->SlaveUrl($month);
+            $this->SlaveUrl($month, $from, $to);
         }
     }
 
-    protected function SlaveUrl($month = '201707')
+    protected function SlaveUrl($month = null, $from = null, $to = null)
     {
-        LogTable::$month = $month;
-        $data = LogTable::find()->select('url, post_data');
+        LogTable::$month = $month ?: date('Ym');
+        $data = LogTable::find()
+            ->select('url, post_data')
+            ->andFilterWhere(['>=', 'time', $from])
+            ->andFilterWhere(['<=', 'time', $to]);
         foreach ($data->each(100) as $v) {
             if (!strpos($v->url, '?')) {
                 if(!stripos($v->url, 'pay') || !$v->post_data) {

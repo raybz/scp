@@ -2,9 +2,12 @@
 
 namespace backend\controllers;
 
+use backend\models\search\DayArrangeSearch;
+use common\models\Game;
 use Yii;
 use common\models\Payment;
 use backend\models\search\PaymentSearch;
+use yii\helpers\Json;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -35,24 +38,59 @@ class PaymentController extends Controller
      */
     public function actionIndex()
     {
-        $searchModel = new PaymentSearch();
+//        $searchModel = new PaymentSearch();
+        $searchModel = new DayArrangeSearch();
+        $get = Yii::$app->request->get('DayArrangeSearch');
+        if ($searchModel->from == null || $searchModel->to == null || $searchModel->gid == null) {
+            $searchModel->from = date('Y-m-d', strtotime('-1 week'));
+            $searchModel->to = date('Y-m-d', strtotime('tomorrow'));
+        }
+        if(isset($get['gid']) && !empty($get['gid'])){
+            $gidStr = Json::encode($get['gid']);
+        } else {
+            $gidStr = Json::encode(array_keys(Game::gameDropDownData()));
+        }
+        $platformStr = '';
+        if(isset($get['platform']) && !empty($get['platform'])){
+            $platformStr = Json::encode($get['platform']);
+        }
+
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
+            'gidStr' => $gidStr,
+            'platformStr' => $platformStr,
         ]);
     }
 
-    /**
-     * Displays a single Payment model.
-     * @param integer $id
-     * @return mixed
-     */
-    public function actionView($id)
+
+    public function actionPlatform()
     {
-        return $this->render('view', [
-            'model' => $this->findModel($id),
+        $searchModel = new PaymentSearch();
+        $get = Yii::$app->request->get('PaymentSearch');
+        if ($searchModel->from == null || $searchModel->to == null || $searchModel->gid == null) {
+            $searchModel->from = date('Y-m-d', strtotime('-1 week'));
+            $searchModel->to = date('Y-m-d', strtotime('tomorrow'));
+        }
+        if(isset($get['gid']) && !empty($get['gid'])){
+            $gidStr = Json::encode($get['gid']);
+        } else {
+            $gidStr = Json::encode(array_keys(Game::gameDropDownData()));
+        }
+        $platformStr = '';
+        if(isset($get['platform']) && !empty($get['platform'])){
+            $platformStr = Json::encode($get['platform']);
+        }
+
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+
+        return $this->render('index', [
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
+            'gidStr' => $gidStr,
+            'platformStr' => $platformStr,
         ]);
     }
 

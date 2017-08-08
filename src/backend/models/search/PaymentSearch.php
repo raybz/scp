@@ -12,6 +12,9 @@ use common\models\Payment;
  */
 class PaymentSearch extends Payment
 {
+    public $gid;
+    public $from;
+    public $to;
     /**
      * @inheritdoc
      */
@@ -19,7 +22,7 @@ class PaymentSearch extends Payment
     {
         return [
             [['id', 'coins'], 'integer'],
-            [['uid', 'platform', 'gkey', 'server_id', 'time', 'order_id', 'created_at'], 'safe'],
+            [['uid', 'platform', 'gkey', 'server_id', 'time', 'order_id', 'created_at', 'from', 'to', 'gid'], 'safe'],
             [['money'], 'number'],
         ];
     }

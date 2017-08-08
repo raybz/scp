@@ -10,7 +10,6 @@ function Hcharts(args) {
     this.title = args.title;
     this.subtitle = args.subtitle;
     this.param = args.param;
-    this.xAxis = args.xAxis;
 }
 
 Hcharts.prototype = {
@@ -26,7 +25,9 @@ Hcharts.prototype = {
                     type: 'pie'
                 },
                 title: {
-                    text: _this.title
+                    text: _this.title.text,
+                    align: _this.title.align,
+                    x: _this.title.x
                 },
                 tooltip: {
                     pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
@@ -52,7 +53,6 @@ Hcharts.prototype = {
     //曲线图
     showSpline: function() {
         var _this = this;
-        var xA = _this.xAxis;
         $.getJSON(this.api, this.param, function(data) {
             Highcharts.chart(_this.container, {
                 chart: {
@@ -66,7 +66,7 @@ Hcharts.prototype = {
                 subtitle: {
                     text: _this.subtitle
                 },
-                xAxis: {xA: data.data.xAxis},
+                xAxis: {categories: data.data.xAxis},
                 yAxis: {
                 },
                 tooltip: {

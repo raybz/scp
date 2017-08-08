@@ -1,8 +1,7 @@
 <?php
+
 namespace console\controllers;
 
-use console\models\LoginLogTable;
-use yii\console\Controller;
 use console\models\LogTable;
 use console\models\platform\Platform37;
 use console\models\platform\Platform4399;
@@ -11,6 +10,7 @@ use console\models\platform\PlatformPPS;
 use console\models\platform\PlatformSoGou;
 use console\models\platform\PlatformXunLei;
 use console\models\platform\PlatformYY;
+use yii\console\Controller;
 
 class LoginController extends Controller
 {
@@ -21,15 +21,16 @@ class LoginController extends Controller
     const PAY_37 = '/37/login.php';
     const PAY_SO_GOU = '/sogou/login.php';
     const PAY = '/api/login.php';
+
     //per hour run
     public function actionRun($from = null, $to = null)
     {
         if ($from == null || $to == null) {
-            $from = date('Y-m-d', strtotime('-1 hour'));
-            $to = date('Y-m-d', strtotime('now'));
+            $from = date('Y-m-d H:i', strtotime('-1 hour'));
+            $to = date('Y-m-d H:i', strtotime('now'));
         } else {
-            $from = date('Y-m-d', strtotime($from));
-            $to = date('Y-m-d', strtotime($to));
+            $from = date('Y-m-d H:i', strtotime($from));
+            $to = date('Y-m-d H:i', strtotime($to));
         }
 
         //记录日志
@@ -40,35 +41,40 @@ class LoginController extends Controller
     {
         $monthArr = LogTable::logTableMonth($from, $to);
         foreach ($monthArr as $month) {
-//            var_dump($month);
-            $this->SlaveUrl($month);
+            $this->SlaveUrl($month, $from, $to);
         }
     }
 
-    protected function SlaveUrl($month = null)
+    protected function SlaveUrl($month = null, $from = null, $to = null)
     {
         LogTable::$month = $month ?: date('Ym');
-        $data = LogTable::find()->select('url, post_data');
+        $data = LogTable::find()
+            ->select('url, post_data')
+            ->andFilterWhere(['>=', 'time', $from])
+            ->andFilterWhere(['<=', 'time', $to]);
         foreach ($data->each(100) as $v) {
 //            $this->stdout(urldecode($v->url.PHP_EOL));
             if (!strpos($v->url, '?')) {
-                if(!stripos($v->url, 'login') || !($v->post_data && strlen($v->post_data) > 10) ) {
+                if (!stripos($v->url, 'login') || !($v->post_data && strlen($v->post_data) > 10)) {
                     continue;
                 }
                 PlatformSoGou::$url_param = $v->post_data;
                 $result = PlatformSoGou::saveLogin();
-                $this->stdout($result[0].' Login ID: '.$result[1].PHP_EOL);
+                $this->stdout(
+                    $result[0].' User Login ID: '.$result[1].($result[0] == 'new' ? ' New User ID: '.$result[2] : '').PHP_EOL
+                );
             } else {
                 $urlArr = explode('?', $v->url);
-                if(!stripos($urlArr[0], 'login')) {
+                if (!stripos($urlArr[0], 'login')) {
                     continue;
                 }
-                foreach ($this->map() as $k => $class)
-                {
-                    if (stristr($urlArr[0], $k)){
+                foreach ($this->map() as $k => $class) {
+                    if (stristr($urlArr[0], $k)) {
                         $class::$url_param = $urlArr[1];
                         $result = $class::saveLogin();
-                        $this->stdout($result[0].' Login ID: '.$result[1].PHP_EOL);
+                        $this->stdout(
+                            $result[0].' User Login ID: '.$result[1].($result[0] == 'new' ? ' New User ID: '.$result[2] : '').PHP_EOL
+                        );
                     }
                 }
             }

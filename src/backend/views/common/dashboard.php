@@ -269,7 +269,6 @@ $pay_charts = <<<EOL
             },
             subtitle:'',
             container: 'per-hour-money-container',
-            xAxis: 'dateTimeLabelFormats',
         };
         var chart = new Hcharts(param);
         chart.showSpline();
@@ -286,12 +285,9 @@ $charts = <<<EOL
             },
             subtitle:'',
             container: 'per-hour-man-container',
-            xAxis: 'dateTimeLabelFormats',
         };
         var chart = new Hcharts(param);
         chart.showSpline();
 EOL;
 $this->registerJs($charts);
 ?>
-
-

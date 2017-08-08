@@ -9,10 +9,13 @@ namespace common\models;
  * @property integer $gid
  * @property string  $date
  * @property integer $register
+ * @property integer $active
  * @property integer $max_online
  * @property integer $avg_online
- * @property integer $pay_money_sum
+ * @property string $pay_money_sum
  * @property integer $pay_man_sum
+ * @property integer $register_pay_man_sum
+ * @property string $register_pay_money_sum
  * @property string  $created_at
  */
 class DayArrange extends \yii\db\ActiveRecord
@@ -32,8 +35,9 @@ class DayArrange extends \yii\db\ActiveRecord
     {
         return [
             [['gid', 'date'], 'required'],
-            [['gid', 'register', 'max_online', 'avg_online', 'pay_money_sum', 'pay_man_sum'], 'integer'],
+            [['gid', 'register', 'active', 'max_online', 'avg_online', 'pay_man_sum', 'register_pay_man_sum'], 'integer'],
             [['date', 'created_at'], 'safe'],
+            [['pay_money_sum', 'register_pay_money_sum'], 'number'],
         ];
     }
 
@@ -45,11 +49,14 @@ class DayArrange extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'gid' => '游戏',
+            'active' => '活跃用户',
             'date' => '日期',
             'register' => '注册人数',
             'max_online' => '最高在线人数',
             'avg_online' => '平均在线人数',
             'pay_money_sum' => '充值金额',
+            'register_pay_man_sum' => '新进充值人数',
+            'register_pay_money_sum' => '新进充值金额',
             'pay_man_sum' => '充值人数',
             'created_at' => 'Created At',
         ];
@@ -64,11 +71,15 @@ class DayArrange extends \yii\db\ActiveRecord
         $model = new self();
         $model->gid = $data['gid'];
         $model->date = $data['date'];
+        $model->active = $data['active'];
         $model->register = $data['register'];
         $model->max_online = $data['max_online'];
         $model->avg_online = $data['avg_online'];
         $model->pay_money_sum = $data['pay_money_sum'];
         $model->pay_man_sum = $data['pay_man_sum'];
+        $model->pay_man_sum = $data['pay_man_sum'];
+        $model->register_pay_man_sum = $data['register_pay_man_sum'];
+        $model->register_pay_money_sum = $data['register_pay_money_sum'];
         $model->created_at = date('Y-m-d H:i:s');
         if ($model->save()) {
             return $model->id;

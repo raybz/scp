@@ -8,6 +8,7 @@ use yii\console\Controller;
 
 class RegisterController extends Controller
 {
+    //todo drop
     //per day run
     public function actionRun($from = null, $to = null)
     {
@@ -26,17 +27,20 @@ class RegisterController extends Controller
     {
         $monthArr = LoginLogTable::logTableMonth($from, $to);
         foreach ($monthArr as $month) {
-            $this->storeUser($month);
+            $this->storeUser($month, $from, $to);
         }
     }
 
-    protected function storeUser($month)
+    protected function storeUser($month = null, $from = null, $to = null)
     {
         LoginLogTable::$month = $month ?: date('Ym');
-        $login = LoginLogTable::find();
+        $login = LoginLogTable::find()
+            ->andFilterWhere(['>=', 'time', strtotime($from)])
+            ->andFilterWhere(['<=', 'time', strtotime($to)]);
         foreach ($login->each(100) as $l){
             $user = User::getUser($l->uid, $l->platform, $l->gid);
             if ($user) {
+                $this->stdout('old User ID: '.$user->id.PHP_EOL);
                 continue;
             }
             /* @var $user LoginLogTable*/

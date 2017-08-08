@@ -13,11 +13,14 @@ class m170803_123532_day_arrange extends Migration
             'id' => $this->primaryKey(),
             'gid' => $this->integer()->notNull()->comment('游戏ID'),
             'date' => $this->date()->notNull()->comment('日期'),
-            'register' => $this->integer()->notNull()->defaultValue(0)->comment('注册人数'),
+            'register' => $this->integer()->notNull()->defaultValue(0)->comment('注册人数(新增用户)'),
+            'active' => $this->integer()->notNull()->defaultValue(0)->comment('活跃用户'),
             'max_online' => $this->integer()->notNull()->defaultValue(0)->comment('最高在线'),
             'avg_online' => $this->integer()->notNull()->defaultValue(0)->comment('平均在线'),
-            'pay_money_sum' => $this->integer()->notNull()->defaultValue(0)->comment('充值金额'),
             'pay_man_sum' => $this->integer()->notNull()->defaultValue(0)->comment('充值人数'),
+            'pay_money_sum' => $this->float()->notNull()->defaultValue(0)->comment('充值金额'),
+            'register_pay_man_sum' => $this->integer()->notNull()->defaultValue(0)->comment('新增充值人数'),
+            'register_pay_money_sum' => $this->float()->notNull()->defaultValue(0)->comment('新增充值金额'),
             'created_at' => $this->dateTime()->notNull()->defaultValue('0000-00-00 00:00:00'),
         ]);
 

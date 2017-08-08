@@ -94,7 +94,7 @@ class User extends \yii\db\ActiveRecord
         $model->gid = $user->gid;
         $model->server_id = $user->server_id;
         $model->is_adult = $user->is_adult;
-        $model->register_at = date('Y-m-d H:i:s', $user->time);
+        $model->register_at = $user->time;
         $model->status = Status::ACTIVE;
         $model->created_at = date('Y-m-d H:i:s');
 
