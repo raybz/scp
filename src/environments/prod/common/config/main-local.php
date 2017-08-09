@@ -8,9 +8,9 @@ return [
         'db' => [
             'class' => 'yii\db\Connection',
             'charset' => 'utf8',
-            'dsn' => 'mysql:host=10.66.92.160;dbname=mdata_2144_cn',
-            'username' => 'mdata_2144_cn',
-            'password' => 'BfqxzFzxW2Qz4F#',
+            'dsn' => 'mysql:host=10.66.222.80;port=3306;dbname=scp_2144_cn',
+            'username' => 'scp_2144_cn',
+            'password' => 'kIEmTOB4yOYM',
         ],
 
         /**
@@ -19,10 +19,10 @@ return [
         'cache' => [
             'class' => 'yii\redis\Cache',
             'redis' => [
-                'hostname' => '10.66.226.18',
+                'hostname' => '10.66.226.69',
                 'port' => 6379,
                 'database' => 10,
-                'password' => 'crs-nquodqog:MdateRedis#0707',
+                'password' => 'crs-m84lsvay:fdCA9tUi4IJI',
             ],
         ],
 
@@ -32,10 +32,10 @@ return [
          */
         'redis' => [
             'class' => 'yii\redis\Connection',
-            'hostname' => '10.66.226.18',
+            'hostname' => '10.66.226.69',
             'port' => 6379,
             'database' => 0,
-            'password' => 'crs-nquodqog:MdateRedis#0707',
+            'password' => 'crs-m84lsvay:fdCA9tUi4IJI',
         ],
     ],
 ];
