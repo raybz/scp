@@ -2,11 +2,12 @@
 
 namespace backend\controllers;
 
+use backend\models\search\PlatformPaymentSearch;
 use backend\models\search\DayArrangeSearch;
 use common\models\Game;
+use common\models\Platform;
 use Yii;
 use common\models\Payment;
-use backend\models\search\PaymentSearch;
 use yii\helpers\Json;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -38,7 +39,6 @@ class PaymentController extends Controller
      */
     public function actionIndex()
     {
-//        $searchModel = new PaymentSearch();
         $searchModel = new DayArrangeSearch();
         $get = Yii::$app->request->get('DayArrangeSearch');
         if ($searchModel->from == null || $searchModel->to == null || $searchModel->gid == null) {
@@ -50,11 +50,11 @@ class PaymentController extends Controller
         } else {
             $gidStr = Json::encode(array_keys(Game::gameDropDownData()));
         }
-        $platformStr = '';
         if(isset($get['platform']) && !empty($get['platform'])){
             $platformStr = Json::encode($get['platform']);
+        } else {
+            $platformStr = Json::encode(array_keys(Platform::platformDropDownData()));
         }
-
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
@@ -68,25 +68,29 @@ class PaymentController extends Controller
 
     public function actionPlatform()
     {
-        $searchModel = new PaymentSearch();
-        $get = Yii::$app->request->get('PaymentSearch');
-        if ($searchModel->from == null || $searchModel->to == null || $searchModel->gid == null) {
+        $searchModel = new PlatformPaymentSearch();
+        $get = Yii::$app->request->get('PlatformPaymentSearch');
+        $searchModel->attributes = $get;
+        if ($searchModel->from == null || $searchModel->to == null) {
             $searchModel->from = date('Y-m-d', strtotime('-1 week'));
+            $searchModel->go = date('Y-m-d', strtotime('now'));
             $searchModel->to = date('Y-m-d', strtotime('tomorrow'));
+        } else {
+            $searchModel->to = date('Y-m-d', strtotime($searchModel->go. '+1 day'));
         }
         if(isset($get['gid']) && !empty($get['gid'])){
             $gidStr = Json::encode($get['gid']);
         } else {
             $gidStr = Json::encode(array_keys(Game::gameDropDownData()));
         }
-        $platformStr = '';
         if(isset($get['platform']) && !empty($get['platform'])){
             $platformStr = Json::encode($get['platform']);
+        } else {
+            $platformStr = Json::encode(array_keys(Platform::platformDropDownData()));
         }
+        $dataProvider = $searchModel->search();
 
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-
-        return $this->render('index', [
+        return $this->render('platform', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
             'gidStr' => $gidStr,
@@ -94,56 +98,37 @@ class PaymentController extends Controller
         ]);
     }
 
-    /**
-     * Creates a new Payment model.
-     * If creation is successful, the browser will be redirected to the 'view' page.
-     * @return mixed
-     */
-    public function actionCreate()
+    public function actionServer()
     {
-        $model = new Payment();
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+        $searchModel = new PlatformPaymentSearch();
+        $get = Yii::$app->request->get('PlatformPaymentSearch');
+        $searchModel->attributes = $get;
+        if ($searchModel->from == null || $searchModel->to == null) {
+            $searchModel->from = date('Y-m-d', strtotime('-1 week'));
+            $searchModel->go = date('Y-m-d', strtotime('now'));
+            $searchModel->to = date('Y-m-d', strtotime('tomorrow'));
         } else {
-            return $this->render('create', [
-                'model' => $model,
-            ]);
+            $searchModel->to = date('Y-m-d', strtotime($searchModel->go. '+1 day'));
         }
-    }
-
-    /**
-     * Updates an existing Payment model.
-     * If update is successful, the browser will be redirected to the 'view' page.
-     * @param integer $id
-     * @return mixed
-     */
-    public function actionUpdate($id)
-    {
-        $model = $this->findModel($id);
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+        if(isset($get['gid']) && !empty($get['gid'])){
+            $gidStr = Json::encode($get['gid']);
         } else {
-            return $this->render('update', [
-                'model' => $model,
-            ]);
+            $gidStr = Json::encode(array_keys(Game::gameDropDownData()));
         }
+        if(isset($get['platform']) && !empty($get['platform'])){
+            $platformStr = Json::encode($get['platform']);
+        } else {
+            $platformStr = Json::encode(array_keys(Platform::platformDropDownData()));
+        }
+        $dataProvider = $searchModel->search();
+
+        return $this->render('server', [
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
+            'gidStr' => $gidStr,
+            'platformStr' => $platformStr,
+        ]);
     }
-
-    /**
-     * Deletes an existing Payment model.
-     * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param integer $id
-     * @return mixed
-     */
-    public function actionDelete($id)
-    {
-        $this->findModel($id)->delete();
-
-        return $this->redirect(['index']);
-    }
-
     /**
      * Finds the Payment model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.

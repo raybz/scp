@@ -10,12 +10,12 @@ use yii\behaviors\TimestampBehavior;
  * This is the model class for table "platform".
  *
  * @property integer $id
- * @property string $name
- * @property string $abbreviation
+ * @property string  $name
+ * @property string  $abbreviation
  * @property integer $status
- * @property string $created_at
+ * @property string  $created_at
  * @property integer $created_by
- * @property string $updated_at
+ * @property string  $updated_at
  * @property integer $updated_by
  */
 class Platform extends \yii\db\ActiveRecord
@@ -51,7 +51,6 @@ class Platform extends \yii\db\ActiveRecord
             'abbreviation' => 'Abbreviation',
             'status' => 'Status',
             'created_at' => 'Created At',
-            'created_by' => 'Created By',
             'updated_at' => 'Updated At',
             'updated_by' => 'Updated By',
         ];
@@ -67,28 +66,42 @@ class Platform extends \yii\db\ActiveRecord
             [
                 'class' => BlameableBehavior::class,
                 'value' => \Yii::$app->user->id ?? 0,
+                'createdByAttribute' => false,
             ]
         ];
     }
 
-    public static function newData($data)
+    public function newData($data)
     {
-        $model = new self;
-        $model->name = $data->name ?? $data->platform;
-        $model->abbreviation = $data->platform;
-        $model->status = Status::ACTIVE;
-        if ($model->save()) {
-            return $model->id;
-        }
+//        $transaction = \Yii::$app->db->beginTransaction();
+//        try {
+            $model = new self;
+            $model->name = $data->name ?? $data->platform;
+            $model->abbreviation = $data->platform;
+            $model->status = Status::ACTIVE;
+            if ($model->save()) {
+//                //添加区服表
+//                $server = new GamePlatformServer();
+//                $server->storeData($data);
+                return $model->id;
+            } else{
+                var_dump($model->errors);
+            }
+
+//            $transaction->commit();
+//        }catch (\Exception $e){
+//            $transaction->rollBack();
+//        }
 
         return null;
     }
 
-    public static function storeData($data)
+    public function storeData($data)
     {
         $have = self::getPlatform($data->platform);
+
         if (!$have) {
-            return self::newData($data);
+            return $this->newData($data);
         }
 
         return null;

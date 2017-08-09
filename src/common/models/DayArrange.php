@@ -12,10 +12,10 @@ namespace common\models;
  * @property integer $active
  * @property integer $max_online
  * @property integer $avg_online
- * @property string $pay_money_sum
+ * @property string  $pay_money_sum
  * @property integer $pay_man_sum
  * @property integer $register_pay_man_sum
- * @property string $register_pay_money_sum
+ * @property string  $register_pay_money_sum
  * @property string  $created_at
  */
 class DayArrange extends \yii\db\ActiveRecord
@@ -76,7 +76,6 @@ class DayArrange extends \yii\db\ActiveRecord
         $model->max_online = $data['max_online'];
         $model->avg_online = $data['avg_online'];
         $model->pay_money_sum = $data['pay_money_sum'];
-        $model->pay_man_sum = $data['pay_man_sum'];
         $model->pay_man_sum = $data['pay_man_sum'];
         $model->register_pay_man_sum = $data['register_pay_man_sum'];
         $model->register_pay_money_sum = $data['register_pay_money_sum'];

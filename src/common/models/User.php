@@ -11,6 +11,7 @@ use console\models\LoginLogTable;
  * @property integer $id
  * @property string  $uid
  * @property string  $platform
+ * @property string  $platform_id
  * @property string  $gkey
  * @property integer $gid
  * @property string  $server_id
@@ -51,6 +52,7 @@ class User extends \yii\db\ActiveRecord
             'id' => 'ID',
             'uid' => 'Uid',
             'platform' => 'Platform',
+            'platform_id' => 'Platform_id',
             'gkey' => 'Gkey',
             'gid' => 'Gid',
             'server_id' => 'Server ID',
@@ -73,10 +75,12 @@ class User extends \yii\db\ActiveRecord
         return  $result;
     }
 
-    public static function newRegister($from, $to, $gid)
+    public static function newRegister($from, $to, $gid, $platform_id = null, $server_id = null)
     {
         $result = self::find()
             ->where(['gid' => $gid])
+            ->andFilterWhere(['platform_id' => $platform_id])
+            ->andFilterWhere(['server_id' => $server_id])
             ->andWhere(['>=', 'register_at', $from])
             ->andWhere(['<', 'register_at', $to])
             ->andWhere(['status' => Status::ACTIVE])
@@ -87,9 +91,11 @@ class User extends \yii\db\ActiveRecord
 
     public static function newUser(LoginLogTable $user)
     {
+        $p = Platform::getPlatform($user->platform);
         $model = new self;
         $model->uid = $user->uid;
         $model->platform = $user->platform;
+        $model->platform_id = $p->id ?: 0;
         $model->gkey = $user->gkey;
         $model->gid = $user->gid;
         $model->server_id = $user->server_id;

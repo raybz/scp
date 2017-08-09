@@ -15,7 +15,6 @@ class m170807_053805_platform extends Migration
             'abbreviation' => $this->string()->notNull()->defaultValue('')->comment('平台英文缩写'),
             'status' => $this->smallInteger(6)->notNull()->defaultValue(1),
             'created_at' => $this->dateTime()->notNull()->defaultValue('0000-00-00 00:00:00'),
-            'created_by' => $this->integer()->notNull()->defaultValue(0),
             'updated_at' => $this->dateTime()->notNull()->defaultValue('0000-00-00 00:00:00'),
             'updated_by' => $this->integer()->notNull()->defaultValue(0),
         ]);

@@ -2,8 +2,10 @@
 
 namespace backend\controllers;
 
+use common\models\Arrange;
 use common\models\Game;
 use common\models\Payment;
+use common\models\Platform;
 use Yii;
 use yii\helpers\Json;
 use yii\web\Controller;
@@ -105,7 +107,6 @@ class ApiController extends Controller
 
     public function actionGamePaymentPie()
     {
-        Yii::$app->response->format = Response::FORMAT_JSON;
         $gameId = Yii::$app->request->get('gid');
         $platform = Yii::$app->request->get('platform');
 
@@ -146,5 +147,108 @@ class ApiController extends Controller
                 'series' => [$series],
             ],
         ];
+    }
+
+    public function actionPlatformPaymentPie()
+    {
+        $gameId = Yii::$app->request->get('gid');
+        $platform = Yii::$app->request->get('platform');
+
+        $from = Yii::$app->request->get('from', date('Y-m-d'));
+        $to = Yii::$app->request->get('to', date('Y-m-d'));
+        $gameList = Json::decode($gameId);
+        $platformList = Json::decode($platform);
+        $pTotal = Arrange::getDataByPlatform($from, $to, $gameList, $platformList);
+        $tMoney = [];
+        foreach ($pTotal as $p)
+        {
+            $tMoney[] = $p['pay_money_sum'];
+        }
+        $totalMoney = array_sum($tMoney);
+        $data = [];
+        $series = [];
+
+
+        foreach ($platformList as $platform) {
+            if (is_numeric($platform)) {
+                if ($totalMoney <= 0) {
+                    $y = 0;
+                } else {
+                    $perPlatformSum = $pTotal[$platform]['pay_money_sum'] ?? 0;
+                    $y = round(($perPlatformSum) / $totalMoney, 4) * 100;
+                }
+                $g = Platform::findOne($platform);
+                $data[] = [
+                    'name' => $g ? $g['name'] : '',
+                    'y' => $y,
+                ];
+            }
+        }
+        if ($data) {
+            $series = [
+                'name' => '占比',
+                'colorByPoint' => true,
+                'data' => $data,
+            ];
+        }
+
+        return [
+            'code' => 200,
+            'data' => [
+                'series' => [$series],
+            ],
+        ];
+    }
+
+    public function actionPlatformPaymentSpline()
+    {
+        $from = Yii::$app->request->get('from', date('Y-m-d'));
+        $to = Yii::$app->request->get('to', date('Y-m-d', strtotime('tomorrow')));
+        $platform = Yii::$app->request->get('platform');
+        $gameId = Yii::$app->request->get('gid');
+
+        $platformList = Json::decode($platform);
+        $gameList = Json::decode($gameId);
+
+        $diff_day = intval((strtotime($to) - strtotime($from)) / 86400);
+
+        $rangeTime = range(0, $diff_day - 1);
+        $dataAll = [];
+        $rangeData = [];
+        foreach ($rangeTime as $day) {
+            $rangeData[] = date('Y-m-d', strtotime($from. $day.' day'));
+            foreach ($platformList as $platform) {
+                if (is_numeric($platform)) {
+
+                    $g = Platform::findOne($platform);
+
+                    $dataAll[$platform]['name'] = $g['name'];
+
+                    $f = date('Y-m-d', strtotime($from.$day.' day'));
+                    $t = date('Y-m-d', strtotime($from.($day + 1).' day'));
+                    if (strtotime($to) > strtotime($t)){
+                        $pTotal = Arrange::getDataByPlatform($f, $t, $gameList, $platformList);
+                        $dataAll[$platform]['data'][] = isset($pTotal[$platform]['pay_money_sum']) ? intval($pTotal[$platform]['pay_money_sum']): 0;
+                    }
+
+
+                }
+            }
+        }
+        $data = array_values($dataAll);
+
+        return [
+            'code' => 200,
+            'data' => [
+                'title' => '',
+                'xAxis' => $rangeData,
+                'series' => $data,
+            ],
+        ];
+    }
+
+    public function actionGetPlatformByGame()
+    {
+//        Game::
     }
 }

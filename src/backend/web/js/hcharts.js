@@ -13,6 +13,37 @@ function Hcharts(args) {
 }
 
 Hcharts.prototype = {
+    //横柱子图
+    showBar: function () {
+        var _this = this;
+        $.getJSON(this.api, this.param, function(data) {
+            Highcharts.chart(_this.container, {
+                chart: {
+                    plotBackgroundColor: null,
+                    plotBorderWidth: null,
+                    plotShadow: false,
+                    type: 'bar'
+                },
+                title: {
+                    text: _this.title.text,
+                    align: _this.title.align,
+                    x: _this.title.x
+                },
+                tooltip: {
+                    pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                },
+                plotOptions: {
+                    bar: {
+                        dataLabels: {
+                            enabled: true
+                        }
+                    }
+                },
+                series: data.data.series
+            });
+
+        });
+    },
     //饼图
     showPie: function(){
         var _this = this;

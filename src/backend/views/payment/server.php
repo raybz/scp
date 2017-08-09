@@ -25,10 +25,15 @@ $this->title = '概况';
 
                 <div class="col-md-12">
                     <div class="col-md-1">
-                        <?= $form->field($searchModel, 'gid')->widget(\dosamigos\multiselect\MultiSelect::className(),
+                        <?= $form->field($searchModel, 'gid')->widget(kartik\select2\Select2::className(), [
+                            'data' => \common\models\Game::gameDropDownData(),
+                        ])?>
+                    </div>
+                    <div class="col-md-1">
+                        <?= $form->field($searchModel, 'platform')->widget(\dosamigos\multiselect\MultiSelect::className(),
                             [
                                 "options" => ['multiple' => "multiple"],
-                                'data' => \common\models\Game::gameDropDownData(),
+                                'data' => \common\models\Platform::platformDropDownData(),
                                 "clientOptions" =>
                                     [
                                         'enableFiltering' => true,
@@ -36,12 +41,12 @@ $this->title = '概况';
                                         "includeSelectAllOption" => true,
                                         'numberDisplayed' => false,
                                         'maxHeight' => 0,
-                                        'nonSelectedText' => '选择游戏',
+                                        'nonSelectedText' => '请选择平台',
                                     ],
                             ]) ?>
                     </div>
                     <div class="col-md-1">
-                        <?= $form->field($searchModel, 'platform')->widget(\dosamigos\multiselect\MultiSelect::className(),
+                        <?= $form->field($searchModel, 'server_id')->widget(\dosamigos\multiselect\MultiSelect::className(),
                             [
                                 "options" => ['multiple' => "multiple"],
                                 'data' => \common\models\Platform::platformDropDownData(),

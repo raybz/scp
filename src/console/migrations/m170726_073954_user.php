@@ -11,8 +11,9 @@ class m170726_073954_user extends Migration
     {
         $this->createTable($this->tableName, [
             'id' => $this->primaryKey(),
-            'uid' => $this->string()->notNull()->comment('平台'),
-            'platform' => $this->string()->notNull()->comment('平台ID'),
+            'uid' => $this->string()->notNull(),
+            'platform' => $this->string()->notNull()->comment('平台'),
+            'platform_id' => $this->string()->notNull()->comment('平台ID'),
             'gkey' => $this->string()->notNull()->comment('游戏名'),
             'gid' => $this->integer()->notNull()->comment('游戏ID'),
             'server_id' => $this->string()->notNull()->defaultValue('')->comment('区服ID'),

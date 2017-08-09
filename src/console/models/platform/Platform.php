@@ -3,11 +3,15 @@
 namespace console\models\platform;
 
 use common\models\Game;
+use common\models\GamePlatformServer;
 use common\models\Payment;
 use console\models\LoginLogTable;
+use yii\base\Model;
 
-class Platform
+class Platform extends Model
 {
+    const EVENT_BEFORE_CREATE = 'before_create';
+
     public static $url_param;
 
     protected static function uniformPayData($param)
@@ -20,31 +24,77 @@ class Platform
         return $param;
     }
 
+
+
     public static function savePay()
     {
         $payObj = self::parse(static::uniformPayData(self::paramData()));
-        //添加平台
-        \common\models\Platform::storeData($payObj);
-        $result = Payment::storeData($payObj);
 
-        return $result;
+        $transaction = \Yii::$app->db->beginTransaction();
+        try {
+            $mod = new self;
+            $mod->_eventBefore($payObj);
+            $result = Payment::storeData($payObj);
+            $transaction->commit();
+            return $result;
+        }catch (\Exception $e) {
+            var_dump($e->getMessage());
+            $transaction->rollBack();
+            return null;
+        }
     }
 
     public static function saveLogin()
     {
         $loginObj = self::parse(static::uniformLoginData(self::paramData()));
 
+
+        $transaction = \Yii::$app->db->beginTransaction();
         if (isset($loginObj->time) && $loginObj->time > 0 && isset($loginObj->uid) && $loginObj->uid) {
-            //添加平台
-            \common\models\Platform::storeData($loginObj);
+            try {
+                $mod = new self;
+                $mod->_eventBefore($loginObj);
+                $result = LoginLogTable::storeData($loginObj);
+                $transaction->commit();
 
-            LoginLogTable::newTable($loginObj->time);
-            $result = LoginLogTable::storeData($loginObj);
+                return $result;
+            } catch (\Exception $e) {
+                var_dump($e->getMessage());
+                $transaction->rollBack();
 
-            return $result;
+                return ['', '', ''];
+            }
         }
-
         return ['', '', ''];
+//        if (isset($loginObj->time) && $loginObj->time > 0 && isset($loginObj->uid) && $loginObj->uid) {
+//            //添加平台
+//            $platform = new \common\models\Platform();
+//            $platform->storeData($loginObj);
+//
+//            LoginLogTable::newTable($loginObj->time);
+//            $result = LoginLogTable::storeData($loginObj);
+//
+//            return $result;
+//        }
+//
+//        return ['', '', ''];
+    }
+
+    protected function _eventBefore($data)
+    {
+        $this->on(self::EVENT_BEFORE_CREATE, [$this, '_eventAddPlatform'], $data);
+        $this->on(self::EVENT_BEFORE_CREATE, [$this, '_eventAddServer'], $data);
+        $this->trigger(self::EVENT_BEFORE_CREATE);
+    }
+
+    protected function _eventAddPlatform($event){
+        $platform = new \common\models\Platform();
+        $platform->storeData($event->data);
+    }
+
+    protected function _eventAddServer($event){
+        $server = new GamePlatformServer();
+        $server->storeData($event->data);
     }
 
     protected static function parse($paramArr)
@@ -72,6 +122,9 @@ class Platform
             $p = explode('=', $val);
             if (trim($p[0], ' ') == 'back_url') {
                 $p[1] = urldecode($p[1]);
+            }
+            if (trim($p[0], ' ') == 'server_id') {
+                $p[1] = str_replace('s', '', $p[1]);
             }
             $newParam[trim($p[0], ' ')] = $p[1];
         }

@@ -116,10 +116,6 @@ $this->title = '概况';
         'hAlign' => 'center',
     ],
     [
-        'attribute' => 'platform',
-        'hAlign' => 'center',
-    ],
-    [
         'attribute' => 'active',
         'hAlign' => 'center',
     ],

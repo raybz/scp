@@ -81,15 +81,15 @@ class Payment extends \yii\db\ActiveRecord
     {
         $game = Game::findOne(['gkey' => $data->gkey]);
         if (!$game) {
-            return null;
+            return 'lose gkey';
         }
         $user = User::getUser($data->uid, $data->platform, $game->id);
         if (!$user) {
-            return null;
+            return 'lose user';
         }
         $pf = Platform::getPlatform($data->platform);
         if (!$pf) {
-            return null;
+            return 'lose platform';
         }
         $model = new self;
         $model->uid = $data->uid;
@@ -123,7 +123,7 @@ class Payment extends \yii\db\ActiveRecord
         }
     }
 
-    public static function getPerTimeMoney($game_id = null, $from = null, $to = null, $user_id = null, $platform_id = null)
+    public static function getPerTimeMoney($game_id = null, $from = null, $to = null, $user_id = null, $platform_id = null, $server_id = null)
     {
         $from = $from ?: strtotime(date('Y-m-d'));
         $to = $to ?: strtotime(date('Y-m-d').'+1 hour');
@@ -133,6 +133,7 @@ class Payment extends \yii\db\ActiveRecord
             ->andFilterWhere(['<', 'time', $to])
             ->andFilterWhere(['user_id' => $user_id])
             ->andFilterWhere([Payment::tableName().'.platform_id' => $platform_id])
+            ->andFilterWhere([Payment::tableName().'.server_id' => $server_id])
             ->andFilterWhere(['g.id' => $game_id])
 
 //            ->createCommand()->rawSql;
@@ -142,7 +143,7 @@ class Payment extends \yii\db\ActiveRecord
         return $data ?? 0;
     }
 
-    public static function getPerTimeMan($game_id = null, $from = null, $to = null, $user_id = null, $platform_id = null)
+    public static function getPerTimeMan($game_id = null, $from = null, $to = null, $user_id = null, $platform_id = null, $server_id = null)
     {
         $from = $from ?: strtotime(date('Y-m-d'));
         $to = $to ?: strtotime(date('Y-m-d').'+1 hour');
@@ -152,9 +153,9 @@ class Payment extends \yii\db\ActiveRecord
             ->andFilterWhere(['<', 'time', $to])
             ->andFilterWhere(['user_id' => $user_id])
             ->andFilterWhere([Payment::tableName().'.platform_id' => $platform_id])
+            ->andFilterWhere([Payment::tableName().'.server_id' => $server_id])
             ->andFilterWhere(['g.id' => $game_id])
 
-//            ->groupBy(['payment.platform', 'payment.uid'])
 //            ->createCommand()->rawSql;
             ->count();
 

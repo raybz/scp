@@ -25,7 +25,7 @@ class DayArrangeSearch extends DayArrange
                 ['id', 'register', 'active', 'max_online', 'avg_online', 'pay_man_sum', 'register_pay_man_sum'],
                 'integer',
             ],
-            [['date', 'created_at', 'from', 'to','platform', 'time', 'gid'], 'safe'],
+            [['date', 'created_at', 'from', 'to', 'platform', 'time', 'gid'], 'safe'],
             [['pay_money_sum', 'register_pay_money_sum'], 'number'],
         ];
     }
@@ -83,7 +83,7 @@ class DayArrangeSearch extends DayArrange
         );
 
         $query->andFilterWhere(['>=', 'date', $this->from])
-            ->andFilterWhere(['<', 'date', $this->to]);
+            ->andFilterWhere(['<=', 'date', $this->to]);
 
         return $dataProvider;
     }
