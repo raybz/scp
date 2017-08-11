@@ -13,7 +13,7 @@ class m170809_032139_game_platform_server extends Migration
             'id' => $this->primaryKey(),
             'game_id' => $this->integer()->notNull()->comment('游戏ID'),
             'platform_id' => $this->integer()->notNull()->comment('平台ID'),
-            'server_id' => $this->string()->notNull()->comment('区服ID'),
+            'server_id' => $this->integer()->notNull()->comment('区服ID'),
             'status' => $this->smallInteger(6)->notNull()->defaultValue(1),
             'created_at' => $this->dateTime()->notNull(),
         ]);
