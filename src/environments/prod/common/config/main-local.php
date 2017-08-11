@@ -12,6 +12,9 @@ return [
             'username' => 'scp_2144_cn',
             'password' => 'kIEmTOB4yOYM',
         ],
+        /**
+         * 日志库
+         */
         'log_scp' => [
             'class' => 'yii\db\Connection',
             'charset' => 'utf8',
