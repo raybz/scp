@@ -12,7 +12,13 @@ return [
             'username' => 'scp_2144_cn',
             'password' => 'kIEmTOB4yOYM',
         ],
-
+        'log_scp' => [
+            'class' => 'yii\db\Connection',
+            'charset' => 'utf8',
+            'dsn' => 'mysql:host=10.66.222.80;port=3306;dbname=log_scp_2144_cn',
+            'username' => 'scp_2144_cn',
+            'password' => 'kIEmTOB4yOYM',
+        ],
         /**
          * Redis 缓存
          */
