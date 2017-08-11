@@ -2,9 +2,12 @@
 
 namespace backend\controllers;
 
+use backend\models\search\GamePaymentSearch;
 use backend\models\search\PlatformPaymentSearch;
 use backend\models\search\DayArrangeSearch;
+use backend\models\search\ServerPaymentSearch;
 use common\models\Game;
+use common\models\GamePlatformServer;
 use common\models\Platform;
 use Yii;
 use common\models\Payment;
@@ -39,23 +42,29 @@ class PaymentController extends Controller
      */
     public function actionIndex()
     {
-        $searchModel = new DayArrangeSearch();
-        $get = Yii::$app->request->get('DayArrangeSearch');
-        if ($searchModel->from == null || $searchModel->to == null || $searchModel->gid == null) {
+        $searchModel = new GamePaymentSearch();
+        $searchModel->attributes = Yii::$app->request->get('GamePaymentSearch');
+        if ($searchModel->from == null || $searchModel->go == null) {
             $searchModel->from = date('Y-m-d', strtotime('-1 week'));
+            $searchModel->go = date('Y-m-d', strtotime('now'));
             $searchModel->to = date('Y-m-d', strtotime('tomorrow'));
-        }
-        if(isset($get['gid']) && !empty($get['gid'])){
-            $gidStr = Json::encode($get['gid']);
         } else {
-            $gidStr = Json::encode(array_keys(Game::gameDropDownData()));
+            $searchModel->to = date('Y-m-d', strtotime($searchModel->go.'+1 day'));
         }
-        if(isset($get['platform']) && !empty($get['platform'])){
-            $platformStr = Json::encode($get['platform']);
+        if($searchModel->game_id == null){
+            $searchModel->game_id = array_keys(Game::gameDropDownData());
+            $gidStr = serialize($searchModel->game_id);
         } else {
-            $platformStr = Json::encode(array_keys(Platform::platformDropDownData()));
+            $gidStr = serialize($searchModel->game_id);
         }
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+
+        if($searchModel->platform_id == null){
+            $searchModel->platform_id = array_keys(Platform::platformDropDownData());
+            $platformStr = serialize($searchModel->platform_id);
+        } else {
+            $platformStr = serialize($searchModel->platform_id);
+        }
+        $dataProvider = $searchModel->search();
 
         return $this->render('index', [
             'searchModel' => $searchModel,
@@ -69,25 +78,28 @@ class PaymentController extends Controller
     public function actionPlatform()
     {
         $searchModel = new PlatformPaymentSearch();
-        $get = Yii::$app->request->get('PlatformPaymentSearch');
-        $searchModel->attributes = $get;
-        if ($searchModel->from == null || $searchModel->to == null) {
+        $searchModel->attributes = Yii::$app->request->get('PlatformPaymentSearch');
+        if ($searchModel->from == null || $searchModel->go == null) {
             $searchModel->from = date('Y-m-d', strtotime('-1 week'));
             $searchModel->go = date('Y-m-d', strtotime('now'));
             $searchModel->to = date('Y-m-d', strtotime('tomorrow'));
         } else {
             $searchModel->to = date('Y-m-d', strtotime($searchModel->go. '+1 day'));
         }
-        if(isset($get['gid']) && !empty($get['gid'])){
-            $gidStr = Json::encode($get['gid']);
+        if($searchModel->game_id == null){
+            $searchModel->game_id = array_keys(Game::gameDropDownData());
+            $gidStr = serialize($searchModel->game_id);
         } else {
-            $gidStr = Json::encode(array_keys(Game::gameDropDownData()));
+            $gidStr = serialize($searchModel->game_id);
         }
-        if(isset($get['platform']) && !empty($get['platform'])){
-            $platformStr = Json::encode($get['platform']);
+
+        if($searchModel->platform_id == null){
+            $searchModel->platform_id = array_keys(Platform::platformDropDownData());
+            $platformStr = serialize($searchModel->platform_id);
         } else {
-            $platformStr = Json::encode(array_keys(Platform::platformDropDownData()));
+            $platformStr = serialize($searchModel->platform_id);
         }
+
         $dataProvider = $searchModel->search();
 
         return $this->render('platform', [
@@ -100,48 +112,39 @@ class PaymentController extends Controller
 
     public function actionServer()
     {
-        $searchModel = new PlatformPaymentSearch();
-        $get = Yii::$app->request->get('PlatformPaymentSearch');
-        $searchModel->attributes = $get;
-        if ($searchModel->from == null || $searchModel->to == null) {
+        $searchModel = new ServerPaymentSearch();
+        $searchModel->attributes =  Yii::$app->request->get('ServerPaymentSearch');
+        if ($searchModel->from == null || $searchModel->to == null || $searchModel->game_id = null) {
+            $searchModel->game_id = 1001;
             $searchModel->from = date('Y-m-d', strtotime('-1 week'));
             $searchModel->go = date('Y-m-d', strtotime('now'));
             $searchModel->to = date('Y-m-d', strtotime('tomorrow'));
         } else {
             $searchModel->to = date('Y-m-d', strtotime($searchModel->go. '+1 day'));
         }
-        if(isset($get['gid']) && !empty($get['gid'])){
-            $gidStr = Json::encode($get['gid']);
+
+        if($searchModel->platform_id == null){
+            $searchModel->platform_id = array_keys(Platform::platformDropDownData());
+            $platformStr = serialize($searchModel->platform_id);
         } else {
-            $gidStr = Json::encode(array_keys(Game::gameDropDownData()));
+            $platformStr = serialize($searchModel->platform_id);
         }
-        if(isset($get['platform']) && !empty($get['platform'])){
-            $platformStr = Json::encode($get['platform']);
+
+        if($searchModel->server_id == null){
+//            dump($searchModel->game_id);dump($searchModel->platform_id);
+            $searchModel->server_id = array_keys(GamePlatformServer::ServerDataDropData($searchModel->game_id, $searchModel->platform_id));
+//            dump($searchModel->server_id);
+            $serverStr = serialize($searchModel->server_id);
         } else {
-            $platformStr = Json::encode(array_keys(Platform::platformDropDownData()));
+            $serverStr = serialize($searchModel->server_id);
         }
         $dataProvider = $searchModel->search();
 
         return $this->render('server', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
-            'gidStr' => $gidStr,
             'platformStr' => $platformStr,
+            'serverStr' => $serverStr,
         ]);
-    }
-    /**
-     * Finds the Payment model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param integer $id
-     * @return Payment the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    protected function findModel($id)
-    {
-        if (($model = Payment::findOne($id)) !== null) {
-            return $model;
-        } else {
-            throw new NotFoundHttpException('The requested page does not exist.');
-        }
     }
 }

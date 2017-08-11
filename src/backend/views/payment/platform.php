@@ -4,9 +4,7 @@ use kartik\grid\GridView;
 
 \backend\assets\HighChartsAssets::register($this);
 $this->title = '概况';
-/* @var $searchModel \backend\models\search\DashBoardSearch*/
-/* @var $threeDayDataProvider \backend\models\search\DashBoardSearch*/
-/* @var $monthDataProvider \backend\models\search\DashBoardSearch*/
+/* @var $searchModel \backend\models\search\PlatformPaymentSearch*/
 ?>
     <style>
         .select2-container .select2-selection--single .select2-selection__rendered{
@@ -22,10 +20,9 @@ $this->title = '概况';
                         'action' => '/payment/platform',
                     ]
                 ); ?>
-
                 <div class="col-md-12">
                     <div class="col-md-1">
-                        <?= $form->field($searchModel, 'gid')->widget(\dosamigos\multiselect\MultiSelect::className(),
+                        <?= $form->field($searchModel, 'game_id')->widget(\dosamigos\multiselect\MultiSelect::className(),
                             [
                                 "options" => ['multiple' => "multiple"],
                                 'data' => \common\models\Game::gameDropDownData(),
@@ -38,23 +35,19 @@ $this->title = '概况';
                                         'maxHeight' => 0,
                                         'nonSelectedText' => '选择游戏',
                                     ],
-                            ]) ?>
+                            ])->label('游戏:') ?>
                     </div>
                     <div class="col-md-1">
-                        <?= $form->field($searchModel, 'platform')->widget(\dosamigos\multiselect\MultiSelect::className(),
-                            [
-                                "options" => ['multiple' => "multiple"],
-                                'data' => \common\models\Platform::platformDropDownData(),
-                                "clientOptions" =>
-                                    [
-                                        'enableFiltering' => true,
-                                        "selectAllText" => '全选',
-                                        "includeSelectAllOption" => true,
-                                        'numberDisplayed' => false,
-                                        'maxHeight' => 0,
-                                        'nonSelectedText' => '请选择平台',
-                                    ],
-                            ]) ?>
+                        <div class="form-group">
+                            <label class="control-label">平台:</label>
+                            <?php if ($searchModel->platform_id): ?>
+                                <input type="hidden" value="<?= join(',', (array)$searchModel->platform_id); ?>"
+                                       id="selected_platform_id"/>
+                            <?php endif; ?>
+                            <?= \yii\helpers\Html::dropDownList('PlatformPaymentSearch[platform_id][]', null, [], [
+                                    'id' => 'platform_select_multi', 'multiple' => true]
+                            ); ?>
+                        </div>
                     </div>
                     <div class="col-md-3">
                         <?= $form->field($searchModel, 'time')->widget(\kartik\daterange\DateRangePicker::className(),[
@@ -64,7 +57,7 @@ $this->title = '概况';
                             'pluginOptions'=>[
                                 'locale'=>['format' => 'Y-m-d'],
                             ]
-                        ])->label('日期') ?>
+                        ])->label('日期:') ?>
                     </div>
                     <div class="col-md-1">
                         <?= \yii\helpers\Html::submitButton('搜索', ['class' => 'btn btn-success btn-flat', 'style' => 'margin-top: 25px;'])?>
@@ -276,4 +269,22 @@ $charts = <<<EOL
         chart.showSpline();
 EOL;
 $this->registerJs($charts);
+?>
+<?php
+$this->registerJsFile('/js/linkage_multi.js', [
+    'depends' => [
+        'backend\assets\MultiSelectFilterAsset'
+    ]
+]);
+$script = <<<EOL
+    var Component = new IMultiSelect({
+           original: '#platformpaymentsearch-game_id',
+           aim: '#platform_select_multi',
+           selected_values_id: '#selected_platform_id',
+           url:'/api/get-platform-by-game'
+    });
+    Component.start();
+EOL;
+
+$this->registerJs($script);
 ?>

@@ -127,7 +127,7 @@ class Arrange extends \yii\db\ActiveRecord
         }
     }
 
-    public static function getDataByPlatform($from, $to, $gid = null,$platform_id = null)
+    public static function getDataByPlatform($from, $to, $gid = null,$platform_id = null, $groupBy = null, $indexBy = null)
     {
         $query = (new Query())->from('arrange')
             ->select([
@@ -147,11 +147,45 @@ class Arrange extends \yii\db\ActiveRecord
                     ':to' => $to
                 ])
             ->andFilterWhere(['game_id' => $gid])
-            ->andFilterWhere(['platform_id' => $platform_id])
-            ->groupBy('platform_id')
-            ->indexBy('platform_id');
+            ->andFilterWhere(['platform_id' => $platform_id]);
+        if (!$groupBy) {
+            $query->groupBy('platform_id');
+        } else {
+            $query->groupBy($groupBy);
+        }
+        if (!$indexBy) {
+            $query->indexBy('platform_id');
+        } else {
+            $query->indexBy($platform_id);
+        }
 
         $result = $query->all();
+
+        return $result;
+    }
+    public static function getOneDataByGame($from, $to, $gid = null,$groupBy = 'game_id')
+    {
+        $query = (new Query())->from('arrange')
+            ->select([
+                'date',
+                'game_id',
+                'platform_id',
+                'sum(new) new_sum',
+                'sum(active) active_sum',
+                'sum(pay_man) pay_man_sum',
+                'sum(pay_money) pay_money_sum',
+                'sum(new_pay_man) new_pay_man_sum',
+                'sum(new_pay_money) new_pay_money_sum',
+            ])
+            ->where('date >= :from AND date < :to',
+                [
+                    ':from' => $from,
+                    ':to' => $to
+                ])
+            ->andFilterWhere(['game_id' => $gid]);
+            $query->groupBy($groupBy);
+
+        $result = $query->one();
 
         return $result;
     }

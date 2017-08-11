@@ -8,6 +8,11 @@ $this->title = '概况';
 /* @var $threeDayDataProvider \backend\models\search\DashBoardSearch*/
 /* @var $monthDataProvider \backend\models\search\DashBoardSearch*/
 ?>
+    <style>
+        .select2-container .select2-selection--single .select2-selection__rendered{
+            margin-top: 0;
+        }
+    </style>
 <div class="box box-default">
     <!--折线图-->
     <div class="box-header with-border">
@@ -53,10 +58,10 @@ $this->title = '概况';
             <div class="col-md-12">
 
                 <div class="col-md-1">
-                    <?= $form->field($searchModel, 'gid')->widget(\kartik\select2\Select2::className(),[
+                    <?= $form->field($searchModel, 'game_id')->widget(\kartik\select2\Select2::className(),[
                         'data' => \common\models\Game::gameDropDownData(),
                         'options' => ['placeholder' => '请选择游戏'],
-                    ]) ?>
+                    ])->label('游戏:') ?>
                 </div>
                 <div class="col-md-1">
                     <?= $form->field($searchModel, 'to')->widget(\kartik\date\DatePicker::className(),[
@@ -67,7 +72,7 @@ $this->title = '概况';
                             'format' => 'yyyy-mm-dd',
                             'autoclose' => true,
                         ],
-                    ])->label('日期') ?>
+                    ])->label('日期:') ?>
                 </div>
                 <div class="col-md-1">
                     <?= \yii\helpers\Html::submitButton('搜索', ['class' => 'btn btn-success btn-flat', 'style' => 'margin-top: 25px;'])?>
@@ -86,9 +91,9 @@ $this->title = '概况';
         'pageSummary' => '增幅'
     ],
     [
-        'attribute' => 'register',
+        'attribute' => 'new_sum',
         'hAlign' => 'center',
-        'label' => '注册(%)',
+        'label' => '注册',
         'pageSummary' => function ($data, $key) {
             if (isset($key[0]) && isset($key[1]) && $key[0] > 0) {
                 $diff = $key[1] - $key[0];
@@ -104,7 +109,7 @@ $this->title = '概况';
     [
         'attribute' => 'max_online',
         'hAlign' => 'center',
-        'label' => '最高在线(%)',
+        'label' => '最高在线',
         'pageSummary' => function ($data, $key) {
             if (isset($key[0]) && isset($key[1]) && $key[0] > 0) {
                 $diff = $key[1] - $key[0];
@@ -120,7 +125,7 @@ $this->title = '概况';
     [
         'attribute' => 'avg_online',
         'hAlign' => 'center',
-        'label' => '平均在线(%)',
+        'label' => '平均在线',
         'pageSummary' => function ($data, $key) {
             if (isset($key[0]) && isset($key[1]) && $key[0] > 0) {
                 $diff = $key[1] - $key[0];
@@ -136,11 +141,17 @@ $this->title = '概况';
     [
         'attribute' => 'pay_money_sum',
         'hAlign' => 'center',
-        'label' => '充值金额(%)',
+        'label' => '充值金额',
+        'value' => function($data){
+            if(is_numeric($data['pay_money_sum'])){
+                return Yii::$app->formatter->asDecimal($data['pay_money_sum']);
+            }
+            return $data['pay_money_sum'];
+        },
         'pageSummary' => function ($data, $key) {
             if (isset($key[0]) && isset($key[1]) && $key[0] > 0) {
                 $diff = $key[1] - $key[0];
-                $MoM = ($diff / $key[0]) * 100;
+                $MoM = $diff / $key[0] * 100;
 
                 return Yii::$app->formatter->asDecimal($MoM);
             } else {
@@ -152,7 +163,7 @@ $this->title = '概况';
     [
         'attribute' => 'pay_man_sum',
         'hAlign' => 'center',
-        'label' => '充值人数(%)',
+        'label' => '充值人数',
         'pageSummary' => function ($data, $key) {
             if (isset($key[0]) && isset($key[1]) && $key[0] > 0) {
                 $diff = $key[1] - $key[0];

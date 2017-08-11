@@ -4,9 +4,7 @@ use kartik\grid\GridView;
 
 \backend\assets\HighChartsAssets::register($this);
 $this->title = '概况';
-/* @var $searchModel \backend\models\search\DashBoardSearch*/
-/* @var $threeDayDataProvider \backend\models\search\DashBoardSearch*/
-/* @var $monthDataProvider \backend\models\search\DashBoardSearch*/
+/* @var $searchModel \backend\models\search\ServerPaymentSearch*/
 ?>
     <style>
         .select2-container .select2-selection--single .select2-selection__rendered{
@@ -19,47 +17,39 @@ $this->title = '概况';
                 <?php $form = \yii\widgets\ActiveForm::begin(
                     [
                         'method' => 'get',
-                        'action' => '/payment/platform',
+                        'action' => '/payment/server',
                     ]
                 ); ?>
 
                 <div class="col-md-12">
                     <div class="col-md-1">
-                        <?= $form->field($searchModel, 'gid')->widget(kartik\select2\Select2::className(), [
+                        <?= $form->field($searchModel, 'game_id')->widget(kartik\select2\Select2::className(), [
                             'data' => \common\models\Game::gameDropDownData(),
-                        ])?>
+                        ])->label('游戏:')?>
                     </div>
                     <div class="col-md-1">
-                        <?= $form->field($searchModel, 'platform')->widget(\dosamigos\multiselect\MultiSelect::className(),
-                            [
-                                "options" => ['multiple' => "multiple"],
-                                'data' => \common\models\Platform::platformDropDownData(),
-                                "clientOptions" =>
-                                    [
-                                        'enableFiltering' => true,
-                                        "selectAllText" => '全选',
-                                        "includeSelectAllOption" => true,
-                                        'numberDisplayed' => false,
-                                        'maxHeight' => 0,
-                                        'nonSelectedText' => '请选择平台',
-                                    ],
-                            ]) ?>
+                        <div class="form-group">
+                            <label class="control-label">平台:</label>
+                            <?php if ($searchModel->platform_id): ?>
+                                <input type="hidden" value="<?= join(',', (array) $searchModel->platform_id); ?>"
+                                       id="selected_platform_id"/>
+                            <?php endif; ?>
+                            <?= \yii\helpers\Html::dropDownList('ServerPaymentSearch[platform_id][]', null, [], [
+                                    'id' => 'server-payment-search-platform', 'multiple' => true]
+                            ); ?>
+                        </div>
                     </div>
                     <div class="col-md-1">
-                        <?= $form->field($searchModel, 'server_id')->widget(\dosamigos\multiselect\MultiSelect::className(),
-                            [
-                                "options" => ['multiple' => "multiple"],
-                                'data' => \common\models\Platform::platformDropDownData(),
-                                "clientOptions" =>
-                                    [
-                                        'enableFiltering' => true,
-                                        "selectAllText" => '全选',
-                                        "includeSelectAllOption" => true,
-                                        'numberDisplayed' => false,
-                                        'maxHeight' => 0,
-                                        'nonSelectedText' => '请选择平台',
-                                    ],
-                            ]) ?>
+                        <div class="form-group">
+                            <label class="control-label">区服:</label>
+                            <?php if ($searchModel->server_id): ?>
+                                <input type="hidden" value="<?= join(',', (array) $searchModel->server_id); ?>"
+                                       id="selected_server_id"/>
+                            <?php endif; ?>
+                            <?= \yii\helpers\Html::dropDownList('ServerPaymentSearch[server_id][]', null, [], [
+                                    'id' => 'server-payment-search-server', 'multiple' => true]
+                            ); ?>
+                        </div>
                     </div>
                     <div class="col-md-3">
                         <?= $form->field($searchModel, 'time')->widget(\kartik\daterange\DateRangePicker::className(),[
@@ -91,25 +81,10 @@ $this->title = '概况';
             </div>
         </div>
         <div class="box-body">
-            <div id="per-hour-money-container"></div>
+            <div id="per-day-server-bar-container" style="height: 800px"></div>
         </div>
     </div>
 
-    <div class="box box-default">
-        <!--折线图-->
-        <div class="box-header with-border">
-            <h3 class="box-title">图表</h3>
-            <div class="box-tools pull-right">
-                <button class="btn btn-box-tool" data-widget="collapse">
-                    <i class="fa fa-minus"></i>
-                </button>
-                <button class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
-            </div>
-        </div>
-        <div class="box-body">
-            <div id="per-hour-man-container"></div>
-        </div>
-    </div>
 
 <?php $columns = [
     ['class' => '\kartik\grid\SerialColumn'],
@@ -118,6 +93,14 @@ $this->title = '概况';
         'value' => function($data){
             $game = \common\models\Platform::findOne($data['platform_id']);
             return $game->name ?? '';
+        },
+        'hAlign' => 'center',
+        'pageSummary' => '汇总',
+    ],
+    [
+        'label' => '区服',
+        'value' => function($data){
+            return $data['server_id'];
         },
         'hAlign' => 'center',
         'pageSummary' => '汇总',
@@ -235,50 +218,56 @@ $this->title = '概况';
     ]
 ); ?>
 <?php
-//每时/充值走势图
-$pay_charts = <<<EOL
-        var param = {
-            api: '/api/platform-payment-pie?',
-            title: {
-                text: '平台收入占比',
-                align: 'left',
-                x: 70
-            },
-            subtitle:'',
-            container: 'per-hour-money-container',
-            xAxis: 'dateTimeLabelFormats',
-            param: {
-                gid: '{$gidStr}',
-                platform: '{$platformStr}',
-                from: '{$searchModel->from}',
-                to: '{$searchModel->to}',
-            }
-        };
-        var chart = new Hcharts(param);
-        chart.showPie();
-EOL;
-$this->registerJs($pay_charts);
-//每时/充值人数走势图
 $charts = <<<EOL
         var param = {
-            api: '/api/platform-payment-spline?',
+            api: '/api/server-payment-bar?',
             title: {
-                text: '平台收入趋势',
+                text: '区服收入对比',
                 align: 'left',
                 x: 70
             },
             subtitle:'',
-            container: 'per-hour-man-container',
-            xAxis: 'dateTimeLabelFormats',
+            container: 'per-day-server-bar-container',
             param: {
-                gid: '{$gidStr}',
+                gid: '{$searchModel->game_id}',
                 platform: '{$platformStr}',
+                server:'{$serverStr}',
                 from: '{$searchModel->from}',
                 to: '{$searchModel->to}',
             }
         };
         var chart = new Hcharts(param);
-        chart.showSpline();
+        chart.showBar();
 EOL;
 $this->registerJs($charts);
+?>
+<?php
+$this->registerJsFile('/js/linkage_multi.js', [
+    'depends' => [
+        'backend\assets\MultiSelectFilterAsset'
+    ]
+]);
+$script = <<<EOL
+    var Component = new IMultiSelect({
+        original: '#serverpaymentsearch-game_id',
+        aim: '#server-payment-search-platform',
+        selected_values_id: '#selected_platform_id',
+        url:'/api/get-platform-by-game'
+    });
+    Component.start();
+EOL;
+
+$this->registerJs($script);
+$script = <<<EOL
+    var Component = new IMultiSelect({
+        original: '#server-payment-search-platform',
+        aim: '#server-payment-search-server',
+        selected_values_id: '#selected_server_id',
+        url:'/api/get-server-by-platform',
+        depend:'#serverpaymentsearch-game_id',
+    });
+    Component.start();
+EOL;
+
+$this->registerJs($script);
 ?>

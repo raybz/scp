@@ -2,13 +2,10 @@
 
 namespace backend\models\search;
 
-use common\models\DayArrange;
+use common\models\Arrange;
 use yii\data\ArrayDataProvider;
 
-/**
- * DayArrangeSearch represents the model behind the search form about `common\models\DayArrange`.
- */
-class DashBoardSearch extends DayArrange
+class DashBoardSearch extends Arrange
 {
     const TWO_DAY = 2;
     const THREE_DAY = 3;
@@ -23,7 +20,7 @@ class DashBoardSearch extends DayArrange
     {
         return [
             [['id','register', 'max_online', 'avg_online', 'pay_money_sum', 'pay_man_sum'], 'integer'],
-            [['date', 'created_at', 'to', 'from', 'type', 'gid'], 'safe'],
+            [['date', 'created_at', 'to', 'from', 'type', 'game_id'], 'safe'],
         ];
     }
 
@@ -66,21 +63,37 @@ class DashBoardSearch extends DayArrange
                 $data[1] = $this->arrangeDay(date('Y-m-01', strtotime($this->to)), date('Y-m-d', strtotime($this->to)));
             break;
         }
+
         return $data;
     }
 
 
     protected function arrangeDay($f, $t)
     {
-        $attr = $this->attributes;
-        unset($attr['id'], $attr['date'], $attr['created_at']);
-        $attr = array_keys($attr);
-        $row = [];
-        foreach ($attr as $v){
-            $row['date'] = $f == $t ? $f : $f.'/'.$t;
-            $row[$v] = DayArrange::getColumnSum($v, $f, $t, $this->gid);
+
+        $row  = Arrange::getOneDataByGame($f, $t, $this->game_id);
+        $output = [
+            'new_sum','max_online','pay_money_sum','pay_man_sum','date'
+        ];
+        foreach (array_flip($output) as $k => $v) {
+            $output['new_sum'] = $row['new_sum'] ?? '-';
+            $output['max_online'] = $this->getMaxOnline() ?: '-';
+            $output['avg_online'] = $this->getAvgOnline() ?: '-';
+            $output['pay_money_sum'] = $row['pay_money_sum'] ?? '-';
+            $output['pay_man_sum'] = $row['pay_man_sum'] ?? '-';
+            $output['date'] = $f == $t ? $f : $f.'/'.$t;
         }
 
-        return $row;
+        return $output;
+    }
+
+    public function getMaxOnline()
+    {
+        return '';
+    }
+
+    public function getAvgOnline()
+    {
+        return '';
     }
 }

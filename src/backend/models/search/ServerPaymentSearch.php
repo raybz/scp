@@ -12,7 +12,7 @@ use yii\db\Query;
 /**
  * ArrangeSearch represents the model behind the search form about `common\models\Arrange`.
  */
-class PlatformPaymentSearch extends Arrange
+class ServerPaymentSearch extends Arrange
 {
     public $from;
     public $go;
@@ -53,7 +53,9 @@ class PlatformPaymentSearch extends Arrange
                 ])
             ->andFilterWhere(['game_id' => $this->game_id])
             ->andFilterWhere(['platform_id' => $this->platform_id])
-            ->groupBy('platform_id');
+            ->andFilterWhere(['server_id' => $this->server_id])
+            ->groupBy('platform_id,server_id')
+            ->orderBy('pay_money_sum DESC');
 
         list($sql, $sqlParams) = Yii::$app->db->getQueryBuilder()->build($query);
         $count = count($query->column());

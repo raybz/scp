@@ -102,4 +102,16 @@ class GamePlatformServer extends \yii\db\ActiveRecord
 
         return $result;
     }
+
+    public static function ServerDataDropData($game_id, $platform_id)
+    {
+        $res = self::find()
+            ->where('game_id = :g', [':g' => $game_id])
+            ->andWhere(['platform_id' => $platform_id])
+            ->groupBy('server_id')
+            ->indexBy('id')
+            ->column();
+
+        return $res;
+    }
 }

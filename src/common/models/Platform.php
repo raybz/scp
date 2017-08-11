@@ -73,25 +73,15 @@ class Platform extends \yii\db\ActiveRecord
 
     public function newData($data)
     {
-//        $transaction = \Yii::$app->db->beginTransaction();
-//        try {
-            $model = new self;
-            $model->name = $data->name ?? $data->platform;
-            $model->abbreviation = $data->platform;
-            $model->status = Status::ACTIVE;
-            if ($model->save()) {
-//                //添加区服表
-//                $server = new GamePlatformServer();
-//                $server->storeData($data);
-                return $model->id;
-            } else{
-                var_dump($model->errors);
-            }
-
-//            $transaction->commit();
-//        }catch (\Exception $e){
-//            $transaction->rollBack();
-//        }
+        $model = new self;
+        $model->name = $data->name ?? $data->platform;
+        $model->abbreviation = $data->platform;
+        $model->status = Status::ACTIVE;
+        if ($model->save()) {
+            return $model->id;
+        } else {
+            var_dump($model->errors);
+        }
 
         return null;
     }

@@ -5,8 +5,6 @@ use kartik\grid\GridView;
 \backend\assets\HighChartsAssets::register($this);
 $this->title = '概况';
 /* @var $searchModel \backend\models\search\DashBoardSearch*/
-/* @var $threeDayDataProvider \backend\models\search\DashBoardSearch*/
-/* @var $monthDataProvider \backend\models\search\DashBoardSearch*/
 ?>
     <style>
         .select2-container .select2-selection--single .select2-selection__rendered{
@@ -25,7 +23,7 @@ $this->title = '概况';
 
                 <div class="col-md-12">
                     <div class="col-md-1">
-                        <?= $form->field($searchModel, 'gid')->widget(\dosamigos\multiselect\MultiSelect::className(),
+                        <?= $form->field($searchModel, 'game_id')->widget(\dosamigos\multiselect\MultiSelect::className(),
                             [
                                 "options" => ['multiple' => "multiple"],
                                 'data' => \common\models\Game::gameDropDownData(),
@@ -38,10 +36,10 @@ $this->title = '概况';
                                         'maxHeight' => 0,
                                         'nonSelectedText' => '选择游戏',
                                     ],
-                            ]) ?>
+                            ])->label('游戏:') ?>
                     </div>
                     <div class="col-md-1">
-                        <?= $form->field($searchModel, 'platform')->widget(\dosamigos\multiselect\MultiSelect::className(),
+                        <?= $form->field($searchModel, 'platform_id')->widget(\dosamigos\multiselect\MultiSelect::className(),
                             [
                                 "options" => ['multiple' => "multiple"],
                                 'data' => \common\models\Platform::platformDropDownData(),
@@ -54,17 +52,17 @@ $this->title = '概况';
                                         'maxHeight' => 0,
                                         'nonSelectedText' => '请选择平台',
                                     ],
-                            ]) ?>
+                            ])->label('平台:') ?>
                     </div>
                     <div class="col-md-3">
                         <?= $form->field($searchModel, 'time')->widget(\kartik\daterange\DateRangePicker::className(),[
                             'convertFormat'=>true,
                             'startAttribute' => 'from',
-                            'endAttribute' => 'to',
+                            'endAttribute' => 'go',
                             'pluginOptions'=>[
                                 'locale'=>['format' => 'Y-m-d'],
                             ]
-                        ])->label('日期') ?>
+                        ])->label('日期:') ?>
                     </div>
                     <div class="col-md-1">
                         <?= \yii\helpers\Html::submitButton('搜索', ['class' => 'btn btn-success btn-flat', 'style' => 'margin-top: 25px;'])?>
@@ -108,16 +106,26 @@ $this->title = '概况';
 
 <?php $columns = [
     [
-        'attribute' => 'gid',
+        'attribute' => 'game_id',
         'value' => function($data){
-            $game = \common\models\Game::findOne($data['gid']);
+            $game = \common\models\Game::findOne($data['game_id']);
             return $game->name ?? '';
         },
         'hAlign' => 'center',
+        'label' => '游戏',
+        'pageSummary' => '汇总',
     ],
     [
-        'attribute' => 'active',
+        'attribute' => 'new_sum',
         'hAlign' => 'center',
+        'label' => '新增用户数',
+        'pageSummary' => true,
+    ],
+    [
+        'attribute' => 'active_sum',
+        'hAlign' => 'center',
+        'label' => '活跃用户数',
+        'pageSummary' => true,
     ],
     [
         'attribute' => 'pay_money_sum',
@@ -125,16 +133,20 @@ $this->title = '概况';
             return Yii::$app->formatter->asDecimal($data['pay_money_sum'], 2);
         },
         'hAlign' => 'center',
+        'label' => '充值金额',
+        'pageSummary' => true,
     ],
     [
         'attribute' => 'pay_man_sum',
         'hAlign' => 'center',
+        'label' => '充值人数',
+        'pageSummary' => true,
     ],
     [
         'label' => '付费渗透率(%)',
         'value' => function($data){
-            if($data['active'] > 0){
-                return Yii::$app->formatter->asDecimal($data['pay_man_sum']/$data['active'] * 100);
+            if($data['active_sum'] > 0){
+                return Yii::$app->formatter->asDecimal($data['pay_man_sum']/$data['active_sum'] * 100);
             }else{
                 return '-';
             }
@@ -153,21 +165,25 @@ $this->title = '概况';
         'hAlign' => 'center',
     ],
     [
-        'attribute' => 'register_pay_money_sum',
+        'attribute' => 'new_pay_money_sum',
         'value' => function($data){
-            return Yii::$app->formatter->asDecimal($data['register_pay_money_sum'], 2);
+            return Yii::$app->formatter->asDecimal($data['new_pay_money_sum'], 2);
         },
         'hAlign' => 'center',
+        'label' => '新进充值金额',
+        'pageSummary' => true,
     ],
     [
-        'attribute' => 'register_pay_man_sum',
+        'attribute' => 'new_pay_man_sum',
         'hAlign' => 'center',
+        'label' => '新进充值人数',
+        'pageSummary' => true,
     ],
     [
         'label' => '新进充值占比(%)',
         'value' => function($data){
             if($data['pay_man_sum'] > 0){
-                return Yii::$app->formatter->asDecimal($data['register_pay_money_sum']/$data['pay_money_sum']*100);
+                return Yii::$app->formatter->asDecimal($data['new_pay_money_sum']/$data['pay_money_sum']*100);
             }else{
                 return '-';
             }
@@ -252,4 +268,22 @@ $charts = <<<EOL
         chart.showSpline();
 EOL;
 $this->registerJs($charts);
+?>
+<?php
+$this->registerJsFile('/js/linkage_multi.js', [
+    'depends' => [
+        'backend\assets\MultiSelectFilterAsset'
+    ]
+]);
+$script = <<<EOL
+    var Component = new IMultiSelect({
+           original: '#platformpaymentsearch-game_id',
+           aim: '#platform_select_multi',
+           selected_values_id: '#selected_platform_id',
+           url:'/api/get-platform-by-game'
+    });
+    Component.start();
+EOL;
+
+$this->registerJs($script);
 ?>

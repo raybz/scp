@@ -13,13 +13,10 @@ class CommonController extends Controller
     public function actionDashboard()
     {
         $searchModel = new DashBoardSearch();
-        $get = \Yii::$app->request->get('DashBoardSearch');
-        $searchModel->attributes = $get;
-        if ($searchModel->to == null || $searchModel->gid == null) {
-            $searchModel->gid = 1001;
+        $searchModel->attributes = \Yii::$app->request->get('DashBoardSearch');
+        if ($searchModel->to == null || $searchModel->game_id == null ) {
+            $searchModel->game_id = 1001;
             $searchModel->to = date('Y-m-d', strtotime('yesterday'));
-        } else {
-            $searchModel->to = $get['to'];
         }
         $treeDay = clone $searchModel;
         $oneMonth = clone $searchModel;

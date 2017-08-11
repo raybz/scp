@@ -96,6 +96,7 @@ class LoginLogTable extends LogTable
 
     public static function getLogin($uid, $platform, $gid, $time)
     {
+        //获取 用户登录 以平台,游戏为准
         $result = self::find()
             ->where('uid = :uid',[':uid' => $uid])
             ->andWhere('platform = :p',[':p' => $platform])
@@ -109,8 +110,8 @@ class LoginLogTable extends LogTable
     public static function getUser($uid, $platform)
     {
         $result = self::find()
-            ->where('uid = :uid',[':uid' => $uid])
-            ->andWhere('platform = :p',[':p' => $platform])
+            ->where('uid = :uid', [':uid' => $uid])
+            ->andWhere('platform = :p', [':p' => $platform])
             ->orderBy('time ASC')
             ->one();
 
@@ -126,20 +127,37 @@ class LoginLogTable extends LogTable
         if (!$game) {
             return null;
         }
-        $have = self::getLogin($data->uid, $data->platform, $game->id, $data->time);
-        if ($have) {
-            return ['old', $have->id, ''];
-        } else {
-            self::$month = date('Ym', $data->time);
-            //加入 用户表
-            $userId = null;
-            $login = self::newData($data);
-            if ($login){
-                $userData = self::findOne($login);
-                $userId = User::newUser($userData);
-            }
+        //是否存在
+        $noRepeat = self::getLogin($data->uid, $data->platform, $game->id, $data->time);
+        if (!$noRepeat) {
+            return ['old', $noRepeat->id, ''];
+        }
+        self::$month = date('Ym', $data->time);
+        $newLogin = self::newData($data);
+        if ($userData = self::findOne($newLogin)) {
+            $uid = self::updateUser($userData);
 
-            return ['new', $login, $userId];
+            return ['new', $newLogin, $uid];
+        }
+
+        return ['', '', ''];
+    }
+
+    protected static function updateUser($userData)
+    {
+        $user = User::getUser($userData->uid, $userData->platform, $userData->gid);
+        if ($user) {
+            if (strtotime($user->register_at) > strtotime($userData->time)) {
+                $user->server_id = $userData->server_id;
+                $user->register_at = $userData->time;
+                $user->save();
+
+                return $user->id;
+            } else {
+                return '';
+            }
+        } else {
+            return User::newUser($userData);
         }
     }
 }

@@ -13,24 +13,27 @@ function Hcharts(args) {
 }
 
 Hcharts.prototype = {
-    //横柱子图
+    //条形图
     showBar: function () {
         var _this = this;
         $.getJSON(this.api, this.param, function(data) {
             Highcharts.chart(_this.container, {
                 chart: {
-                    plotBackgroundColor: null,
-                    plotBorderWidth: null,
-                    plotShadow: false,
                     type: 'bar'
                 },
                 title: {
-                    text: _this.title.text,
+                    text: _this.title.text+data.data.title,
                     align: _this.title.align,
                     x: _this.title.x
                 },
+                subtitle: {
+                    text: _this.subtitle
+                },
+                xAxis: {categories: data.data.xAxis},
+                yAxis: {
+                },
                 tooltip: {
-                    pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                    shared: true
                 },
                 plotOptions: {
                     bar: {
@@ -39,9 +42,8 @@ Hcharts.prototype = {
                         }
                     }
                 },
-                series: data.data.series
+                series:data.data.series
             });
-
         });
     },
     //饼图
