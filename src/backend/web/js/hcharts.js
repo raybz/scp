@@ -119,7 +119,7 @@ Hcharts.prototype = {
     //区域图
     showAreaSpline: function () {
         var _this = this;
-        $.getJSON($this.api, this.param, function (data) {
+        $.getJSON(this.api, this.param, function (data) {
             Highcharts.chart(_this.container, {
                 chart: {
                     type: 'areaspline'

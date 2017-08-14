@@ -18,7 +18,6 @@ use yii\web\IdentityInterface;
  * @property string   $authKey
  * @property integer  $id
  * @property string   $password
- * @property string   $nickname
  * @property string   $routes
  * @property string   $username
  * @property string   $status
@@ -134,11 +133,12 @@ class Admin extends ActiveRecord implements IdentityInterface, IdRegisterInterfa
             $model->generatePasswordResetToken();
             $model->status = self::STATUS_ACTIVE;
             $model->email = $username.'@2144.cn';
-            $model->nickname = $nick ? $nick : $username;
+            $model->nick = $nick ? $nick : $username;
             $model->created_at = date('Y-m-d H:i:s');
             $model->updated_at = '1970-01-01 00:00:00';
             $model->save();
-
+            dump($model->id);
+            dump($model->errors);
             return $model;
         }
 
