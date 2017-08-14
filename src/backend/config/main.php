@@ -18,7 +18,6 @@ return [
     'modules' => [
         "admin" => [
             "class" => \mdm\admin\Module::class,
-//            'layout' => 'left-menu'
         ],
         'gridview' => [
             'class' => '\kartik\grid\Module',
@@ -44,16 +43,16 @@ return [
             "defaultRoles" => ["guest"],
         ],
 
-//        'audit' => [
-//            'class' => \Components\Audit::class,
-//            'systemId' => 38,
-//            'authKey' => 'axBYLfrcXs5YJynz2daoajAQtQ0NpRZD',
-//        ],
-//        'idauth' => [
-//            'class' => \Components\IdAuth::class,
-//            'systemId' => 38,
-//            'authKey' => 'Xnl3moNh9WdIavNRy7mp6wzzY3C27C4d',
-//        ],
+        'audit' => [
+            'class' => \Components\Audit::class,
+            'systemId' => 45,
+            'authKey' => 'lD0uOX26tCAIEPPlAiwBkgrjx7Dc8tsw',
+        ],
+        'idauth' => [
+            'class' => \Components\IdAuth::class,
+            'systemId' => 45,
+            'authKey' => 'lD0uOX26tCAIEPPlAiwBkgrjx7Dc8tsw',
+        ],
         'request' => [
             'csrfParam' => '_csrf-backend-scp',
         ],
