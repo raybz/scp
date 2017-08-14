@@ -115,6 +115,6 @@ class Platform extends \yii\db\ActiveRecord
             ->indexBy('id')
             ->column();
 
-        return $result;
+        return $result ?: ['empty' => '暂无平台'];
     }
 }
