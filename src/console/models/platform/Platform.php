@@ -2,7 +2,6 @@
 
 namespace console\models\platform;
 
-use common\models\Game;
 use common\models\GamePlatformServer;
 use common\models\Payment;
 use console\models\LoginLogTable;
@@ -47,8 +46,6 @@ class Platform extends Model
     public static function saveLogin()
     {
         $loginObj = self::parse(static::uniformLoginData(self::paramData()));
-
-
         $transaction = \Yii::$app->db->beginTransaction();
         if (isset($loginObj->time) && $loginObj->time > 0 && isset($loginObj->uid) && $loginObj->uid) {
             try {
@@ -59,25 +56,14 @@ class Platform extends Model
 
                 return $result;
             } catch (\Exception $e) {
-                var_dump($e->getMessage());
+                var_dump($e->getMessage().$e->getFile().$e->getLine());
                 $transaction->rollBack();
 
                 return ['', '', ''];
             }
         }
+
         return ['', '', ''];
-//        if (isset($loginObj->time) && $loginObj->time > 0 && isset($loginObj->uid) && $loginObj->uid) {
-//            //添加平台
-//            $platform = new \common\models\Platform();
-//            $platform->storeData($loginObj);
-//
-//            LoginLogTable::newTable($loginObj->time);
-//            $result = LoginLogTable::storeData($loginObj);
-//
-//            return $result;
-//        }
-//
-//        return ['', '', ''];
     }
 
     protected function _eventBefore($data)

@@ -6,7 +6,7 @@ use kartik\grid\GridView;
 $this->title = '概况';
 /* @var $searchModel \backend\models\search\ServerPaymentSearch*/
 /* @var $platformStr string*/
-/* @var $platformStr string*/
+/* @var $serverStr string*/
 ?>
     <style>
         .select2-container .select2-selection--single .select2-selection__rendered{
@@ -222,9 +222,9 @@ $this->title = '概况';
 <?php
 $charts = <<<EOL
         var param = {
-            api: '/api/server-payment-bar?',
+            api: '/api/payment-analysis-area-spline?',
             title: {
-                text: '区服收入对比',
+                text: '收入趋势',
                 align: 'left',
                 x: 70
             },
@@ -239,7 +239,7 @@ $charts = <<<EOL
             }
         };
         var chart = new Hcharts(param);
-        chart.showBar();
+        chart.showAreaSpline();
 EOL;
 $this->registerJs($charts);
 ?>

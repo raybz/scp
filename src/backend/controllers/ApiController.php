@@ -322,6 +322,72 @@ class ApiController extends Controller
         ];
     }
 
+    public function actionPaymentAnalysisAreaSpline()
+    {
+        $from = Yii::$app->request->get('from', date('Y-m-d'));
+        $to = Yii::$app->request->get('to', date('Y-m-d', strtotime('tomorrow')));
+        $platform = Yii::$app->request->get('platform');
+        $gameId = Yii::$app->request->get('gid');
+        $server = Yii::$app->request->get('server');
+
+        $platformList = unserialize($platform);
+        $serverList = unserialize($server);
+        $pl = (new Query())->from('arrange')
+            ->select([
+                'date',
+                'game_id',
+                'platform_id',
+                'server_id',
+                'sum(new) new_sum',
+                'sum(active) active_sum',
+                'sum(pay_man) pay_man_sum',
+                'sum(pay_money) pay_money_sum',
+                'sum(new_pay_man) new_pay_man_sum',
+                'sum(new_pay_money) new_pay_money_sum',
+            ])
+            ->where('date >= :from AND date < :to',
+                [
+                    ':from' => $from,
+                    ':to' => $to
+                ])
+            ->andFilterWhere(['game_id' => $gameId])
+            ->andFilterWhere(['platform_id' => $platformList])
+            ->andFilterWhere(['server_id' => $serverList])
+            ->groupBy('game_id')
+            ->orderBy('pay_money_sum DESC')
+            ->all();
+
+        $diff_day = intval((strtotime($to) - strtotime($from)) / 86400);
+
+        $rangeTime = range(0, $diff_day - 1);
+        $dataAll = $data = $rangeData = [];
+        //区间大于一天
+        if ($diff_day > 1) {
+            foreach ($rangeTime as $day) {
+                $rangeData[] = date('Y-m-d', strtotime($from.$day.' day'));
+                if (is_numeric($platform)) {
+                    $f = date('Y-m-d', strtotime($from.$day.' day'));
+                    $t = date('Y-m-d', strtotime($from.($day + 1).' day'));
+                    $pTotal = Arrange::getDataByPlatform($f, $t, $gameId, $platformList);
+                    $dataAll[$platform]['data'][] = isset($pTotal[$platform]['pay_money_sum']) ? intval(
+                        $pTotal[$platform]['pay_money_sum']
+                    ) : 0;
+                }
+            }
+        }
+
+        $data = array_values($dataAll);
+
+        return [
+            'code' => 200,
+            'data' => [
+                'title' => '',
+                'xAxis' => $rangeData,
+                'series' => $data,
+            ],
+        ];
+    }
+
     public function actionGetPlatformByGame()
     {
         $games = Yii::$app->request->get('originals', null);

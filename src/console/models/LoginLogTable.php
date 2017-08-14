@@ -129,7 +129,7 @@ class LoginLogTable extends LogTable
         }
         //是否存在
         $noRepeat = self::getLogin($data->uid, $data->platform, $game->id, $data->time);
-        if (!$noRepeat) {
+        if ($noRepeat) {
             return ['old', $noRepeat->id, ''];
         }
         self::$month = date('Ym', $data->time);
