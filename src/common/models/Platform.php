@@ -65,7 +65,13 @@ class Platform extends \yii\db\ActiveRecord
             ],
             [
                 'class' => BlameableBehavior::class,
-                'value' => \Yii::$app->user->id ?? 0,
+                'value' =>  function(){
+                    if (isset(\Yii::$app->user)){
+                        return \Yii::$app->user->id ?? 0;
+                    } else {
+                        return 0;
+                    }
+                },
                 'createdByAttribute' => false,
             ]
         ];

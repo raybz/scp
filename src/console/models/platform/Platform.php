@@ -68,9 +68,15 @@ class Platform extends Model
 
     protected function _eventBefore($data)
     {
+        $this->on(self::EVENT_BEFORE_CREATE, [$this, '_eventAddLoginTable'], $data);
         $this->on(self::EVENT_BEFORE_CREATE, [$this, '_eventAddPlatform'], $data);
         $this->on(self::EVENT_BEFORE_CREATE, [$this, '_eventAddServer'], $data);
         $this->trigger(self::EVENT_BEFORE_CREATE);
+    }
+
+    protected function _eventAddLoginTable($event){
+        $time = $event->data;
+        LoginLogTable::newTable($time->time);
     }
 
     protected function _eventAddPlatform($event){

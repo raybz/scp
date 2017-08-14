@@ -65,7 +65,6 @@ class LoginLogTable extends LogTable
             $migration->createTable($tableName, self::column());
             $migration->createIndex('login_log_uid_platform_gid_type', $tableName, ['uid', 'platform', 'gid', 'type']);
             $migration->createIndex('login_log_uid_platform_gid_time', $tableName, ['uid', 'platform', 'gid', 'time']);
-            $migration->createIndex('login_log_gid_pfi_s', $tableName, ['gid', 'platform_id', 'server_id']);
             $migration->createIndex('login_log_type', $tableName, ['type']);
             $migration->createIndex('login_log_gid_time', $tableName, ['gid', 'time']);
         }
