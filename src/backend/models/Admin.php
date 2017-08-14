@@ -137,8 +137,7 @@ class Admin extends ActiveRecord implements IdentityInterface, IdRegisterInterfa
             $model->created_at = date('Y-m-d H:i:s');
             $model->updated_at = '1970-01-01 00:00:00';
             $model->save();
-            dump($model->id);
-            dump($model->errors);
+
             return $model;
         }
 
