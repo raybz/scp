@@ -70,8 +70,8 @@ class DashBoardSearch extends Arrange
 
     protected function arrangeDay($f, $t)
     {
-
-        $row  = Arrange::getOneDataByGame($f, $t, $this->game_id);
+        $rows  = Arrange::getDataByPlatform($f, $t, $this->game_id, '', 'game_id');
+        $row = current($rows);
         $output = [
             'new_sum','max_online','pay_money_sum','pay_man_sum','date'
         ];

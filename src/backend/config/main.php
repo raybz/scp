@@ -23,6 +23,9 @@ return [
         'gridview' => [
             'class' => '\kartik\grid\Module',
         ],
+        'dynagrid' => [
+            'class' => 'kartik\dynagrid\Module',
+        ]
     ],
     'as access' => [
         'class' => \mdm\admin\components\AccessControl::class,

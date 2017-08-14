@@ -15,7 +15,9 @@ class m170726_074012_game extends Migration
             'name' => $this->string()->notNull()->comment('游戏名称'),
             'status' => $this->smallInteger(6)->notNull()->defaultValue(1)->comment('状态'),
             'created_at' => $this->dateTime()->notNull(),
+            'created_by' => $this->integer()->notNull(),
             'updated_at' => $this->dateTime()->notNull()->defaultValue('0000-00-00 00:00:00'),
+            'updated_by' => $this->integer()->notNull()->defaultValue(0),
         ]);
 
         $this->execute("ALTER TABLE ".$this->tableName." AUTO_INCREMENT= 1001");

@@ -163,30 +163,4 @@ class Arrange extends \yii\db\ActiveRecord
 
         return $result;
     }
-    public static function getOneDataByGame($from, $to, $gid = null,$groupBy = 'game_id')
-    {
-        $query = (new Query())->from('arrange')
-            ->select([
-                'date',
-                'game_id',
-                'platform_id',
-                'sum(new) new_sum',
-                'sum(active) active_sum',
-                'sum(pay_man) pay_man_sum',
-                'sum(pay_money) pay_money_sum',
-                'sum(new_pay_man) new_pay_man_sum',
-                'sum(new_pay_money) new_pay_money_sum',
-            ])
-            ->where('date >= :from AND date < :to',
-                [
-                    ':from' => $from,
-                    ':to' => $to
-                ])
-            ->andFilterWhere(['game_id' => $gid]);
-            $query->groupBy($groupBy);
-
-        $result = $query->one();
-
-        return $result;
-    }
 }

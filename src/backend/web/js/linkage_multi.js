@@ -44,6 +44,8 @@
         common: function(){
             var originalArr = $(this.original).val();
             var originals = '';
+            var depend = this.depend;
+            var dependVal = $(depend).val();
             if (this.isArray(originalArr)) {
                 if (originalArr && originalArr.length > 0) {
                     originals = originalArr.join();
@@ -59,7 +61,7 @@
             }
             var aim = this.aim;
             var url = this.url;
-            $.getJSON(url, {originals: originals}, function(data){
+            $.getJSON(url, {originals: originals,  depends : dependVal}, function(data){
                 $(aim).empty();
                 var rData = data.data;
                 var options = '';

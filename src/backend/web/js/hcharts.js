@@ -115,6 +115,40 @@ Hcharts.prototype = {
                 series:data.data.series
             });
         });
+    },
+    //区域图
+    showAreaSpline: function () {
+        var _this = this;
+        $.getJSON($this.api, this.param, function (data) {
+            Highcharts.chart(_this.container, {
+                chart: {
+                    type: 'areaspline'
+                },
+                title: {
+                    text: _this.title.text+data.data.title,
+                    align: _this.title.align,
+                    x: _this.title.x
+                },
+                xAxis: {
+                    categories: data.data.xAxis
+                },
+                tooltip: {
+                    shared: true
+                },
+                credits: {
+                    enabled: false
+                },
+                plotOptions: {
+                    areaspline: {
+                        fillOpacity: 0.5,
+                        marker: {
+                            enabled: false
+                        }
+                    }
+                },
+                series:data.data.series
+            });
+        });
     }
 };
 

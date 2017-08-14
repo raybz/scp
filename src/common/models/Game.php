@@ -3,6 +3,8 @@
 namespace common\models;
 
 use common\definitions\Status;
+use yii\behaviors\BlameableBehavior;
+use yii\behaviors\TimestampBehavior;
 
 /**
  * This is the model class for table "game".
@@ -12,7 +14,9 @@ use common\definitions\Status;
  * @property string  $name
  * @property integer $status
  * @property string  $created_at
+ * @property integer $created_by
  * @property string  $updated_at
+ * @property integer $updated_by
  */
 class Game extends \yii\db\ActiveRecord
 {
@@ -30,8 +34,8 @@ class Game extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['gkey', 'name', 'created_at'], 'required'],
-            [['status'], 'integer'],
+            [['gkey', 'name'], 'required'],
+            [['status', 'created_by', 'updated_by'], 'integer'],
             [['created_at', 'updated_at'], 'safe'],
             [['gkey'], 'string', 'max' => 10],
             [['name'], 'string', 'max' => 255],
@@ -49,7 +53,22 @@ class Game extends \yii\db\ActiveRecord
             'name' => 'Name',
             'status' => 'Status',
             'created_at' => 'Created At',
+            'created_by' => 'Created By',
             'updated_at' => 'Updated At',
+            'updated_by' => 'Updated By',
+        ];
+    }
+
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => TimestampBehavior::class,
+                'value' => date('Y-m-d H:i:s'),
+            ],
+            [
+                'class' => BlameableBehavior::class,
+            ],
         ];
     }
 

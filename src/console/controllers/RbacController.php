@@ -166,7 +166,7 @@ class RbacController extends Controller
         $menu = new Menu();
         $menu->name = '管理员管理';
         $menu->order = 1;
-        $menu->data = '{"icon": "fa fa-share", "visiable":false}';
+        $menu->data = '{"icon": "users", "visiable":false}';
         $menu->save();
         $id = $menu->id;
         $menus = [
