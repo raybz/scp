@@ -37,7 +37,7 @@ class Platform extends Model
             $transaction->commit();
             return $result;
         }catch (\Exception $e) {
-            var_dump($e->getMessage());
+            var_dump($e->getMessage().$e->getFile().$e->getLine());
             $transaction->rollBack();
             return null;
         }
