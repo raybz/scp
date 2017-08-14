@@ -357,11 +357,19 @@ class ApiController extends Controller
             ->orderBy('pay_money_sum DESC')
             ->all();
 
+        $bar = [
+            'pay_money_sum' => '充值金额',
+            'pay_man_sum' => '充值人数',
+            'active_sum' => '活跃人数',
+            'new_pay_money_sum' => '新进充值金额',
+            'new_pay_man_sum' => '新进充值人数'
+        ];
+
         $diff_day = intval((strtotime($to) - strtotime($from)) / 86400);
 
         $rangeTime = range(0, $diff_day - 1);
         $dataAll = $data = $rangeData = [];
-        //区间大于一天
+        //区间大于一天 查arrange表
         if ($diff_day > 1) {
             foreach ($rangeTime as $day) {
                 $rangeData[] = date('Y-m-d', strtotime($from.$day.' day'));
@@ -374,6 +382,8 @@ class ApiController extends Controller
                     ) : 0;
                 }
             }
+        } else {
+            //区间小于一天 直接查payment 表
         }
 
         $data = array_values($dataAll);
