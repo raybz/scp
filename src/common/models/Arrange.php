@@ -163,4 +163,34 @@ class Arrange extends \yii\db\ActiveRecord
 
         return $result;
     }
+
+    public static function getDataByServer($from, $to, $gid = null, $platform_id = null, $serverList = null)
+    {
+        $pl = (new Query())->from('arrange')
+            ->select([
+                'date',
+                'game_id',
+                'platform_id',
+                'server_id',
+                'sum(new) new_sum',
+                'sum(active) active_sum',
+                'sum(pay_man) pay_man_sum',
+                'sum(pay_money) pay_money_sum',
+                'sum(new_pay_man) new_pay_man_sum',
+                'sum(new_pay_money) new_pay_money_sum',
+            ])
+            ->where('date >= :from AND date < :to',
+                [
+                    ':from' => $from,
+                    ':to' => $to
+                ])
+            ->andFilterWhere(['game_id' => $gid])
+            ->andFilterWhere(['platform_id' => $platform_id])
+            ->andFilterWhere(['server_id' => $serverList])
+            ->groupBy('game_id')
+            ->orderBy('pay_money_sum DESC')
+            ->all();
+
+        return $pl;
+    }
 }

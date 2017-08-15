@@ -332,32 +332,8 @@ class ApiController extends Controller
 
         $platformList = unserialize($platform);
         $serverList = unserialize($server);
-        $pl = (new Query())->from('arrange')
-            ->select([
-                'date',
-                'game_id',
-                'platform_id',
-                'server_id',
-                'sum(new) new_sum',
-                'sum(active) active_sum',
-                'sum(pay_man) pay_man_sum',
-                'sum(pay_money) pay_money_sum',
-                'sum(new_pay_man) new_pay_man_sum',
-                'sum(new_pay_money) new_pay_money_sum',
-            ])
-            ->where('date >= :from AND date < :to',
-                [
-                    ':from' => $from,
-                    ':to' => $to
-                ])
-            ->andFilterWhere(['game_id' => $gameId])
-            ->andFilterWhere(['platform_id' => $platformList])
-            ->andFilterWhere(['server_id' => $serverList])
-            ->groupBy('game_id')
-            ->orderBy('pay_money_sum DESC')
-            ->all();
 
-        $bar = [
+        $bars = [
             'pay_money_sum' => '充值金额',
             'pay_man_sum' => '充值人数',
             'active_sum' => '活跃人数',
@@ -371,29 +347,31 @@ class ApiController extends Controller
         $dataAll = $data = $rangeData = [];
         //区间大于一天 查arrange表
         if ($diff_day > 1) {
-            foreach ($rangeTime as $day) {
-                $rangeData[] = date('Y-m-d', strtotime($from.$day.' day'));
-                if (is_numeric($platform)) {
+            $data = [];
+            foreach ($bars as $key => $bar) {
+                foreach ($rangeTime as $k => $day) {
+                    $rangeData[] = date('Y-m-d', strtotime($from.$day.' day'));
                     $f = date('Y-m-d', strtotime($from.$day.' day'));
                     $t = date('Y-m-d', strtotime($from.($day + 1).' day'));
-                    $pTotal = Arrange::getDataByPlatform($f, $t, $gameId, $platformList);
-                    $dataAll[$platform]['data'][] = isset($pTotal[$platform]['pay_money_sum']) ? intval(
-                        $pTotal[$platform]['pay_money_sum']
-                    ) : 0;
+                    $arr = current(Arrange::getDataByServer($f, $t, $gameId, $platformList, $serverList));
+                    $data[$key][] = isset($arr[$key]) ? intval($arr[$key]) : 0;
                 }
+                $dataAll[] = [
+                    'name' => $bar,
+                    'data' => $data[$key],
+                    'visible' => stristr($key, 'new') ? false : true,
+                ];
             }
         } else {
             //区间小于一天 直接查payment 表
         }
-
-        $data = array_values($dataAll);
 
         return [
             'code' => 200,
             'data' => [
                 'title' => '',
                 'xAxis' => $rangeData,
-                'series' => $data,
+                'series' => $dataAll,
             ],
         ];
     }

@@ -2,6 +2,7 @@
 
 use kartik\form\ActiveForm;
 use yii\helpers\Html;
+
 /* @var $model \common\models\Game */
 ?>
 <div class="box box-default">

@@ -2,6 +2,8 @@
 
 namespace console\models\platform;
 
+use common\models\Arrange;
+use common\models\Game;
 use common\models\GamePlatformServer;
 use common\models\Payment;
 use console\models\LoginLogTable;
@@ -49,9 +51,22 @@ class Platform extends Model
         $transaction = \Yii::$app->db->beginTransaction();
         if (isset($loginObj->time) && $loginObj->time > 0 && isset($loginObj->uid) && $loginObj->uid) {
             try {
-                $mod = new self;
-                $mod->_eventBefore($loginObj);
-                $result = LoginLogTable::storeData($loginObj);
+                $game = Game::getGameByGKey($loginObj->gkey);
+                if (!$game) {
+                    return ['error', 'lose gkey', ''];
+                }
+                LoginLogTable::$month = date('Ym', $loginObj->time);
+                //是否存在
+                $time = date('Y-m-d H:i:s', $loginObj->time);
+                $noRepeat = LoginLogTable::getLogin($loginObj->uid, $loginObj->platform, $game->id, $time);
+                if ($noRepeat) {
+                   $result = ['old', $noRepeat->id, ''];
+                } else {
+                    $mod = new self;
+                    $mod->_eventBefore($loginObj);
+                    $result = LoginLogTable::storeData($loginObj);
+                }
+
                 $transaction->commit();
 
                 return $result;

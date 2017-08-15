@@ -86,8 +86,8 @@ class Game extends \yii\db\ActiveRecord
     public static function getGameByGKey($gKey)
     {
         $result = self::find()
-            ->where(['status' => Status::ACTIVE])
-            ->andWhere('gkey = :gk', [':gk' => $gKey])
+            ->where('gkey = :gk', [':gk' => $gKey])
+            ->andWhere(['status' => Status::ACTIVE])
             ->one();
 
         return $result;

@@ -4,12 +4,12 @@ use kartik\grid\GridView;
 
 \backend\assets\HighChartsAssets::register($this);
 $this->title = '概况';
-/* @var $searchModel \backend\models\search\DashBoardSearch*/
-/* @var $gidStr String*/
-/* @var $platformStr String*/
+/* @var $searchModel \backend\models\search\DashBoardSearch */
+/* @var $gidStr String */
+/* @var $platformStr String */
 ?>
     <style>
-        .select2-container .select2-selection--single .select2-selection__rendered{
+        .select2-container .select2-selection--single .select2-selection__rendered {
             margin-top: 0;
         }
     </style>
@@ -25,7 +25,8 @@ $this->title = '概况';
 
                 <div class="col-md-12">
                     <div class="col-md-1">
-                        <?= $form->field($searchModel, 'game_id')->widget(\dosamigos\multiselect\MultiSelect::className(),
+                        <?= $form->field($searchModel, 'game_id')->widget(
+                            \dosamigos\multiselect\MultiSelect::className(),
                             [
                                 "options" => ['multiple' => "multiple"],
                                 'data' => \common\models\Game::gameDropDownData(),
@@ -38,10 +39,12 @@ $this->title = '概况';
                                         'maxHeight' => 0,
                                         'nonSelectedText' => '选择游戏',
                                     ],
-                            ])->label('游戏:') ?>
+                            ]
+                        )->label('游戏:') ?>
                     </div>
                     <div class="col-md-1">
-                        <?= $form->field($searchModel, 'platform_id')->widget(\dosamigos\multiselect\MultiSelect::className(),
+                        <?= $form->field($searchModel, 'platform_id')->widget(
+                            \dosamigos\multiselect\MultiSelect::className(),
                             [
                                 "options" => ['multiple' => "multiple"],
                                 'data' => \common\models\Platform::platformDropDownData(),
@@ -54,63 +57,71 @@ $this->title = '概况';
                                         'maxHeight' => 0,
                                         'nonSelectedText' => '请选择平台',
                                     ],
-                            ])->label('平台:') ?>
+                            ]
+                        )->label('平台:') ?>
                     </div>
                     <div class="col-md-3">
-                        <?= $form->field($searchModel, 'time')->widget(\kartik\daterange\DateRangePicker::className(),[
-                            'convertFormat'=>true,
-                            'startAttribute' => 'from',
-                            'endAttribute' => 'go',
-                            'pluginOptions'=>[
-                                'locale'=>['format' => 'Y-m-d'],
+                        <?= $form->field($searchModel, 'time')->widget(
+                            \kartik\daterange\DateRangePicker::className(),
+                            [
+                                'convertFormat' => true,
+                                'startAttribute' => 'from',
+                                'endAttribute' => 'go',
+                                'pluginOptions' => [
+                                    'locale' => ['format' => 'Y-m-d'],
+                                ],
                             ]
-                        ])->label('日期:') ?>
+                        )->label('日期:') ?>
                     </div>
                     <div class="col-md-1">
-                        <?= \yii\helpers\Html::submitButton('搜索', ['class' => 'btn btn-success btn-flat', 'style' => 'margin-top: 25px;'])?>
+                        <?= \yii\helpers\Html::submitButton(
+                            '搜索',
+                            ['class' => 'btn btn-success btn-flat', 'style' => 'margin-top: 25px;']
+                        ) ?>
                     </div>
                 </div>
-                <?php \yii\widgets\ActiveForm::end()?>
+                <?php \yii\widgets\ActiveForm::end() ?>
             </div>
         </div>
     </div>
-<div class="box box-default">
-    <!--折线图-->
-    <div class="box-header with-border">
-        <h3 class="box-title">图表</h3>
-        <div class="box-tools pull-right">
-            <button class="btn btn-box-tool" data-widget="collapse">
-                <i class="fa fa-minus"></i>
-            </button>
-            <button class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+    <div class="box box-default">
+        <!--折线图-->
+        <div class="box-header with-border">
+            <h3 class="box-title">图表</h3>
+            <div class="box-tools pull-right">
+                <button class="btn btn-box-tool" data-widget="collapse">
+                    <i class="fa fa-minus"></i>
+                </button>
+                <button class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+            </div>
+        </div>
+        <div class="box-body">
+            <div id="per-hour-money-container"></div>
         </div>
     </div>
-    <div class="box-body">
-        <div id="per-hour-money-container"></div>
-    </div>
-</div>
 
-<div class="box box-default">
-    <!--折线图-->
-    <div class="box-header with-border">
-        <h3 class="box-title">图表</h3>
-        <div class="box-tools pull-right">
-            <button class="btn btn-box-tool" data-widget="collapse">
-                <i class="fa fa-minus"></i>
-            </button>
-            <button class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+    <div class="box box-default">
+        <!--折线图-->
+        <div class="box-header with-border">
+            <h3 class="box-title">图表</h3>
+            <div class="box-tools pull-right">
+                <button class="btn btn-box-tool" data-widget="collapse">
+                    <i class="fa fa-minus"></i>
+                </button>
+                <button class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+            </div>
+        </div>
+        <div class="box-body">
+            <div id="per-hour-man-container"></div>
         </div>
     </div>
-    <div class="box-body">
-        <div id="per-hour-man-container"></div>
-    </div>
-</div>
 
 <?php $columns = [
     [
         'attribute' => 'game_id',
-        'value' => function($data){
+        'value' => function ($data) {
             $game = \common\models\Game::findOne($data['game_id']);
+
             return $game->name ?? '';
         },
         'hAlign' => 'center',
@@ -131,7 +142,7 @@ $this->title = '概况';
     ],
     [
         'attribute' => 'pay_money_sum',
-        'value' => function($data){
+        'value' => function ($data) {
             return Yii::$app->formatter->asDecimal($data['pay_money_sum'], 2);
         },
         'hAlign' => 'center',
@@ -146,10 +157,10 @@ $this->title = '概况';
     ],
     [
         'label' => '付费渗透率(%)',
-        'value' => function($data){
-            if($data['active_sum'] > 0){
-                return Yii::$app->formatter->asDecimal($data['pay_man_sum']/$data['active_sum'] * 100);
-            }else{
+        'value' => function ($data) {
+            if ($data['active_sum'] > 0) {
+                return Yii::$app->formatter->asDecimal($data['pay_man_sum'] / $data['active_sum'] * 100);
+            } else {
                 return '-';
             }
         },
@@ -157,10 +168,10 @@ $this->title = '概况';
     ],
     [
         'label' => 'ARPU(%)',
-        'value' => function($data){
-            if($data['pay_man_sum'] > 0){
-                return Yii::$app->formatter->asDecimal($data['pay_money_sum']/$data['pay_man_sum'] * 100);
-            }else{
+        'value' => function ($data) {
+            if ($data['pay_man_sum'] > 0) {
+                return Yii::$app->formatter->asDecimal($data['pay_money_sum'] / $data['pay_man_sum'] * 100);
+            } else {
                 return '-';
             }
         },
@@ -168,7 +179,7 @@ $this->title = '概况';
     ],
     [
         'attribute' => 'new_pay_money_sum',
-        'value' => function($data){
+        'value' => function ($data) {
             return Yii::$app->formatter->asDecimal($data['new_pay_money_sum'], 2);
         },
         'hAlign' => 'center',
@@ -183,16 +194,16 @@ $this->title = '概况';
     ],
     [
         'label' => '新进充值占比(%)',
-        'value' => function($data){
-            if($data['pay_man_sum'] > 0){
-                return Yii::$app->formatter->asDecimal($data['new_pay_money_sum']/$data['pay_money_sum']*100);
-            }else{
+        'value' => function ($data) {
+            if ($data['pay_man_sum'] > 0) {
+                return Yii::$app->formatter->asDecimal($data['new_pay_money_sum'] / $data['pay_money_sum'] * 100);
+            } else {
                 return '-';
             }
         },
         'hAlign' => 'center',
     ],
-];?>
+]; ?>
 <?= GridView::widget(
     [
         'autoXlFormat' => true,
@@ -272,11 +283,14 @@ EOL;
 $this->registerJs($charts);
 ?>
 <?php
-$this->registerJsFile('/js/linkage_multi.js', [
-    'depends' => [
-        'backend\assets\MultiSelectFilterAsset'
+$this->registerJsFile(
+    '/js/linkage_multi.js',
+    [
+        'depends' => [
+            'backend\assets\MultiSelectFilterAsset',
+        ],
     ]
-]);
+);
 $script = <<<EOL
     var Component = new IMultiSelect({
            original: '#platformpaymentsearch-game_id',

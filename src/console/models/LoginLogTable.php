@@ -122,16 +122,7 @@ class LoginLogTable extends LogTable
         if (!(isset($data->gkey) && $data->gkey)) {
             return null;
         }
-        $game = Game::getGameByGKey($data->gkey);
-        if (!$game) {
-            return null;
-        }
-        //是否存在
-        $noRepeat = self::getLogin($data->uid, $data->platform, $game->id, $data->time);
-        if ($noRepeat) {
-            return ['old', $noRepeat->id, ''];
-        }
-        self::$month = date('Ym', $data->time);
+
         $newLogin = self::newData($data);
         if ($userData = self::findOne($newLogin)) {
             $uid = self::updateUser($userData);
