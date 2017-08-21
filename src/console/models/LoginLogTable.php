@@ -73,7 +73,7 @@ class LoginLogTable extends LogTable
     public static function newData($data)
     {
         $game = Game::getGameByGKey($data->gkey);
-        $model = new static;
+        $model = new self();
         $model->uid = $data->uid;
         $model->platform = $data->platform;
         $model->gkey = $data->gkey;
@@ -119,6 +119,29 @@ class LoginLogTable extends LogTable
         return $result;
     }
 
+    public static function getUserLoginCount($uid, $platform, $from = null, $to = null)
+    {
+        $data = self::find()
+            ->where('uid = :uid', [':uid' => $uid])
+            ->andWhere('platform = :p', [':p' => $platform])
+            ->andFilterWhere(['>=', 'time', $from])
+            ->andFilterWhere(['<', 'time', $to])
+            ->count();
+
+        return $data ?: 0;
+    }
+
+    public static function getUserLatestLogin($uid, $platform)
+    {
+        $data = static::find()
+            ->where('uid = :uid', [':uid' => $uid])
+            ->andWhere('platform = :p', [':p' => $platform])
+            ->orderBy('time DESC')
+            ->one();
+
+        return $data ?: null;
+    }
+
     public static function storeData($data)
     {
         if (!(isset($data->gkey) && $data->gkey)) {
@@ -129,10 +152,10 @@ class LoginLogTable extends LogTable
             return null;
         }
         $time = date('Y-m-d H:i:s', $data->time);
-        if (static::getLogin($data->uid, $data->platform, $game->id, $time)) {
+        if (self::getLogin($data->uid, $data->platform, $game->id, $time)) {
             return null;
         }
-        $newLogin = static::newData($data);
+        $newLogin = self::newData($data);
 
         return $newLogin;
     }

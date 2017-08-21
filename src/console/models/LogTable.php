@@ -117,10 +117,10 @@ class LogTable extends ActiveRecord
 
     public static function logTableMonth($from, $to)
     {
-        $months = static::getMonths($from, $to);
+        $months = self::getMonths($from, $to);
         $monthArr = [];
         for ($i = 0; $i <= $months; $i++) {
-            $month = static::getNextMonth($from, $i);
+            $month = self::getNextMonth($from, $i);
             $tableName = static::$table_prefix.$month;
             if (!\Yii::$app->log_scp->schema->getTableSchema($tableName)) {
                 continue;
@@ -135,7 +135,7 @@ class LogTable extends ActiveRecord
     public static function getDiffDay($from, $to)
     {
         $diff = (strtotime($to) - strtotime($from)) / 86400;
-        $monthArr = static::logTableMonth($from, $to);
+        $monthArr = self::logTableMonth($from, $to);
         $v_to = [];
         if ($diff > 1) {
             if (in_array(date('Ym', strtotime($from)), $monthArr)) {

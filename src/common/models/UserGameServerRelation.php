@@ -3,6 +3,7 @@
 namespace common\models;
 
 use console\models\LoginLogTable;
+use yii\base\Object;
 
 /**
  * This is the model class for table "user_game_server_relation".
@@ -49,7 +50,7 @@ class UserGameServerRelation extends \yii\db\ActiveRecord
         ];
     }
 
-    public static function addRelation(User $user,LoginLogTable $data)
+    public static function addRelation(User $user, $data)
     {
         $server = Server::getServer($data->gid, $user->platform_id, $data->server_id);
         $mod = new self();

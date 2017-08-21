@@ -68,7 +68,7 @@ class PayController extends Controller
             if (!stripos($v->url, 'pay')) {
                 continue;
             }
-//            $this->stdout($v->url.PHP_EOL);
+            $this->stdout($v->url.PHP_EOL);
             if (!strpos($v->url, '?')) {
                 if (!stripos($v->url, 'pay') || !($v->post_data && strlen($v->post_data) > 10 && stristr(
                             $v->post_data,
@@ -78,7 +78,9 @@ class PayController extends Controller
                 }
                 PlatformSoGou::$url_param = $v->post_data;
                 $result = PlatformSoGou::savePay();
-                $this->stdout($result[0].' payment ID: '.$result[1].' info: '.$result[2].PHP_EOL);
+                $this->stdout(
+                    $result[0].' payment ID: '.$result[1].' info: '.$result[2].(isset($result[3]) && $result[3] ? ' new_uid:'.$result[3] : '').PHP_EOL
+                );
             }
             $urlArr = explode('?', $v->url);
             if(!stripos($urlArr[0], 'pay')) {
@@ -89,7 +91,9 @@ class PayController extends Controller
                 if (stristr($urlArr[0], $k)){
                     $class::$url_param = $urlArr[1];
                     $result = $class::savePay();
-                    $this->stdout($result[0].' payment ID: '.$result[1].' info: '.$result[2].PHP_EOL);
+                    $this->stdout(
+                        $result[0].' payment ID: '.$result[1].' info: '.$result[2].(isset($result[3]) && $result[3] ? ' new_uid:'.$result[3] : '').PHP_EOL
+                    );
                 }
             }
         }

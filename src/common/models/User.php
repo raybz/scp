@@ -3,7 +3,7 @@
 namespace common\models;
 
 use common\definitions\Status;
-use console\models\LoginLogTable;
+use common\definitions\UserIsAdult;
 use yii\db\Query;
 use yii\helpers\Json;
 
@@ -51,10 +51,14 @@ class User extends \yii\db\ActiveRecord
         return $result;
     }
 
-    public static function saveUser($userData)
+    public static function saveUser($userData, $origin = null)
     {
         $platform = Platform::getPlatform($userData->platform);
         $user = self::getUser($userData->uid, $platform->id);
+        if ($origin) {
+            $userData->gid = (Game::getGameByGKey($userData->gkey))->id;
+            $userData->time = date('Y-m-d H:i:s', $userData->time);
+        }
         if ($user) {
             //新增用户区服
             $server = Server::getServer($userData->gid, $platform->id, $userData->server_id);
@@ -64,8 +68,9 @@ class User extends \yii\db\ActiveRecord
             }
             if (strtotime($user->register_at) > strtotime($userData->time)) {
                 $user->register_at = $userData->time;
+                $uid = $user->save();
 
-                return $user->save();
+                return $uid->id ?? '';
             } else {
                 return '';
             }
@@ -89,13 +94,13 @@ class User extends \yii\db\ActiveRecord
         return $result;
     }
 
-    public static function newUser(LoginLogTable  $user)
+    public static function newUser($user)
     {
         $p = Platform::getPlatform($user->platform);
         $model = new self;
         $model->uid = $user->uid;
         $model->platform_id = $p->id ?: 0;
-        $model->is_adult = $user->is_adult;
+        $model->is_adult = $user->is_adult ?? UserIsAdult::OTHER;
         $model->register_at = $user->time;
         $model->status = Status::ACTIVE;
         $model->created_at = date('Y-m-d H:i:s');

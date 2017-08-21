@@ -77,7 +77,7 @@ class Payment extends \yii\db\ActiveRecord
         $model->platform_id = $pf->id;
         $model->game_id = $game->id;
         $model->server_id = $si->id ?? 0;
-        $model->time = date('Y-m-d H:i:s', (string)$data->time);
+        $model->time = $data->time;
         $model->order_id = $data->order_id;
         $model->coins = $data->coins;
         $model->money = $data->money;
@@ -99,7 +99,7 @@ class Payment extends \yii\db\ActiveRecord
         if ($res) {
             return ['old', $res->id, $res->time];
         } else {
-            return ['new', self::newData($data), date('Y-m-d H:i:s', (string)$data->time)];
+            return ['new', self::newData($data), $data->time];
         }
     }
 
@@ -108,12 +108,13 @@ class Payment extends \yii\db\ActiveRecord
         $from = $from ?: strtotime(date('Y-m-d'));
         $to = $to ?: strtotime(date('Y-m-d').'+1 hour');
         $data = Payment::find()
-            ->leftJoin('game g', 'g.id = '.Payment::tableName().'.game_id')
+            ->alias('p')
+            ->leftJoin('game g', 'g.id = p.game_id')
             ->andFilterWhere(['>=', 'time', $from])
             ->andFilterWhere(['<', 'time', $to])
             ->andFilterWhere(['user_id' => $user_id])
-            ->andFilterWhere([Payment::tableName().'.platform_id' => $platform_id])
-            ->andFilterWhere([Payment::tableName().'.server_id' => $server_id])
+            ->andFilterWhere(['p.platform_id' => $platform_id])
+            ->andFilterWhere(['p.server_id' => $server_id])
             ->andFilterWhere(['g.id' => $game_id])
 
 //            ->createCommand()->rawSql;
@@ -127,13 +128,13 @@ class Payment extends \yii\db\ActiveRecord
     {
         $from = $from ?: strtotime(date('Y-m-d'));
         $to = $to ?: strtotime(date('Y-m-d').'+1 hour');
-        $data = Payment::find()
-            ->leftJoin('game g', 'g.id = '.Payment::tableName().'.game_id')
+        $data = Payment::find()->alias('p')
+            ->leftJoin('game g', 'g.id = p.game_id')
             ->andFilterWhere(['>=', 'time', $from])
             ->andFilterWhere(['<', 'time', $to])
             ->andFilterWhere(['user_id' => $user_id])
-            ->andFilterWhere([Payment::tableName().'.platform_id' => $platform_id])
-            ->andFilterWhere([Payment::tableName().'.server_id' => $server_id])
+            ->andFilterWhere(['p.platform_id' => $platform_id])
+            ->andFilterWhere(['p.server_id' => $server_id])
             ->andFilterWhere(['g.id' => $game_id])
 
 //            ->createCommand()->rawSql;

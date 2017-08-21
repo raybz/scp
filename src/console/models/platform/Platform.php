@@ -41,7 +41,7 @@ class Platform extends Model
             'coins',
             'money',
         ];
-        $uData = self::uniformPayData(self::paramData());
+        $uData = static::uniformPayData(static::paramData());
         foreach ($need as $item) {
             if (array_key_exists($item, $uData)) {
                 continue;
@@ -66,7 +66,7 @@ class Platform extends Model
             'type',
             'sign',
         ];
-        $uData = self::uniformLoginData(self::paramData());
+        $uData = static::uniformLoginData(static::paramData());
         foreach ($need as $item) {
             if (array_key_exists($item, $uData)) {
                 continue;
@@ -84,12 +84,13 @@ class Platform extends Model
         if (!$data) {
             return ['', '', 'data error'];
         }
-        $payObj = self::parse($data);
-//var_dump($payObj);exit;
+        $payObj = static::parse($data);
         try {
-            $mod = new self;
+            $mod = new static;
             $mod->_eventBefore($payObj);
+//            $res = User::saveUser($payObj, 'pay');
             $result = Payment::storeData($payObj);
+//            array_push($result, $res);
 
             return $result;
         }catch (\Exception $e) {
@@ -108,12 +109,12 @@ class Platform extends Model
         if (!$data) {
             return ['', '', 'data error'];
         }
-        $loginObj = self::parse($data);
+        $loginObj = static::parse($data);
 
         if (isset($loginObj->time) && $loginObj->time > 0 && isset($loginObj->uid) && $loginObj->uid) {
             try {
                 LoginLogTable::$month = date('Ym', $loginObj->time);
-                $mod = new self;
+                $mod = new static();
                 $mod->_eventBefore($loginObj);
                 LoginLogTable::newTable($loginObj->time);
                 $result = LoginLogTable::storeData($loginObj);
@@ -139,16 +140,16 @@ class Platform extends Model
 
     protected function _eventBefore($data)
     {
-//        $this->on(self::EVENT_BEFORE_CREATE, [$this, '_eventAddLoginTable'], $data);
-        $this->on(self::EVENT_BEFORE_CREATE, [$this, '_eventAddPlatform'], $data);
-        $this->on(self::EVENT_BEFORE_CREATE, [$this, '_eventAddServer'], $data);
-        $this->trigger(self::EVENT_BEFORE_CREATE);
+//        $this->on(static::EVENT_BEFORE_CREATE, [$this, '_eventAddLoginTable'], $data);
+        $this->on(static::EVENT_BEFORE_CREATE, [$this, '_eventAddPlatform'], $data);
+        $this->on(static::EVENT_BEFORE_CREATE, [$this, '_eventAddServer'], $data);
+        $this->trigger(static::EVENT_BEFORE_CREATE);
     }
 
     protected function _eventAfter()
     {
-        $this->on(self::EVENT_AFTER_CREATE, [$this, '_eventSaveUser']);
-        $this->trigger(self::EVENT_AFTER_CREATE);
+        $this->on(static::EVENT_AFTER_CREATE, [$this, '_eventSaveUser']);
+        $this->trigger(static::EVENT_AFTER_CREATE);
     }
 
     protected function _eventSaveUser()
@@ -174,7 +175,7 @@ class Platform extends Model
 
     protected static function parse($paramArr)
     {
-        $obj = self::createObj();
+        $obj = static::createObj();
 
         foreach (array_filter(array_keys($paramArr), 'is_string') as $key) {
             $obj->{$key} = $paramArr[$key];
@@ -190,7 +191,7 @@ class Platform extends Model
 
     protected static function paramData()
     {
-        $url_param = strpos(self::$url_param, '=') ? self::$url_param : urldecode(self::$url_param);
+        $url_param = strpos(static::$url_param, '=') ? static::$url_param : urldecode(static::$url_param);
         $paramArr = explode('&', strtolower($url_param));
         $newParam = [];
         foreach ($paramArr as $val) {
@@ -210,7 +211,7 @@ class Platform extends Model
                 $newParam[trim($p[0], ' ')] = $p[1];
             }
         }
-//var_dump($newParam);
+
         return $newParam;
     }
 }

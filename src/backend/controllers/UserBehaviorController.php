@@ -10,7 +10,6 @@ class UserBehaviorController extends Controller
 {
     public function actionSeep()
     {
-
         $searchModel = new PaymentAnalysisSearch();
         $searchModel->attributes = (\Yii::$app->request->get('PaymentAnalysisSearch'));
         if ($searchModel->from == null || $searchModel->to == null || $searchModel->game_id = null) {
