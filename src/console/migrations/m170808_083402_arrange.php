@@ -18,6 +18,7 @@ class m170808_083402_arrange extends Migration
             'new' => $this->integer()->notNull()->defaultValue(0)->comment('注册人数(新增用户)'),
             'active' => $this->integer()->notNull()->defaultValue(0)->comment('活跃用户'),
             'pay_man' => $this->integer()->notNull()->defaultValue(0)->comment('充值人数'),
+            'pay_man_time' => $this->integer()->notNull()->defaultValue(0)->comment('充值人次'),
             'pay_money' => $this->float()->notNull()->defaultValue(0)->comment('充值金额'),
             'new_pay_man' => $this->integer()->notNull()->defaultValue(0)->comment('新增充值人数'),
             'new_pay_money' => $this->float()->notNull()->defaultValue(0)->comment('新增充值金额'),

@@ -22,7 +22,7 @@ class PaymentSearch extends Payment
     {
         return [
             [['id', 'coins'], 'integer'],
-            [['uid', 'platform', 'gkey', 'server_id', 'time', 'order_id', 'created_at', 'from', 'to', 'gid'], 'safe'],
+            [['game_id', 'platform_id', 'server_id', 'time', 'order_id', 'created_at', 'from', 'to', 'gid'], 'safe'],
             [['money'], 'number'],
         ];
     }
@@ -69,10 +69,8 @@ class PaymentSearch extends Payment
             'created_at' => $this->created_at,
         ]);
 
-        $query->andFilterWhere(['like', 'uid', $this->uid])
-            ->andFilterWhere(['like', 'platform', $this->platform])
-            ->andFilterWhere(['like', 'gkey', $this->gkey])
-            ->andFilterWhere(['like', 'server_id', $this->server_id])
+        $query->andFilterWhere(['platform'=> $this->platform_id])
+            ->andFilterWhere(['server_id'=> $this->server_id])
             ->andFilterWhere(['like', 'time', $this->time])
             ->andFilterWhere(['like', 'order_id', $this->order_id]);
 

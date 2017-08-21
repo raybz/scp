@@ -7,7 +7,7 @@ use backend\models\search\GamePaymentSearch;
 use backend\models\search\PlatformPaymentSearch;
 use backend\models\search\ServerPaymentSearch;
 use common\models\Game;
-use common\models\GamePlatformServer;
+use common\models\Server;
 use common\models\Platform;
 use Yii;
 use yii\filters\VerbFilter;
@@ -118,7 +118,7 @@ class PaymentController extends Controller
     {
         $searchModel = new ServerPaymentSearch();
         $searchModel->attributes = Yii::$app->request->get('ServerPaymentSearch');
-        if ($searchModel->from == null || $searchModel->to == null || $searchModel->game_id = null) {
+        if ($searchModel->from == null || $searchModel->go == null || $searchModel->game_id = null) {
             $searchModel->game_id = 1001;
             $searchModel->from = date('Y-m-d', strtotime('-1 week'));
             $searchModel->go = date('Y-m-d', strtotime('now'));
@@ -136,7 +136,7 @@ class PaymentController extends Controller
 
         if ($searchModel->server_id == null) {
             $searchModel->server_id = array_keys(
-                GamePlatformServer::ServerDataDropData($searchModel->game_id, $searchModel->platform_id)
+                Server::ServerDataDropData($searchModel->game_id, $searchModel->platform_id)
             );
             $serverStr = serialize($searchModel->server_id);
         } else {

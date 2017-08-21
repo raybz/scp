@@ -247,47 +247,30 @@ class ApiController extends Controller
 
     public function actionServerPaymentBar()
     {
-        $from = Yii::$app->request->get('from', date('Y-m-d'));
-        $to = Yii::$app->request->get('to', date('Y-m-d', strtotime('tomorrow')));
-        $platform = Yii::$app->request->get('platform');
-        $gameId = Yii::$app->request->get('gid');
-        $server = Yii::$app->request->get('server');
+        $from = Yii::$app->request->post('from', date('Y-m-d'));
+        $to = Yii::$app->request->post('to', date('Y-m-d', strtotime('tomorrow')));
+        $platform = Yii::$app->request->post('platform');
+        $gameId = Yii::$app->request->post('gid', 1001);
+        $server = Yii::$app->request->post('server');
 
         $platformList = unserialize($platform);
         $serverList = unserialize($server);
 
         $rangeData = [];
-
-        $pl = (new Query())->from('arrange')
-            ->select([
-                'date',
-                'game_id',
-                'platform_id',
-                'server_id',
-                'sum(new) new_sum',
-                'sum(active) active_sum',
-                'sum(pay_man) pay_man_sum',
-                'sum(pay_money) pay_money_sum',
-                'sum(new_pay_man) new_pay_man_sum',
-                'sum(new_pay_money) new_pay_money_sum',
-            ])
-            ->where('date >= :from AND date < :to',
-                [
-                    ':from' => $from,
-                    ':to' => $to
-                ])
-            ->andFilterWhere(['game_id' => $gameId])
-            ->andFilterWhere(['platform_id' => $platformList])
-            ->andFilterWhere(['server_id' => $serverList])
-            ->groupBy('platform_id,server_id')
-            ->orderBy('pay_money_sum DESC')
-            ->limit(10)
-            ->all();
-
+        $sl = Arrange::getDataByServer(
+            $from,
+            $to,
+            $gameId,
+            $platformList,
+            $serverList,
+            'platform_id,server_id',
+            'pay_money_sum DESC',
+            10
+        );
         $res = Arrange::getDataByPlatform($from, $to, $gameId, $platformList);
         $pay_sum_total = [];
         $new_sum_total = [];
-        foreach($res as $re){
+        foreach ($res as $re) {
             $pay_sum_total[] = $re['pay_money_sum'];
             $new_sum_total[] = $re['new_sum'];
         }
@@ -297,20 +280,23 @@ class ApiController extends Controller
             '新增用户数（百分比）',
             '活跃用户数',
         ];
-        $data = $data1 = $data2 = $data3 =  [];
-        foreach ($pl as $r) {
+        $data = $data1 = $data2 = $data3 = [];
+        foreach ($sl as $r) {
             $pf = Platform::findOne($r['platform_id']);
             $rangeData[] = isset($pf->name) ? $pf->name.' / '.$r['server_id'].'区' : '';
-            $data1[] = round($r['pay_money_sum'] / array_sum($pay_sum_total) * 100, 2) ?:0;
+            $data1[] = round($r['pay_money_sum'] / array_sum($pay_sum_total) * 100, 2) ?: 0;
             $data2[] = round($r['new_sum'] / array_sum($new_sum_total) * 100, 2) ?: 0;
             $data3[] = intval($r['active_sum']) ?: 0;
         }
+        $dl = [
+            $data1,
+            $data2,
+            $data3,
+        ];
         foreach ($bar as $k => $b) {
             $data[$k]['name'] = $b;
+            $data[$k]['data'] = $dl[$k];
         }
-        $data[0]['data'] = $data1;
-        $data[1]['data'] = $data2;
-        $data[2]['data'] = $data3;
 
         return [
             'code' => 200,
@@ -324,11 +310,11 @@ class ApiController extends Controller
 
     public function actionPaymentAnalysisAreaSpline()
     {
-        $from = Yii::$app->request->get('from', date('Y-m-d'));
-        $to = Yii::$app->request->get('to', date('Y-m-d', strtotime('tomorrow')));
-        $platform = Yii::$app->request->get('platform');
-        $gameId = Yii::$app->request->get('gid');
-        $server = Yii::$app->request->get('server');
+        $from = Yii::$app->request->post('from');
+        $to = Yii::$app->request->post('to');
+        $platform = Yii::$app->request->post('platform');
+        $gameId = Yii::$app->request->post('gid', 1001);
+        $server = Yii::$app->request->post('server');
 
         $platformList = unserialize($platform);
         $serverList = unserialize($server);
@@ -338,24 +324,24 @@ class ApiController extends Controller
             'pay_man_sum' => '充值人数',
             'active_sum' => '活跃人数',
             'new_pay_money_sum' => '新进充值金额',
-            'new_pay_man_sum' => '新进充值人数'
+            'new_pay_man_sum' => '新进充值人数',
         ];
 
-        $diff_day = intval((strtotime($to) - strtotime($from)) / 86400);
-
-        $rangeTime = range(0, $diff_day - 1);
-        $dataAll = $data = $rangeData = [];
+        $diff_day = intval(ceil((strtotime($to) - strtotime($from)) / 86400));
+        $dataAll = $data = $rangeData = $arr = [];
         //区间大于一天 查arrange表
         if ($diff_day > 1) {
-            $data = [];
-            foreach ($bars as $key => $bar) {
-                foreach ($rangeTime as $k => $day) {
-                    $rangeData[] = date('Y-m-d', strtotime($from.$day.' day'));
-                    $f = date('Y-m-d', strtotime($from.$day.' day'));
-                    $t = date('Y-m-d', strtotime($from.($day + 1).' day'));
-                    $arr = current(Arrange::getDataByServer($f, $t, $gameId, $platformList, $serverList));
+            $rangeTime = range(0, $diff_day);
+            foreach ($rangeTime as $k => $day) {
+                $rangeData[] = date('Y-m-d', strtotime($from.$day.' day'));
+                $f = date('Y-m-d', strtotime($from.$day.' day'));
+                $t = date('Y-m-d', strtotime($from.($day + 1).' day'));
+                $arr = current(Arrange::getDataByServer($f, $t, $gameId, $platformList, $serverList));
+                foreach ($bars as $key => $bar) {
                     $data[$key][] = isset($arr[$key]) ? intval($arr[$key]) : 0;
                 }
+            }
+            foreach ($bars as $key => $bar) {
                 $dataAll[] = [
                     'name' => $bar,
                     'data' => $data[$key],
@@ -364,6 +350,40 @@ class ApiController extends Controller
             }
         } else {
             //区间小于一天 直接查payment 表
+            $diff_m = intval((strtotime($to) - strtotime($from)) / 3600);
+            $rangeTime = range(0, $diff_m);
+            foreach ($rangeTime as $k => $hour) {
+                $rangeData[] = date('H:i', strtotime($from.$hour.' hour'));
+                $f = date('Y-m-d H:i', strtotime($from.$hour.' hour'));
+                $t = date('Y-m-d H:i', strtotime($from.($hour + 1).' hour'));
+                $wf = date('Y-m-d H:i', strtotime($from.$hour.' hour -1 week'));
+                $wt = date('Y-m-d H:i', strtotime($from.($hour + 1).' hour -1 week'));
+                $yf = date('Y-m-d H:i', strtotime($from.$hour.' hour -1 day'));
+                $yt = date('Y-m-d H:i', strtotime($from.($hour + 1).' hour -1 day'));
+                $arr1 = Payment::getPaymentData($gameId, $platformList, $serverList, $f, $t);
+                $arr2 = Payment::getPaymentData($gameId, $platformList, $serverList, $yf, $yt);
+                $arr3 = Payment::getPaymentData($gameId, $platformList, $serverList, $wf, $wt);
+
+                foreach ($bars as $key => $bar) {
+                    $data[0][$key][] = isset($arr1[$key]) ? intval($arr1[$key]) : 0;
+                    $data[1][$key][] = isset($arr2[$key]) ? intval($arr2[$key]) : 0;
+                    $data[2][$key][] = isset($arr3[$key]) ? intval($arr3[$key]) : 0;
+                }
+            }
+            $bar_day = [
+                '当日',
+                '前日',
+                '上周同期',
+            ];
+            foreach ($bar_day as $ano => $d) {
+                foreach ($bars as $key => $bar) {
+                    $dataAll[] = [
+                        'name' => $d.$bar,
+                        'data' => $data[$ano][$key],
+                        'visible' => stristr($key, 'new') ? false : true,
+                    ];
+                }
+            }
         }
 
         return [
@@ -372,6 +392,179 @@ class ApiController extends Controller
                 'title' => '',
                 'xAxis' => $rangeData,
                 'series' => $dataAll,
+            ],
+        ];
+    }
+
+    public function actionUserSeepLine()
+    {
+        $from = Yii::$app->request->post('from');
+        $to = Yii::$app->request->post('to');
+        $platform = Yii::$app->request->post('platform');
+        $gameId = Yii::$app->request->post('gid', 1001);
+        $server = Yii::$app->request->post('server');
+        $type = Yii::$app->request->post('type', 1);
+        switch ($type) {
+            case 2:
+                $name = '周付费率';
+                $limit = ' week';
+                $lT = 86400 * 7;
+                break;
+            case 3:
+                $name = '月付费率';
+                $limit = ' month';
+                $lT = 86400 * 30;
+                break;
+            default:
+                $name = '日付费率';
+                $limit = ' day';
+                $lT = 86400;
+                break;
+        }
+        $platformList = unserialize($platform);
+        $serverList = unserialize($server);
+
+        $diff_day = intval(ceil((strtotime($to) - strtotime($from)) / $lT));
+        $rangeData = $arr = [];
+
+        if ($diff_day > 1) {
+            $rangeTime = range(0, $diff_day);
+            foreach ($rangeTime as $k => $day) {
+                $rangeData[] = date('Y-m-d', strtotime($from.$day.$limit));
+                $f = date('Y-m-d', strtotime($from.$day.$limit));
+                $t = date('Y-m-d', strtotime($from.($day + 1).$limit));
+                $result = current(Arrange::getDataByServer($f, $t, $gameId, $platformList, $serverList));
+                if ($result) {
+                    $arr[] = round($result['pay_man_sum'] / ($result['active_sum'] + $result['new_sum']) * 100, 2);
+                } else {
+                    $arr[] = 0;
+                }
+            }
+
+        }
+        $data = [
+            'name' => $name,
+            'data' => $arr,
+        ];
+
+        return [
+            'code' => 200,
+            'data' => [
+                'title' => '',
+                'xAxis' => $rangeData,
+                'series' => [$data],
+            ],
+        ];
+    }
+
+    public function actionUserSeepArpLine()
+    {
+        $from = Yii::$app->request->post('from');
+        $to = Yii::$app->request->post('to');
+        $platform = Yii::$app->request->post('platform');
+        $gameId = Yii::$app->request->post('gid', 1001);
+        $server = Yii::$app->request->post('server');
+        $type = Yii::$app->request->post('type', 1);
+        switch ($type) {
+            case 2:
+                $name = '周付费率';
+                $limit = ' week';
+                $lT = 86400 * 7;
+                break;
+            case 3:
+                $name = '月付费率';
+                $limit = ' month';
+                $lT = 86400 * 30;
+                break;
+            default:
+                $name = '日付费率';
+                $limit = ' day';
+                $lT = 86400;
+                break;
+        }
+        $platformList = unserialize($platform);
+        $serverList = unserialize($server);
+
+        $diff_day = intval(ceil((strtotime($to) - strtotime($from)) / $lT));
+        $rangeData = $arr = [];
+
+//        if ($diff_day > 1) {
+        $rangeTime = range(0, $diff_day);
+        foreach ($rangeTime as $k => $day) {
+            $rangeData[] = date('Y-m-d', strtotime($from.$day.$limit));
+            $f = date('Y-m-d', strtotime($from.$day.$limit));
+            $t = date('Y-m-d', strtotime($from.($day + 1).$limit));
+            $result = current(Arrange::getDataByServer($f, $t, $gameId, $platformList, $serverList));
+            if ($result) {
+                $arr[] = round($result['pay_money_sum'] / $result['pay_man_sum'] * 100, 2);
+            } else {
+                $arr[] = 0;
+            }
+        }
+//        }
+        $data = [
+            'name' => $name,
+            'data' => $arr,
+        ];
+
+        return [
+            'code' => 200,
+            'data' => [
+                'title' => '',
+                'xAxis' => $rangeData,
+                'series' => [$data],
+            ],
+        ];
+    }
+
+    public function actionPlatformSeepBar()
+    {
+        $from = Yii::$app->request->post('from', date('Y-m-d'));
+        $to = Yii::$app->request->post('to', date('Y-m-d', strtotime('tomorrow')));
+        $platform = Yii::$app->request->post('platform');
+        $gameId = Yii::$app->request->post('gid', 1001);
+        $server = Yii::$app->request->post('server');
+
+        $platformList = unserialize($platform);
+        $serverList = unserialize($server);
+        $diff = intval(ceil((strtotime($to) - strtotime($from)) / 86400)) ?: 1;
+        $rangeData = [];
+        $sl = Arrange::getDataByServer(
+            $from,
+            $to,
+            $gameId,
+            $platformList,
+            $serverList,
+            'platform_id',
+            'pay_man_sum DESC'
+        );
+
+        $bar = [
+            '日付费率（百分比）',
+            '日均ARUP',
+        ];
+        $data = $data1 = $data2 = [];
+        foreach ($sl as $r) {
+            $pf = Platform::findOne($r['platform_id']);
+            $rangeData[] = $pf->name ?? '';
+            $data1[] = ($r['active_sum'] + $r['new_sum']) > 0 ? round(
+                $r['pay_man_sum'] / ($r['active_sum'] + $r['new_sum']) / $diff * 100,
+                2
+            ) : 0;
+            $data2[] = $r['pay_man_sum'] > 0 ? round($r['pay_money_sum'] / $r['pay_man_sum'] / $diff, 2) : 0;
+        }
+        $dt = [$data1, $data2];
+        foreach ($bar as $k => $b) {
+            $data[$k]['name'] = $b;
+            $data[$k]['data'] = $dt[$k];
+        }
+
+        return [
+            'code' => 200,
+            'data' => [
+                'title' => '',
+                'xAxis' => $rangeData,
+                'series' => $data,
             ],
         ];
     }
@@ -387,7 +580,7 @@ class ApiController extends Controller
                 $_g = [$games];
             }
         }
-        $data = (new Query())->from('game_platform_server as g')
+        $data = (new Query())->from('server as g')
             ->select(['p.id', 'p.name'])
             ->leftJoin('platform p', 'p.id = g.platform_id')
             ->where(['game_id' => $_g])
@@ -409,8 +602,8 @@ class ApiController extends Controller
                 $_g = [$platform];
             }
         }
-        $data = (new Query())->from('game_platform_server')
-            ->select(['server_id as id', 'server_id as name'])
+        $data = (new Query())->from('server')
+            ->select(['id', 'server as name'])
             ->where(['platform_id' => $_g])
             ->andWhere(['game_id' => $game])
             ->groupBy('platform_id,name')

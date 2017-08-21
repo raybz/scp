@@ -25,7 +25,7 @@ class PayController extends Controller
     public function actionRun($from = null, $to = null)
     {
         if ($from == null || $to == null) {
-            $from = date('Y-m-d H:i', strtotime('-1 hour'));
+            $from = date('Y-m-d H:i', strtotime('-5 minute'));
             $to = date('Y-m-d H:i', strtotime('now'));
         } else {
             $from = date('Y-m-d H:i', strtotime($from));
@@ -38,9 +38,21 @@ class PayController extends Controller
 
     public function logPay($from, $to)
     {
-        $monthArr = LogTable::logTableMonth($from, $to);
-        foreach ($monthArr as $month) {
-            $this->SlaveUrl($month, $from, $to);
+        $diff = LogTable::getDiffDay($from, $to);
+        //搜索大于1天
+        if (!empty($diff)){
+            foreach ($diff as $k => $v) {
+                $f = current($diff);
+                $t = next($diff);
+                if ($f && $t){
+                    $this->SlaveUrl(date('Ym', strtotime($f)), $f, $t);
+                }
+            }
+        } else {
+            $monthArr = LogTable::logTableMonth($from, $to);
+            foreach ($monthArr as $month) {
+                $this->SlaveUrl($month, $from, $to);
+            }
         }
     }
 
@@ -49,16 +61,24 @@ class PayController extends Controller
         LogTable::$month = $month ?: date('Ym');
         $data = LogTable::find()
             ->select('url, post_data')
-            ->andFilterWhere(['>=', 'time', $from])
-            ->andFilterWhere(['<=', 'time', $to]);
+            ->andFilterWhere(['>=', 'stamp', strtotime($from)])
+            ->andFilterWhere(['<', 'stamp', strtotime($to)]);
+
         foreach ($data->each(100) as $v) {
+            if (!stripos($v->url, 'pay')) {
+                continue;
+            }
+//            $this->stdout($v->url.PHP_EOL);
             if (!strpos($v->url, '?')) {
-                if(!stripos($v->url, 'pay') || !$v->post_data) {
+                if (!stripos($v->url, 'pay') || !($v->post_data && strlen($v->post_data) > 10 && stristr(
+                            $v->post_data,
+                            '='
+                        ) && stristr($v->post_data, '&'))) {
                     continue;
                 }
                 PlatformSoGou::$url_param = $v->post_data;
                 $result = PlatformSoGou::savePay();
-                $this->stdout($result[0].' payment ID: '.$result[1].PHP_EOL);
+                $this->stdout($result[0].' payment ID: '.$result[1].' info: '.$result[2].PHP_EOL);
             }
             $urlArr = explode('?', $v->url);
             if(!stripos($urlArr[0], 'pay')) {
@@ -69,7 +89,7 @@ class PayController extends Controller
                 if (stristr($urlArr[0], $k)){
                     $class::$url_param = $urlArr[1];
                     $result = $class::savePay();
-                    $this->stdout($result[0].' payment ID: '.$result[1].PHP_EOL);
+                    $this->stdout($result[0].' payment ID: '.$result[1].' info: '.$result[2].PHP_EOL);
                 }
             }
         }

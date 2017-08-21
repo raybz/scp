@@ -12,8 +12,9 @@ use yii\db\Query;
 /**
  * ArrangeSearch represents the model behind the search form about `common\models\Arrange`.
  */
-class ServerPaymentSearch extends Arrange
+class PaymentAnalysisSearch extends Arrange
 {
+    public $_type;
     public $from;
     public $go;
     public $to;
@@ -25,7 +26,7 @@ class ServerPaymentSearch extends Arrange
     {
         return [
             [['id', 'game_id', 'platform_id', 'new', 'active', 'pay_man', 'new_pay_man'], 'integer'],
-            [['date', 'server_id', 'created_at', 'updated_at', 'from', 'to', 'time', 'go'], 'safe'],
+            [['date', 'server_id', 'created_at', 'updated_at', 'from', 'to', 'time', 'go', '_type'], 'safe'],
             [['pay_money', 'new_pay_money'], 'number'],
         ];
     }
@@ -33,6 +34,37 @@ class ServerPaymentSearch extends Arrange
 
     public function search()
     {
+        $diff = intval((strtotime($this->to) - strtotime($this->from)) / 86400);
+        $diff_m = intval((strtotime($this->to) - strtotime($this->from)) / 3600);
+        $rangeTime = range(0, $diff_m);
+
+        if ($diff <= 1) {
+            $data = [];
+            foreach ($rangeTime as $k => $hour) {
+                $f = date('Y-m-d H:i', strtotime($this->from.$hour.' hour'));
+                $t = date('Y-m-d H:i', strtotime($this->to.($hour + 1).' hour'));
+                $data[] = Payment::getPaymentData(
+                    $this->game_id,
+                    $this->platform_id,
+                    $this->server_id,
+                    $f,
+                    $t
+                );
+            }
+            $provider = new ArrayDataProvider(
+                [
+                    'allModels' => $data,
+//                'sort' => [
+//                    'attributes' => [],
+//                ],
+                    'pagination' => [
+                        'pageSize' => 24,
+                    ],
+                ]
+            );
+
+            return $provider;
+        }
         $query = (new Query())->from('arrange')
             ->select([
                 'date',
@@ -54,8 +86,8 @@ class ServerPaymentSearch extends Arrange
             ->andFilterWhere(['game_id' => $this->game_id])
             ->andFilterWhere(['platform_id' => $this->platform_id])
             ->andFilterWhere(['server_id' => $this->server_id])
-            ->groupBy('platform_id,server_id')
-            ->orderBy('pay_money_sum DESC');
+            ->groupBy('date')
+            ->orderBy('date DESC');
 
         list($sql, $sqlParams) = Yii::$app->db->getQueryBuilder()->build($query);
         $count = count($query->column());

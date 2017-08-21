@@ -16,7 +16,7 @@ Hcharts.prototype = {
     //条形图
     showBar: function () {
         var _this = this;
-        $.getJSON(this.api, this.param, function(data) {
+        $.post(this.api, this.param, function(data) {
             Highcharts.chart(_this.container, {
                 chart: {
                     type: 'bar'
@@ -44,7 +44,7 @@ Hcharts.prototype = {
                 },
                 series:data.data.series
             });
-        });
+        }, 'json');
     },
     //饼图
     showPie: function(){
@@ -83,6 +83,36 @@ Hcharts.prototype = {
 
         });
     },
+    //折线图
+    showLine: function() {
+        var _this = this;
+        $.post(this.api, this.param, function(data) {
+            Highcharts.chart(_this.container, {
+                title: {
+                    text: _this.title.text+data.data.title,
+                    align: _this.title.align,
+                    x: _this.title.x
+                },
+                subtitle: {
+                    text: _this.subtitle
+                },
+                xAxis: {categories: data.data.xAxis},
+                yAxis: {
+                },
+                tooltip: {
+                    shared: true
+                },
+                plotOptions: {
+                    spline: {
+                        marker: {
+                            enabled: false
+                        }
+                    }
+                },
+                series:data.data.series
+            });
+        }, 'json');
+    },
     //曲线图
     showSpline: function() {
         var _this = this;
@@ -119,7 +149,7 @@ Hcharts.prototype = {
     //区域图
     showAreaSpline: function () {
         var _this = this;
-        $.getJSON(this.api, this.param, function (data) {
+        $.post(this.api, this.param, function (data) {
             Highcharts.chart(_this.container, {
                 chart: {
                     type: 'areaspline'
@@ -148,7 +178,7 @@ Hcharts.prototype = {
                 },
                 series:data.data.series
             });
-        });
+        }, 'json');
     }
 };
 

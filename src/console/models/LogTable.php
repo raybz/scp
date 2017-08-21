@@ -55,7 +55,7 @@ class LogTable extends ActiveRecord
         return [
             'id' => $m->primaryKey(),
             'host' => $m->string()->notNull()->defaultValue('0.0.0.0'),
-            'time' => $m->string()->notNull(),
+            'time' => $m->dateTime()->notNull()->defaultValue('0000-00-00 00:00:00'),
             'stamp' => $m->integer(10)->notNull(),
             'request_method' => $m->string()->notNull(),
             'url' => $m->string()->notNull(),
@@ -129,6 +129,31 @@ class LogTable extends ActiveRecord
         }
 
         return $monthArr;
+    }
+
+    //筛选有效天
+    public static function getDiffDay($from, $to)
+    {
+        $diff = (strtotime($to) - strtotime($from)) / 86400;
+        $monthArr = static::logTableMonth($from, $to);
+        $v_to = [];
+        if ($diff > 1) {
+            if (in_array(date('Ym', strtotime($from)), $monthArr)) {
+                $v_to[] = $from;
+            }
+
+            for ($i = 0; $i < ceil($diff); $i++) {
+                $stamp = strtotime($to.(-floor($diff).' day').($i.' day'));
+
+                $tableDate = date('Ym', $stamp);
+
+                if (in_array($tableDate, $monthArr)){
+                    $v_to[] = date('Y-m-d H:i:s', $stamp);
+                }
+            }
+        }
+
+        return $v_to;
     }
 
     public static function newTable($date)

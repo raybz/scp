@@ -7,23 +7,23 @@ use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 
 /**
- * This is the model class for table "game_platform_server".
+ * This is the model class for table "server".
  *
  * @property integer $id
  * @property integer $game_id
  * @property integer $platform_id
- * @property string  $server_id
+ * @property string  $server
  * @property integer $status
  * @property string  $created_at
  */
-class GamePlatformServer extends \yii\db\ActiveRecord
+class Server extends \yii\db\ActiveRecord
 {
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
-        return 'game_platform_server';
+        return 'server';
     }
 
     /**
@@ -32,10 +32,10 @@ class GamePlatformServer extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['game_id', 'platform_id', 'server_id'], 'required'],
+            [['game_id', 'platform_id', 'server'], 'required'],
             [['game_id', 'platform_id', 'status'], 'integer'],
             [['created_at',], 'safe'],
-            [['server_id'], 'string', 'max' => 255],
+            [['server'], 'string', 'max' => 255],
         ];
     }
 
@@ -48,7 +48,7 @@ class GamePlatformServer extends \yii\db\ActiveRecord
             'id' => 'ID',
             'game_id' => 'Game ID',
             'platform_id' => 'Platform ID',
-            'server_id' => 'server ID',
+            'server' => 'server',
             'status' => 'Status',
             'created_at' => 'Created At',
         ];
@@ -79,7 +79,7 @@ class GamePlatformServer extends \yii\db\ActiveRecord
             $mod = new self;
             $mod->game_id = $game->id;
             $mod->platform_id = $platform->id;
-            $mod->server_id = $data->server_id;
+            $mod->server = $data->server_id;
             $mod->status = Status::ACTIVE;
             if ($mod->save()) {
                 return $mod->id;
@@ -92,12 +92,12 @@ class GamePlatformServer extends \yii\db\ActiveRecord
         return null;
     }
 
-    public static function getServer($game_id, $platform_id, $server_id)
+    public static function getServer($game_id, $platform_id, $server)
     {
         $result = self::find()
             ->where('game_id =:g', [':g' => $game_id])
             ->andWhere('platform_id = :p', [':p' => $platform_id])
-            ->andWhere('server_id = :s',[':s' => $server_id])
+            ->andWhere('server = :s',[':s' => $server])
             ->one();
 
         return $result;
@@ -108,7 +108,7 @@ class GamePlatformServer extends \yii\db\ActiveRecord
         $res = self::find()
             ->where('game_id = :g', [':g' => $game_id])
             ->andWhere(['platform_id' => $platform_id])
-            ->groupBy('server_id')
+            ->groupBy('server')
             ->indexBy('id')
             ->column();
 

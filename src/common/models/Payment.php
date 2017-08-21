@@ -3,6 +3,7 @@
 namespace common\models;
 
 use yii\behaviors\TimestampBehavior;
+use yii\db\Query;
 use yii\helpers\Json;
 
 /**
@@ -10,12 +11,9 @@ use yii\helpers\Json;
  *
  * @property integer $id
  * @property integer $user_id
- * @property string  $uid
  * @property integer $platform_id
- * @property string  $platform
- * @property string  $gkey
- * @property string  $gid
- * @property string  $server_id
+ * @property integer $game_id
+ * @property integer $server_id
  * @property string  $time
  * @property string  $order_id
  * @property integer $coins
@@ -38,33 +36,14 @@ class Payment extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['uid', 'user_id', 'platform', 'platform_id', 'gkey', 'server_id', 'gid','time', 'order_id', 'coins', 'money'], 'required'],
-            [['coins', 'gid', 'user_id', 'platform_id'], 'integer'],
+            [['user_id', 'platform_id', 'server_id', 'game_id', 'time', 'order_id', 'coins', 'money'], 'required'],
+            [['coins', 'game_id', 'user_id', 'platform_id', 'server_id'], 'integer'],
             [['money'], 'number'],
             [['created_at'], 'safe'],
-            [['uid', 'platform', 'gkey', 'server_id', 'time', 'order_id'], 'string', 'max' => 255],
+            [['time', 'order_id'], 'string', 'max' => 255],
         ];
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function attributeLabels()
-    {
-        return [
-            'id' => 'ID',
-            'uid' => 'Uid',
-            'platform' => 'Platform',
-            'gkey' => 'Gkey',
-            'gid' => 'gid',
-            'server_id' => 'Server ID',
-            'time' => 'Time',
-            'order_id' => 'Order ID',
-            'coins' => 'Coins',
-            'money' => 'Money',
-            'created_at' => 'Created At',
-        ];
-    }
 
     public function behaviors()
     {
@@ -83,22 +62,21 @@ class Payment extends \yii\db\ActiveRecord
         if (!$game) {
             return 'lose gkey';
         }
-        $user = User::getUser($data->uid, $data->platform, $game->id);
-        if (!$user) {
-            return 'lose user';
-        }
         $pf = Platform::getPlatform($data->platform);
         if (!$pf) {
             return 'lose platform';
         }
+        $user = User::getUser($data->uid, $pf->id);
+        if (!$user) {
+            return 'lose user';
+        }
+
+        $si = Server::getServer($game->id, $pf->id, $data->server_id);
         $model = new self;
-        $model->uid = $data->uid;
         $model->user_id = $user->id;
         $model->platform_id = $pf->id;
-        $model->platform = $data->platform;
-        $model->gkey = $data->gkey;
-        $model->gid = $game->id;
-        $model->server_id = $data->server_id;
+        $model->game_id = $game->id;
+        $model->server_id = $si->id ?? 0;
         $model->time = date('Y-m-d H:i:s', (string)$data->time);
         $model->order_id = $data->order_id;
         $model->coins = $data->coins;
@@ -112,14 +90,16 @@ class Payment extends \yii\db\ActiveRecord
 
     public static function storeData($data)
     {
-        $res = self::find()->select('id')->where('uid=:uid',[':uid' => $data->uid])
-            ->andWhere('platform = :p', [':p' => $data->platform])
-            ->andWhere('order_id = :o', [':o' => $data->order_id])
+        $platform = Platform::getPlatform($data->platform);
+        $res = self::find()
+            ->select('id, time')
+            ->where('platform_id = :pid', [':pid' => $platform->id])
+            ->andWhere('order_id = :oid', [':oid' => $data->order_id])
             ->one();
         if ($res) {
-            return ['old', $res->id];
+            return ['old', $res->id, $res->time];
         } else {
-            return ['new', self::newData($data)];
+            return ['new', self::newData($data), date('Y-m-d H:i:s', (string)$data->time)];
         }
     }
 
@@ -128,7 +108,7 @@ class Payment extends \yii\db\ActiveRecord
         $from = $from ?: strtotime(date('Y-m-d'));
         $to = $to ?: strtotime(date('Y-m-d').'+1 hour');
         $data = Payment::find()
-            ->leftJoin('game g', 'g.id = '.Payment::tableName().'.gid')
+            ->leftJoin('game g', 'g.id = '.Payment::tableName().'.game_id')
             ->andFilterWhere(['>=', 'time', $from])
             ->andFilterWhere(['<', 'time', $to])
             ->andFilterWhere(['user_id' => $user_id])
@@ -148,7 +128,7 @@ class Payment extends \yii\db\ActiveRecord
         $from = $from ?: strtotime(date('Y-m-d'));
         $to = $to ?: strtotime(date('Y-m-d').'+1 hour');
         $data = Payment::find()
-            ->leftJoin('game g', 'g.id = '.Payment::tableName().'.gid')
+            ->leftJoin('game g', 'g.id = '.Payment::tableName().'.game_id')
             ->andFilterWhere(['>=', 'time', $from])
             ->andFilterWhere(['<', 'time', $to])
             ->andFilterWhere(['user_id' => $user_id])
@@ -160,5 +140,72 @@ class Payment extends \yii\db\ActiveRecord
             ->count();
 
         return $data ?? 0;
+    }
+
+    public static function getPaymentData(
+        $gameId = null,
+        $platformList = null,
+        $serverList = null,
+        $from = null,
+        $to = null
+    ) {
+        $pl = (new Query())->from('payment')
+            ->select(
+                [
+                    '*',
+                    'sum(platform_id) as tp',
+                    'sum(server_id) as ts',
+                    'sum(money) as tMoney',
+                    'count(*) as cp',
+                ]
+            )
+            ->andFilterWhere(['game_id' => $gameId])
+            ->andFilterWhere(['platform_id' => $platformList])
+            ->andFilterWhere(['server_id' => $serverList])
+            ->andFilterWhere(['>=', 'time', $from])
+            ->andFilterWhere(['<', 'time', $to])
+//            ->createCommand()->rawSql;
+            ->all();
+
+        $data['platform_id'] = $data['server_id'] = $data['new_sum'] = $data['active_sum'] = $data['pay_money_sum'] = $data['pay_man_sum'] = $data['new_pay_man_sum'] = $data['new_pay_money_sum'] = 0;
+        $newUser = [];
+        $user = User::newRegister($from, $to, $gameId, $platformList, $serverList);
+        foreach ($user as $u) {
+            $newUser[] = $u->id;
+        }
+        $d = current($pl);
+        if (!empty($d)){
+            $time = ((strtotime($to) - strtotime($from)) / 3600) > 1 ? $from : $from.'/'.$to;
+            $user_new_total = count($user);
+            $pay_money_sum = $d['tMoney'];
+            $pay_man_sum = $d['cp'];
+            $data['gid'] = $d['game_id'];
+            $data['date'] = $time;
+            $data['platform_id'] = $d['tp'];
+            $data['server_id'] = $d['ts'];
+            $data['new_sum'] = $user_new_total;
+            $data['active_sum'] = Arrange::getActive($d, $from, $to);
+            $data['pay_money_sum'] = $pay_money_sum ?? 0;
+            $data['pay_man_sum'] = $pay_man_sum;
+            $data['new_pay_man_sum'] = Payment::getPerTimeMan(
+                $d['game_id'],
+                $from,
+                $to,
+                $newUser,
+                $d['platform_id'],
+                $d['server_id']
+            );
+            $data['new_pay_money_sum'] = Payment::getPerTimeMoney(
+                $d['game_id'],
+                $from,
+                $to,
+                $newUser,
+                $d['platform_id'],
+                $d['server_id']
+            );
+        }
+
+
+        return $data ?: [];
     }
 }

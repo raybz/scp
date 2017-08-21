@@ -20,7 +20,7 @@ $this->title = '概况';
                 <?php $form = \yii\widgets\ActiveForm::begin(
                     [
                         'method' => 'get',
-                        'action' => '/payment-analysis/index',
+                        'action' => '/user-behavior/seep',
                     ]
                 ); ?>
 
@@ -70,32 +70,17 @@ $this->title = '概况';
                         </div>
                     </div>
                     <div class="col-md-2">
-                        <?= $form->field($searchModel, 'from')->widget(
-                            DateTimePicker::className(),[
-                                'options' => ['placeholder' => '开始日期'],
-                                'type' => DateTimePicker::TYPE_COMPONENT_PREPEND,
+                        <?= $form->field($searchModel, 'time')->widget(
+                            \kartik\daterange\DateRangePicker::className(),
+                            [
                                 'convertFormat' => true,
+                                'startAttribute' => 'from',
+                                'endAttribute' => 'to',
                                 'pluginOptions' => [
-                                    'format' => 'yyyy-MM-dd HH:i',
-                                    'todayHighlight' => true,
-                                    'autoclose' => true,
-                                ]
+                                    'locale' => ['format' => 'Y-m-d'],
+                                ],
                             ]
-                        )->label('开始') ?>
-                    </div>
-                    <div class="col-md-2">
-                        <?= $form->field($searchModel, 'to')->widget(
-                            DateTimePicker::className(),[
-                                'options' => ['placeholder' => '结束日期'],
-                                'type' => DateTimePicker::TYPE_COMPONENT_PREPEND,
-                                'convertFormat' => true,
-                                'pluginOptions' => [
-                                    'format' => 'yyyy-MM-dd HH:i',
-                                    'todayHighlight' => true,
-                                    'autoclose' => true,
-                                ]
-                            ]
-                        )->label('结束') ?>
+                        )->label('日期:') ?>
                     </div>
                     <div class="col-md-1">
                         <?= \yii\helpers\Html::submitButton(
@@ -108,10 +93,21 @@ $this->title = '概况';
             </div>
         </div>
     </div>
+
     <div class="box box-default">
         <!--折线图-->
         <div class="box-header with-border">
-            <h3 class="box-title">图表</h3>
+            <div class="btn-group" data-toggle="buttons" id="_type">
+                <label class="btn btn-primary active options" id="option1">
+                    <input type="radio" name="options"  autocomplete="off" checked value="1"> 按日
+                </label>
+                <label class="btn btn-primary options">
+                    <input type="radio" name="options" id="option2" autocomplete="off" value="2"> 按周
+                </label>
+                <label class="btn btn-primary options">
+                    <input type="radio" name="options" id="option3" autocomplete="off" value="3"> 按月
+                </label>
+            </div>
             <div class="box-tools pull-right">
                 <button class="btn btn-box-tool" data-widget="collapse">
                     <i class="fa fa-minus"></i>
@@ -120,10 +116,24 @@ $this->title = '概况';
             </div>
         </div>
         <div class="box-body">
-            <div id="per-day-server-bar-container" style="height: 800px"></div>
+            <div id="per-day-server-bar-container" ></div>
         </div>
     </div>
-
+    <div class="box box-default">
+        <!--折线图-->
+        <div class="box-header with-border">
+            <h3 class="box-title">ARPU</h3>
+            <div class="box-tools pull-right">
+                <button class="btn btn-box-tool" data-widget="collapse">
+                    <i class="fa fa-minus"></i>
+                </button>
+                <button class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+            </div>
+        </div>
+        <div class="box-body">
+            <div id="arp-line-container"></div>
+        </div>
+    </div>
 
 <?php $columns = [
     ['class' => '\kartik\grid\SerialColumn', 'pageSummary' => '汇总'],
@@ -135,25 +145,16 @@ $this->title = '概况';
         },
     ],
     [
-        'label' => '新增用户',
-        'hAlign' => 'center',
-        'value' => function ($data) {
-            return $data['new_sum'];
-        },
-        'pageSummary' => true,
-    ],
-    [
         'label' => '活跃用户',
         'hAlign' => 'center',
         'value' => function ($data) {
-            return $data['active_sum'];
+            return $data['active_sum'] + $data['new_sum'];
         },
         'pageSummary' => true,
     ],
     [
         'label' => '充值金额',
         'value' => function ($data) {
-//    return $data['pay_money_sum'];
             return Yii::$app->formatter->asDecimal($data['pay_money_sum'], 2);
         },
         'hAlign' => 'center',
@@ -171,7 +172,7 @@ $this->title = '概况';
         'label' => '付费渗透率(%)',
         'value' => function ($data) {
             if ($data['active_sum'] > 0) {
-                return Yii::$app->formatter->asDecimal($data['pay_man_sum'] / $data['active_sum'] * 100);
+                return Yii::$app->formatter->asDecimal($data['pay_man_sum'] / ($data['active_sum'] + $data['new_sum']) * 100);
             } else {
                 return '-';
             }
@@ -183,33 +184,6 @@ $this->title = '概况';
         'value' => function ($data) {
             if ($data['pay_man_sum'] > 0) {
                 return Yii::$app->formatter->asDecimal($data['pay_money_sum'] / $data['pay_man_sum'] * 100);
-            } else {
-                return '-';
-            }
-        },
-        'hAlign' => 'center',
-    ],
-    [
-        'label' => '新增充值人数',
-        'value' => function ($data) {
-            return $data['new_pay_man_sum'];
-        },
-        'hAlign' => 'center',
-        'pageSummary' => true,
-    ],
-    [
-        'attribute' => '新增充值金额',
-        'hAlign' => 'center',
-        'value' => function ($data) {
-            return Yii::$app->formatter->asDecimal($data['new_pay_money_sum'], 2);
-        },
-        'pageSummary' => true,
-    ],
-    [
-        'label' => '新进充值占比(%)',
-        'value' => function ($data) {
-            if ($data['pay_man_sum'] > 0) {
-                return Yii::$app->formatter->asDecimal($data['new_pay_money_sum'] / $data['pay_money_sum'] * 100);
             } else {
                 return '-';
             }
@@ -240,19 +214,40 @@ $this->title = '概况';
         'responsive' => true,
         'condensed' => true,
         'panel' => [
-            'heading' => '游戏收入概要',
+            'heading' => \yii\helpers\Html::a('', ['/user-behavior/seep'],['id' => '_ph']),
             'type' => 'default',
             'after' => false,
             'before' => false,
+            'footer' => false,
         ],
     ]
 ); ?>
+    <div class="box box-default">
+        <!--条形图-->
+        <div class="box-header with-border">
+            <h3 class="box-title">各平台付费渗透</h3>
+            <div class="box-tools pull-right">
+                <button class="btn btn-box-tool" data-widget="collapse">
+                    <i class="fa fa-minus"></i>
+                </button>
+                <button class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+            </div>
+        </div>
+        <div class="box-body">
+            <div id="platform-bar-container" style="height: 560px;"></div>
+        </div>
+    </div>
 <?php
 $charts = <<<EOL
+    $('.options').on('click', function(){
+        var _type = $(this).children('input').val();
+        $('#_ph').attr('href', '/user-behavior/seep?_type='+_type).click();    
+        
+    //折线图
         var param = {
-            api: '/api/payment-analysis-area-spline?',
+            api: '/api/user-seep-line?',
             title: {
-                text: '收入趋势',
+                text: '付费率',
                 align: 'left',
                 x: 70
             },
@@ -264,10 +259,57 @@ $charts = <<<EOL
                 server:'{$serverStr}',
                 from: '{$from}',
                 to: '{$to}',
+                type: _type
             }
         };
         var chart = new Hcharts(param);
-        chart.showAreaSpline();
+        chart.showLine();
+    //折线图
+        var param = {
+            api: '/api/user-seep-arp-line?',
+            title: {
+                text: 'ARPU',
+                align: 'left',
+                x: 70
+            },
+            subtitle:'',
+            container: 'arp-line-container',
+            param: {
+                gid: '{$searchModel->game_id}',
+                platform: '{$platformStr}',
+                server:'{$serverStr}',
+                from: '{$from}',
+                to: '{$to}',
+                type: _type
+            }
+        };
+        var chart = new Hcharts(param);
+        chart.showLine();
+    });
+    //条形图
+    var param = {
+        api: '/api/platform-seep-bar?',
+        title: {
+            text: '',
+            align: 'left',
+            x: 70
+        },
+        subtitle:'',
+        container: 'platform-bar-container',
+        param: {
+            gid: '{$searchModel->game_id}',
+            platform: '{$platformStr}',
+            server:'{$serverStr}',
+            from: '{$from}',
+            to: '{$to}',
+        }
+    };
+    var chart = new Hcharts(param);
+    chart.showBar();
+    
+    $().ready(function(){
+        $('#option1').click();
+    });
 EOL;
 $this->registerJs($charts);
 ?>
@@ -282,7 +324,7 @@ $this->registerJsFile(
 );
 $script = <<<EOL
     var Component = new IMultiSelect({
-        original: '#paymentanalysissearch-game_id',
+        original: '#serverpaymentsearch-game_id',
         aim: '#server-payment-search-platform',
         selected_values_id: '#selected_platform_id',
         url:'/api/get-platform-by-game'
@@ -297,7 +339,7 @@ $script = <<<EOL
         aim: '#server-payment-search-server',
         selected_values_id: '#selected_server_id',
         url:'/api/get-server-by-platform',
-        depend:'#paymentanalysissearch-game_id',
+        depend:'#serverpaymentsearch-game_id',
     });
     Component.start();
 EOL;

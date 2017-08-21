@@ -32,6 +32,7 @@ class LogController extends Controller
 
       //记录日志
         $this->saveLog($from, $to, $f, $t);
+        //$login = new LoginController();
     }
 
     protected function getLogUrl($old = self::NEW, $time = null, $i = 1)

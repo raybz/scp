@@ -162,8 +162,8 @@ $this->title = '概况';
     [
         'label' => '付费渗透率(%)',
         'value' => function ($data) {
-            if ($data['active_sum'] > 0) {
-                return Yii::$app->formatter->asDecimal($data['pay_man_sum'] / $data['active_sum'] * 100);
+            if (($data['active_sum']+$data['new_sum']) > 0) {
+                return Yii::$app->formatter->asDecimal($data['pay_man_sum'] / ($data['active_sum']+$data['new_sum']) * 100);
             } else {
                 return '-';
             }
@@ -224,7 +224,7 @@ $this->title = '概况';
         'toolbar' => [
             $columns,
         ],
-        'id' => 'payment-game',
+        'id' => 'server-payment',
         'striped' => false,
         'hover' => false,
         'floatHeader' => false,
@@ -232,7 +232,7 @@ $this->title = '概况';
         'responsive' => true,
         'condensed' => true,
         'panel' => [
-            'heading' => '游戏收入概要',
+            'heading' => '平台-区服收入概要',
             'type' => 'default',
             'after' => false,
             'before' => false,
@@ -285,7 +285,7 @@ EOL;
 $this->registerJs($script);
 $script = <<<EOL
     var Component = new IMultiSelect({
-        original: '#server-payment-search-platform',
+        original: '#selected_platform_id',
         aim: '#server-payment-search-server',
         selected_values_id: '#selected_server_id',
         url:'/api/get-server-by-platform',

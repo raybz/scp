@@ -26,7 +26,7 @@ class LoginController extends Controller
     public function actionRun($from = null, $to = null)
     {
         if ($from == null || $to == null) {
-            $from = date('Y-m-d H:i', strtotime('-1 hour'));
+            $from = date('Y-m-d H:i', strtotime('-5 minute'));
             $to = date('Y-m-d H:i', strtotime('now'));
         } else {
             $from = date('Y-m-d H:i', strtotime($from));
@@ -39,9 +39,21 @@ class LoginController extends Controller
 
     public function loginLog($from, $to)
     {
-        $monthArr = LogTable::logTableMonth($from, $to);
-        foreach ($monthArr as $month) {
-            $this->SlaveUrl($month, $from, $to);
+        $diff = LogTable::getDiffDay($from, $to);
+        //搜索大于1天
+        if (!empty($diff)){
+            foreach ($diff as $k => $v) {
+                $f = current($diff);
+                $t = next($diff);
+                if ($f && $t){
+                    $this->SlaveUrl(date('Ym', strtotime($f)), $f, $t);
+                }
+            }
+        } else {
+            $monthArr = LogTable::logTableMonth($from, $to);
+            foreach ($monthArr as $month) {
+                $this->SlaveUrl($month, $from, $to);
+            }
         }
     }
 
@@ -50,18 +62,25 @@ class LoginController extends Controller
         LogTable::$month = $month ?: date('Ym');
         $data = LogTable::find()
             ->select('url, post_data')
-            ->andFilterWhere(['>=', 'time', $from])
-            ->andFilterWhere(['<=', 'time', $to]);
+            ->andFilterWhere(['>=', 'stamp', strtotime($from)])
+            ->andFilterWhere(['<', 'stamp', strtotime($to)]);
+
         foreach ($data->each(100) as $v) {
 //            $this->stdout(urldecode($v->url.PHP_EOL));
             if (!strpos($v->url, '?')) {
-                if (!stripos($v->url, 'login') || !($v->post_data && strlen($v->post_data) > 10)) {
+                if (!stripos($v->url, 'login') || !($v->post_data && strlen($v->post_data) > 10 && stristr(
+                            $v->post_data,
+                            '='
+                        ) && stristr($v->post_data, '&')) || strpos($v->url, 'api')) {
                     continue;
                 }
+
                 PlatformSoGou::$url_param = $v->post_data;
+                $this->stdout('===========================start==============================='.PHP_EOL);
                 $result = PlatformSoGou::saveLogin();
+
                 $this->stdout(
-                    $result[0].' User Login ID: '.$result[1].($result[0] == 'new' ? ' New User ID: '.$result[2] : '').PHP_EOL
+                    $result[0].' Login ID: '.$result[1].($result[0] == 'new' ? ' New User ID: '.$result[2] : '').($result[3] ?? '').PHP_EOL
                 );
             } else {
                 $urlArr = explode('?', $v->url);
@@ -70,10 +89,14 @@ class LoginController extends Controller
                 }
                 foreach ($this->map() as $k => $class) {
                     if (stristr($urlArr[0], $k)) {
+                        if (strlen($urlArr[1]) < 10) {
+                            continue;
+                        }
                         $class::$url_param = $urlArr[1];
+                        $this->stdout('===========================start==============================='.PHP_EOL);
                         $result = $class::saveLogin();
                         $this->stdout(
-                            $result[0].' User Login ID: '.$result[1].($result[0] == 'new' ? ' New User ID: '.$result[2] : '').PHP_EOL
+                            $result[0].' Login ID: '.$result[1].($result[0] == 'new' ? ' New User ID: '.$result[2] : '').($result[3] ?? '').PHP_EOL
                         );
                     }
                 }

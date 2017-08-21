@@ -2,8 +2,8 @@
 
 namespace console\models;
 
+use common\definitions\UserIsAdult;
 use common\models\Game;
-use common\models\User;
 use Components\Database\Migration;
 
 /**
@@ -73,21 +73,23 @@ class LoginLogTable extends LogTable
     public static function newData($data)
     {
         $game = Game::getGameByGKey($data->gkey);
-        $model = new self;
+        $model = new static;
         $model->uid = $data->uid;
         $model->platform = $data->platform;
         $model->gkey = $data->gkey;
         $model->gid = $game['id'];
         $model->server_id = $data->server_id ?? '';
         $model->time = date('Y-m-d H:i:s', $data->time);
-        $model->is_adult = $data->is_adult;
-        $model->back_url = $data->back_url;
-        $model->type = $data->type;
+        $model->is_adult = $data->is_adult ?? UserIsAdult::OTHER;
+        $model->back_url = $data->back_url ?? '';
+        $model->type = $data->type ?? '';
         $model->sign = $data->sign;
         $model->created_at = date('Y-m-d H:i:s');
 
         if($model->save()) {
             return $model->id;
+        } else {
+            var_dump($model->errors);
         }
 
         return null;
@@ -122,32 +124,16 @@ class LoginLogTable extends LogTable
         if (!(isset($data->gkey) && $data->gkey)) {
             return null;
         }
-
-        $newLogin = self::newData($data);
-        if ($userData = self::findOne($newLogin)) {
-            $uid = self::updateUser($userData);
-
-            return ['new', $newLogin, $uid];
+        $game = Game::getGameByGKey($data->gkey);
+        if (!$game) {
+            return null;
         }
-
-        return ['', '', ''];
-    }
-
-    protected static function updateUser($userData)
-    {
-        $user = User::getUser($userData->uid, $userData->platform, $userData->gid);
-        if ($user) {
-            if (strtotime($user->register_at) > strtotime($userData->time)) {
-                $user->server_id = $userData->server_id;
-                $user->register_at = $userData->time;
-                $user->save();
-
-                return $user->id;
-            } else {
-                return '';
-            }
-        } else {
-            return User::newUser($userData);
+        $time = date('Y-m-d H:i:s', $data->time);
+        if (static::getLogin($data->uid, $data->platform, $game->id, $time)) {
+            return null;
         }
+        $newLogin = static::newData($data);
+
+        return $newLogin;
     }
 }
