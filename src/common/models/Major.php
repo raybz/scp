@@ -2,6 +2,10 @@
 
 namespace common\models;
 
+use common\definitions\Status;
+use yii\behaviors\BlameableBehavior;
+use yii\behaviors\TimestampBehavior;
+
 /**
  * This is the model class for table "major".
  *
@@ -49,11 +53,11 @@ class Major extends \yii\db\ActiveRecord
                     'status',
                     'created_by',
                     'updated_by',
+                    'platform_id',
                 ],
                 'integer',
             ],
             [['register_at', 'latest_login_at', 'created_at', 'updated_at'], 'safe'],
-            [['platform_id'], 'string', 'max' => 255],
         ];
     }
 
@@ -81,6 +85,26 @@ class Major extends \yii\db\ActiveRecord
         ];
     }
 
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => TimestampBehavior::class,
+                'value' => date('Y-m-d H:i:s'),
+            ],
+            [
+                'class' => BlameableBehavior::class,
+                'value' => function () {
+                    if (isset(\Yii::$app->user)) {
+                        return \Yii::$app->user->id ?? 0;
+                    } else {
+                        return 0;
+                    }
+                },
+            ],
+        ];
+    }
+
     public static function getMajor($user_id, $game_id)
     {
         $result = self::find()
@@ -89,5 +113,22 @@ class Major extends \yii\db\ActiveRecord
             ->one();
 
         return $result;
+    }
+
+    public static function newMajor(Major $m, User $u)
+    {
+        $mod = new self;
+        $mod->user_id = $m->user_id;
+        $mod->game_id = $m->game_id;
+        $mod->platform_id = $m->platform_id;
+        $mod->is_adult = $u->is_adult;
+        $mod->register_at = $u->register_at;
+        $mod->latest_login_at = $m->latest_login_at;
+        $mod->login_count = $m->login_count;
+        $mod->payment_count = $m->payment_count;
+        $mod->total_payment_amount = $m->total_payment_amount;
+        $mod->status = Status::ACTIVE;
+
+        $mod->save();
     }
 }

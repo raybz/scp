@@ -13,7 +13,7 @@ class m170818_021236_major extends Migration
             'id' => $this->primaryKey(),
             'user_id' => $this->integer()->notNull(),
             'game_id' => $this->integer()->notNull()->comment('游戏ID'),
-            'platform_id' => $this->string()->notNull()->comment('平台ID'),
+            'platform_id' => $this->integer()->notNull()->comment('平台ID'),
             'is_adult' => $this->smallInteger(4)->notNull()->defaultValue(3)->comment('实名制/成年'),
             'register_at' => $this->dateTime()->notNull()->comment("注册时间"),
             'latest_login_at' => $this->dateTime()->notNull()->comment("最后登录时间"),

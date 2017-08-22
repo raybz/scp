@@ -89,6 +89,14 @@ $this->title = '概况';
 <?php $columns = [
     ['class' => '\kartik\grid\SerialColumn', 'pageSummary' => '汇总',],
     [
+        'label' => '订单',
+        'value' => function ($data) {
+
+            return $data['order_id'] ?? '';
+        },
+//        'hAlign' => 'center',
+    ],
+    [
         'label' => '平台',
         'value' => function ($data) {
             $platform = \common\models\Platform::findOne($data['platform_id']);
@@ -107,10 +115,11 @@ $this->title = '概况';
         'hAlign' => 'center',
     ],
     [
-        'label' => '订单',
+        'label' => '区服',
         'value' => function ($data) {
+            $server = \common\models\Server::findOne($data['server_id']);
 
-            return $data['order_id'] ?? '';
+            return $server->server ?? '';
         },
         'hAlign' => 'center',
     ],
@@ -139,6 +148,13 @@ $this->title = '概况';
         },
         'hAlign' => 'center',
         'pageSummary' => true,
+    ],
+    [
+        'label' => '下单时间',
+        'value' => function ($data) {
+            return $data['time'] ?? 0;
+        },
+        'hAlign' => 'center',
     ],
 ]; ?>
 <?php
