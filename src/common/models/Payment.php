@@ -39,8 +39,8 @@ class Payment extends \yii\db\ActiveRecord
             [['user_id', 'platform_id', 'server_id', 'game_id', 'time', 'order_id', 'coins', 'money'], 'required'],
             [['coins', 'game_id', 'user_id', 'platform_id', 'server_id'], 'integer'],
             [['money'], 'number'],
-            [['created_at'], 'safe'],
-            [['time', 'order_id'], 'string', 'max' => 255],
+            [['created_at', 'time',], 'safe'],
+            [['order_id'], 'string', 'max' => 255],
         ];
     }
 

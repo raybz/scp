@@ -68,7 +68,7 @@ class PayController extends Controller
             if (!stripos($v->url, 'pay')) {
                 continue;
             }
-            $this->stdout($v->url.PHP_EOL);
+//            $this->stdout($v->url.PHP_EOL);
             if (!strpos($v->url, '?')) {
                 if (!stripos($v->url, 'pay') || !($v->post_data && strlen($v->post_data) > 10 && stristr(
                             $v->post_data,

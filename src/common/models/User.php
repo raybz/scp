@@ -66,6 +66,7 @@ class User extends \yii\db\ActiveRecord
             if(!$r) {
                 UserGameServerRelation::addRelation($user, $userData);
             }
+            //更新注册时间
             if (strtotime($user->register_at) > strtotime($userData->time)) {
                 $user->register_at = $userData->time;
                 $uid = $user->save();

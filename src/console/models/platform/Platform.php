@@ -88,9 +88,9 @@ class Platform extends Model
         try {
             $mod = new static;
             $mod->_eventBefore($payObj);
-//            $res = User::saveUser($payObj, 'pay');
+            $res = User::saveUser($payObj, 'pay');
             $result = Payment::storeData($payObj);
-//            array_push($result, $res);
+            array_push($result, $res);
 
             return $result;
         }catch (\Exception $e) {
