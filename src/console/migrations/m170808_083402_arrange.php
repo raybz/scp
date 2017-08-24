@@ -14,7 +14,7 @@ class m170808_083402_arrange extends Migration
             'date' => $this->date()->notNull()->comment('日期'),
             'game_id' => $this->integer()->notNull()->comment('游戏ID'),
             'platform_id' => $this->integer()->notNull()->comment('平台ID'),
-            'server_id' => $this->string()->notNull()->comment('区服ID'),
+            'server_id' => $this->integer()->notNull()->comment('区服ID'),
             'new' => $this->integer()->notNull()->defaultValue(0)->comment('注册人数(新增用户)'),
             'active' => $this->integer()->notNull()->defaultValue(0)->comment('活跃用户'),
             'pay_man' => $this->integer()->notNull()->defaultValue(0)->comment('充值人数'),

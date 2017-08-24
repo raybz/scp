@@ -56,6 +56,19 @@ class Payment extends \yii\db\ActiveRecord
         ];
     }
 
+    public static function getPayDetail($platform_id, $order_id, $from = null, $to = null)
+    {
+        $res = self::find()
+            ->where('platform_id = :pid', [':pid' => $platform_id])
+            ->andWhere('order_id = :oid', [':oid' => $order_id])
+            ->andFilterWhere(['>=', 'time', $from])
+            ->andFilterWhere(['<', 'time', $to])
+//            ->createCommand()->rawSql;
+            ->one();
+
+        return $res;
+    }
+
     public static function newData($data)
     {
         $game = Game::findOne(['gkey' => $data->gkey]);
@@ -165,6 +178,7 @@ class Payment extends \yii\db\ActiveRecord
             ->andFilterWhere(['server_id' => $serverList])
             ->andFilterWhere(['>=', 'time', $from])
             ->andFilterWhere(['<', 'time', $to])
+            ->limit(50)
 //            ->createCommand()->rawSql;
             ->all();
 

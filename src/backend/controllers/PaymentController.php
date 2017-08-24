@@ -3,15 +3,20 @@
 namespace backend\controllers;
 
 use backend\models\search\GamePaymentSearch;
+use backend\models\search\OrderMatchSearch;
 use backend\models\search\PaymentSearch;
 use backend\models\search\PlatformPaymentSearch;
 use backend\models\search\ServerPaymentSearch;
+use common\models\Arrange;
 use common\models\Game;
-use common\models\Server;
+use common\models\OrderMatch;
 use common\models\Platform;
+use common\models\Server;
 use Yii;
 use yii\filters\VerbFilter;
 use yii\web\Controller;
+use yii\web\Response;
+use yii\web\UploadedFile;
 
 /**
  * PaymentController implements the CRUD actions for Payment model.
@@ -133,10 +138,11 @@ class PaymentController extends Controller
         } else {
             $platformStr = serialize($searchModel->platform_id);
         }
+        $serverList = Arrange::getPaymentTopTenServer($searchModel->from, $searchModel->to, $searchModel->game_id, $searchModel->platform_id, '', 10, true);
 
         if ($searchModel->server_id == null) {
             $searchModel->server_id = array_keys(
-                Server::ServerDataDropData($searchModel->game_id, $searchModel->platform_id)
+                $serverList
             );
             $serverStr = serialize($searchModel->server_id);
         } else {
@@ -173,4 +179,46 @@ class PaymentController extends Controller
             'dataProvider' => $dataProvider,
         ]);
     }
+
+    public function actionMatch()
+    {
+        if(Yii::$app->request->get()) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            $get = Yii::$app->request->get('PaymentSearch');
+            $filename = Yii::getAlias('@backend').'/file/aaa.csv';
+//            ini_set('max_execution_time', '0');
+            ignore_user_abort();
+            set_time_limit(0);
+
+//            $result = OrderMatch::fileContext($filename, $get['platform_id'],$get['from'], $get['to']);
+//            return $result;
+        }
+
+        $searchModel = new OrderMatchSearch();
+        if ($searchModel->from == null || $searchModel->to == null) {
+            $searchModel->game_id = 1001;
+            $searchModel->platform_id = 14;
+            $searchModel->batch = 744;
+            $searchModel->from = date('Y-m-01', strtotime('-1 month'));
+            $searchModel->to = date('Y-m-01', strtotime('now'));
+        }
+
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+
+        return $this->render('match', [
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
+        ]);
+    }
+
+    public function actionUpload()
+    {
+        $file = UploadedFile::getInstanceByName('file');
+//        $filename = Yii::getAlias('@backend').'/file/'.time().'_'.mt_rand(100, 999).'.'.$file->extension;
+        $filename = Yii::getAlias('@backend').'/file/aaa.'.$file->extension;
+        $file->saveAs($filename);
+        $_SESSION['_file_name'] = $filename;
+        var_dump($_SESSION);
+    }
+
 }

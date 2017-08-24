@@ -108,7 +108,10 @@ $this->title = '概况';
 
 
 <?php $columns = [
-    ['class' => '\kartik\grid\SerialColumn'],
+    [
+        'class' => '\kartik\grid\SerialColumn',
+        'pageSummary' => '汇总',
+    ],
     [
         'label' => '平台',
         'value' => function ($data) {
@@ -117,7 +120,6 @@ $this->title = '概况';
             return $game->name ?? '';
         },
         'hAlign' => 'center',
-        'pageSummary' => '汇总',
     ],
     [
         'label' => '区服',
@@ -125,7 +127,6 @@ $this->title = '概况';
             return $data['server_id'];
         },
         'hAlign' => 'center',
-        'pageSummary' => '汇总',
     ],
     [
         'label' => '新增用户',
@@ -139,7 +140,7 @@ $this->title = '概况';
         'label' => '活跃用户',
         'hAlign' => 'center',
         'value' => function ($data) {
-            return $data['active_sum'];
+            return $data['active_sum'] + $data['new_sum'];
         },
         'pageSummary' => true,
     ],
@@ -209,6 +210,26 @@ $this->title = '概况';
         'hAlign' => 'center',
     ],
 ]; ?>
+<?php
+$fullExport = \kartik\export\ExportMenu::widget(
+    [
+        'dataProvider' => $dataProvider,
+        'columns' => $columns,
+        'fontAwesome' => true,
+        'target' => \kartik\export\ExportMenu::TARGET_BLANK,
+        'pjaxContainerId' => 'server-payment-list-grid',
+        'asDropdown' => true,
+        'showColumnSelector' => false,
+        'dropdownOptions' => [
+            'label' => '导出数据',
+            'class' => 'btn btn-default',
+            'itemsBefore' => [
+                '<li class="dropdown-header">导出全部数据</li>',
+            ],
+        ],
+    ]
+);
+?>
 <?= GridView::widget(
     [
         'autoXlFormat' => true,
@@ -222,7 +243,7 @@ $this->title = '概况';
         'dataProvider' => $dataProvider,
         'pjax' => true,
         'toolbar' => [
-            $columns,
+            $fullExport,
         ],
         'id' => 'server-payment',
         'striped' => false,
@@ -235,7 +256,6 @@ $this->title = '概况';
             'heading' => '平台-区服收入概要',
             'type' => 'default',
             'after' => false,
-            'before' => false,
         ],
     ]
 ); ?>

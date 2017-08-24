@@ -38,7 +38,8 @@ class PaymentAnalysisController extends Controller
 
         if ($searchModel->server_id == null) {
             $searchModel->server_id = array_keys(
-                Server::ServerDataDropData($searchModel->game_id, $searchModel->platform_id)
+                [1,2,3,4]
+//                Server::ServerDataDropData($searchModel->game_id, $searchModel->platform_id)
             );
             $serverStr = serialize($searchModel->server_id);
         } else {

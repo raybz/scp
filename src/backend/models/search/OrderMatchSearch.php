@@ -2,29 +2,26 @@
 
 namespace backend\models\search;
 
-use common\models\User;
-use Yii;
+use common\models\OrderMatch;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use common\models\Major;
-use yii\helpers\Html;
 
 /**
- * MajorSearch represents the model behind the search form about `common\models\Major`.
+ * OrderMatchSearch represents the model behind the search form about `common\models\OrderMatch`.
  */
-class MajorSearch extends Major
+class OrderMatchSearch extends OrderMatch
 {
     public $from;
     public $to;
-    public $uid;
     /**
      * @inheritdoc
      */
     public function rules()
     {
         return [
-            [['id', 'user_id', 'is_adult', 'login_count', 'payment_count', 'total_payment_amount', 'status', 'created_by', 'updated_by'], 'integer'],
-            [['register_at', 'platform_id', 'game_id', 'latest_login_at', 'created_at', 'updated_at', 'from', 'to', 'uid'], 'safe'],
+            [['id', 'user_id', 'game_id', 'platform_id', 'server_id', 'coins', 'type', 'batch'], 'integer'],
+            [['time', 'order_id', 'created_at', 'from', 'to'], 'safe'],
+            [['money'], 'number'],
         ];
     }
 
@@ -46,7 +43,7 @@ class MajorSearch extends Major
      */
     public function search($params)
     {
-        $query = Major::find();
+        $query = OrderMatch::find();
 
         // add conditions that should always apply here
 
@@ -65,22 +62,23 @@ class MajorSearch extends Major
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
-            'is_adult' => $this->is_adult,
-            'login_count' => $this->login_count,
-            'payment_count' => $this->payment_count,
-            'total_payment_amount' => $this->total_payment_amount,
-            'status' => $this->status,
+            'user_id' => $this->user_id,
+            'game_id' => $this->game_id,
+            'platform_id' => $this->platform_id,
+            'server_id' => $this->server_id,
+            'time' => $this->time,
+            'coins' => $this->coins,
+            'money' => $this->money,
+            'type' => $this->type,
             'created_at' => $this->created_at,
-            'created_by' => $this->created_by,
-            'updated_at' => $this->updated_at,
-            'updated_by' => $this->updated_by,
+            'batch' => $this->batch,
         ]);
+
         $to = isset($this->to) ? $this->to.' 23:59:59' : '';
-        $query->andFilterWhere(['platform_id' => $this->platform_id])
-            ->andFilterWhere(['game_id' => $this->game_id])
-            ->andFilterWhere(['user_id' => User::getUserList($this->uid, $this->platform_id) ?? ''])
-            ->andFilterWhere(['>=', 'register_at', $this->from])
-            ->andFilterWhere(['<=', 'latest_login_at', $to]);
+        $query
+            ->andFilterWhere(['>=', 'time', $this->from])
+            ->andFilterWhere(['<', 'time', $to]);
+        $query->andFilterWhere(['like', 'order_id', $this->order_id]);
 
         return $dataProvider;
     }

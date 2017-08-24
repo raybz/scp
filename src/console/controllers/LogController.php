@@ -9,7 +9,7 @@ use yii\console\Controller;
 class LogController extends Controller
 {
     const FILE_NAME = 'tulong.gateway.2144.cn';
-    const DIVIDING = '2017-07-22';
+    const DIVIDING = '2017-07-24';
     const HISTORY = '2017-06-01';
     const OLDER = 1;
     const OLD = 2;

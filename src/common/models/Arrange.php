@@ -42,9 +42,8 @@ class Arrange extends \yii\db\ActiveRecord
         return [
             [['date', 'game_id', 'platform_id', 'server_id'], 'required'],
             [['date', 'created_at'], 'safe'],
-            [['game_id', 'platform_id', 'new', 'active', 'pay_man', 'new_pay_man', 'pay_man_time'], 'integer'],
+            [['game_id', 'platform_id', 'server_id', 'new', 'active', 'pay_man', 'new_pay_man', 'pay_man_time'], 'integer'],
             [['pay_money', 'new_pay_money'], 'number'],
-            [['server_id'], 'string', 'max' => 255],
         ];
     }
 
@@ -122,12 +121,12 @@ class Arrange extends \yii\db\ActiveRecord
             $model->new_pay_man = $data['new_pay_man'];
             $model->new_pay_money = $data['new_pay_money'];
             if ($model->save()) {
-                return $model->id;
+                return ['old', $model->id];
             }
 
             return null;
         } else {
-            return self::newData($data);
+            return ['new', self::newData($data)];
         }
     }
 
@@ -137,6 +136,7 @@ class Arrange extends \yii\db\ActiveRecord
         //查询是否登录过
         $platform = Platform::findOne($data['platform_id']);
         $server = Server::findOne($data['server_id']);
+        //该区服在此时间段内的所有用户登录
         $login = LoginLogTable::find()
             ->where(['>=', 'time', $f])
             ->andWhere(['<', 'time', $t])
@@ -147,14 +147,18 @@ class Arrange extends \yii\db\ActiveRecord
         $active = [];
         if ($login->one()) {
             foreach ($login->each(100) as $l) {
-                $user = User::find()
-                    ->where('register_at' < $f)
-                    ->andWhere('uid = :uid', [':uid' => $l->uid])
-                    ->andWhere('platform = :p', [':p' => $l->platform])
-                    ->andWhere('server_id = :s', [':p' => $l->server_id])
-                    ->andWhere('gid = :g', [':g' => $l->gid]);
+                //查找用户（精确到区服）
+                $user = User::find()->alias('u')
+                    ->leftJoin('user_game_server_relation r', 'u.id = r.user_id')
+                    ->where(['<', 'u.register_at', $f])
+                    ->andWhere('u.platform_id = :p', [':p' => $platform->id])
+                    ->andWhere('u.uid = :uid', [':uid' => $l->uid])
+                    ->andWhere('r.game_id = :g', [':g' => $l->gid])
+                    ->andWhere('r.server_id = :s', [':s' => $server->id])
+                    ->one();
+                //去重
                 if ($user) {
-                    $active[] = $user;
+                    $active[$user->id] = $user->id;
                 }
             }
         }
@@ -202,8 +206,17 @@ class Arrange extends \yii\db\ActiveRecord
         return $result;
     }
 
-    public static function getDataByServer($from, $to, $gid = null, $platform_id = null, $serverList = null, $groupBy = null, $orderBy = null, $limit = null)
-    {
+    public static function getDataByServer(
+        $from,
+        $to,
+        $gid = null,
+        $platform_id = null,
+        $serverList = null,
+        $groupBy = null,
+        $orderBy = null,
+        $limit = null,
+        $is_out_data = true
+    ) {
         $sl = (new Query())->from('arrange')
             ->select(
                 [
@@ -242,9 +255,54 @@ class Arrange extends \yii\db\ActiveRecord
         if ($limit) {
             $sl->limit($limit);
         }
-        $result = $sl->all();
+        if ($is_out_data) {
+            $result = $sl->all();
+        } else {
+            $result = $sl;
+        }
 
         return $result;
     }
 
+    public static function getPaymentTopTenServer(
+        $from,
+        $to,
+        $game_id,
+        $platform_id,
+        $server_id,
+        $limit = null,
+        $is_out_data = false
+    ) {
+        $query = self::find()
+            ->select(
+                [
+                    'server_id'
+//                    'sum(pay_money) pay_money_sum',
+                ]
+            )
+            ->where(
+                'date >= :from AND date < :to',
+                [
+                    ':from' => $from,
+                    ':to' => $to,
+                ]
+            )
+            ->andFilterWhere(['game_id' => $game_id])
+            ->andFilterWhere(['platform_id' => $platform_id])
+            ->andFilterWhere(['server_id' => $server_id])
+            ->groupBy('platform_id,server_id')
+            ->orderBy('sum(pay_money) DESC');
+
+        if ($limit) {
+            $query->limit(10);
+        }
+
+        if ($is_out_data) {
+            $result = $query->asArray()->column();
+        } else {
+            $result = $query;
+        }
+
+        return $result;
+    }
 }

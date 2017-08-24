@@ -179,6 +179,77 @@ Hcharts.prototype = {
                 series:data.data.series
             });
         }, 'json');
+    },
+    //双轴 折线+柱状图
+    showDualAxesLineColumn:function () {
+        var _this = this;
+        $.post(this.api, this.param, function (data) {
+            Highcharts.chart(_this.container, {
+            chart: {
+                zoomType: 'xy'
+            },
+            title: {
+                text: _this.title.text+data.data.title,
+                align: _this.title.align,
+                x: _this.title.x
+            },
+            subtitle: {
+                text: data.data.subtitle
+            },
+            xAxis: [{
+                categories: data.data.xAxis,
+                crosshair: true
+            }],
+            yAxis: [{ // Primary yAxis
+                labels: {
+                    format: '{value}°C',
+                    style: {
+                        color: Highcharts.getOptions().colors[1]
+                    }
+                },
+                title: {
+                    text: 'Temperature',
+                    style: {
+                        color: Highcharts.getOptions().colors[1]
+                    }
+                }
+            }, { // Secondary yAxis
+                title: {
+                    text: 'Rainfall',
+                    style: {
+                        color: Highcharts.getOptions().colors[0]
+                    }
+                },
+                labels: {
+                    format: '{value} mm',
+                    style: {
+                        color: Highcharts.getOptions().colors[0]
+                    }
+                },
+                opposite: true
+            }],
+            tooltip: {
+                shared: true
+            },
+            series: [{
+                name: data.data.first.name,
+                type: 'column',
+                yAxis: 1,
+                data: data.data.first.series,
+                tooltip: {
+                    valueSuffix: ' mm'
+                }
+
+            }, {
+                name: data.data.second.name,
+                type: 'spline',
+                data: data.data.second.series,
+                tooltip: {
+                    valueSuffix: '°C'
+                }
+            }]
+        });
+        }, 'json');
     }
 };
 

@@ -39,12 +39,14 @@ class PayController extends Controller
     public function logPay($from, $to)
     {
         $diff = LogTable::getDiffDay($from, $to);
+//        var_dump($diff);
         //搜索大于1天
         if (!empty($diff)){
             foreach ($diff as $k => $v) {
                 $f = current($diff);
                 $t = next($diff);
                 if ($f && $t){
+//                    var_dump($f,$t);
                     $this->SlaveUrl(date('Ym', strtotime($f)), $f, $t);
                 }
             }
@@ -65,10 +67,10 @@ class PayController extends Controller
             ->andFilterWhere(['<', 'stamp', strtotime($to)]);
 
         foreach ($data->each(100) as $v) {
-            if (!stripos($v->url, 'pay')) {
+            if (!stristr($v->url, 'pay')) {
                 continue;
             }
-//            $this->stdout($v->url.PHP_EOL);
+//            $this->stdout(urldecode($v->url).PHP_EOL);
             if (!strpos($v->url, '?')) {
                 if (!stripos($v->url, 'pay') || !($v->post_data && strlen($v->post_data) > 10 && stristr(
                             $v->post_data,
@@ -76,20 +78,19 @@ class PayController extends Controller
                         ) && stristr($v->post_data, '&'))) {
                     continue;
                 }
-                PlatformSoGou::$url_param = $v->post_data;
+                PlatformSoGou::$url_param = urldecode($v->post_data);
                 $result = PlatformSoGou::savePay();
                 $this->stdout(
                     $result[0].' payment ID: '.$result[1].' info: '.$result[2].(isset($result[3]) && $result[3] ? ' new_uid:'.$result[3] : '').PHP_EOL
                 );
             }
             $urlArr = explode('?', $v->url);
-            if(!stripos($urlArr[0], 'pay')) {
+            if (!stristr($urlArr[0], 'pay')) {
                 continue;
             }
-            foreach ($this->map() as $k => $class)
-            {
-                if (stristr($urlArr[0], $k)){
-                    $class::$url_param = $urlArr[1];
+            foreach ($this->map() as $k => $class) {
+                if (stristr($urlArr[0], $k)) {
+                    $class::$url_param = urldecode($urlArr[1]);
                     $result = $class::savePay();
                     $this->stdout(
                         $result[0].' payment ID: '.$result[1].' info: '.$result[2].(isset($result[3]) && $result[3] ? ' new_uid:'.$result[3] : '').PHP_EOL

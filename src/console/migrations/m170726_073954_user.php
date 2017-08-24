@@ -21,6 +21,7 @@ class m170726_073954_user extends Migration
 
         $this->createIndex('user_pid', $this->tableName, ['platform_id', 'uid']);
         $this->createIndex('user_uid', $this->tableName, ['uid']);
+        $this->createIndex('user_register_status', $this->tableName, ['register_at', 'status']);
     }
     
     public function down()

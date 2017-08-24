@@ -46,6 +46,7 @@ class MajorController extends Controller
         if ($searchModel->platform_id == null) {
             $searchModel->platform_id = array_keys(Platform::platformDropDownData());
         }
+
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render(
@@ -57,16 +58,28 @@ class MajorController extends Controller
         );
     }
 
-    /**
-     * Displays a single Major model.
-     * @param integer $id
-     * @return mixed
-     */
-    public function actionView($id)
+    //大户流失分析
+    public function actionLossAnalysis()
     {
-        return $this->render('view', [
-            'model' => $this->findModel($id),
-        ]);
+        $searchModel = new MajorSearch();
+        if ($searchModel->from == null || $searchModel->to == null || $searchModel->game_id) {
+            $searchModel->game_id = 1001;
+            $searchModel->from = date('Y-m-d', strtotime('-1 month'));
+            $searchModel->to = date('Y-m-d', strtotime('now'));
+        }
+        if ($searchModel->platform_id == null) {
+            $searchModel->platform_id = array_keys(Platform::platformDropDownData());
+        }
+
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+
+        return $this->render(
+            'loss-analysis',
+            [
+                'searchModel' => $searchModel,
+                'dataProvider' => $dataProvider,
+            ]
+        );
     }
 
     /**

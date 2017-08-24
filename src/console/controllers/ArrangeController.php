@@ -4,6 +4,7 @@ namespace console\controllers;
 
 use common\models\Arrange;
 use common\models\DayArrange;
+use common\models\OrderMatch;
 use common\models\Payment;
 use common\models\User;
 use yii\console\Controller;
@@ -27,22 +28,22 @@ class ArrangeController extends Controller
     protected function rePayment($from, $to)
     {
         $day = intval((strtotime($to) - strtotime($from)) / 86400);
-
+        //订单按天计算
         for ($i = 0; $i < $day; $i++) {
             $f = date('Y-m-d', strtotime($from.$i.' day'));
             $t = date('Y-m-d', strtotime($from.($i + 1).' day'));
 
             $ps = (new Query())->from('payment')
                 ->select([
-                    'payment.*',
-                    'sum(money) as tMoney',
-                    'count(*) as cp',
-                    'COUNT(DISTINCT user_id) um'
+                    '*',
+                    'sum(money) as tMoney',//区服营收
+                    'count(*) as cp',//区服登录用户
+                    'COUNT(DISTINCT user_id) um'// 区服去重用户
                 ])
                 ->andFilterWhere(['>=', 'time', $f])
                 ->andFilterWhere(['<', 'time', $t])
                 ->groupBy('game_id,platform_id,server_id');
-
+            //单日区服记录保存
             foreach ($ps->each(100) as $p) {
                 $this->store($f, $t, $p);
             }
@@ -62,13 +63,13 @@ class ArrangeController extends Controller
         $data['platform_id'] = $d['platform_id'];
         $data['server_id'] = $d['server_id'];
         $data['new'] = $user_new_total;
-        $data['active'] = Arrange::getActive($d, $f, $t);
+        $data['active'] = Arrange::getActive($d, $f, $t);//活跃为当日非注册用户,历史老用户在此区服今日登录
         $data['pay_money'] = $d['tMoney'];
         $data['pay_man'] = $d['um'];
         $data['pay_man_time'] = $d['cp'];
         $data['new_pay_man'] = Payment::getPerTimeMan($d['game_id'], $f, $t, $newUser, $d['platform_id'], $d['server_id']);
         $data['new_pay_money'] = Payment::getPerTimeMoney($d['game_id'], $f, $t, $newUser, $d['platform_id'], $d['server_id']);
         $result = Arrange::storeData($data);
-        $this->stdout('ID:'.$result.PHP_EOL);
+        $this->stdout($result[0].' ID: '.$result[1].PHP_EOL);
     }
 }

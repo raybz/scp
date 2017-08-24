@@ -5,8 +5,10 @@ namespace backend\models\search;
 use common\models\Arrange;
 use common\models\Payment;
 use Yii;
+use yii\base\Object;
 use yii\data\ArrayDataProvider;
 use yii\data\SqlDataProvider;
+use yii\db\ActiveRecord;
 use yii\db\Query;
 
 /**
@@ -33,29 +35,8 @@ class ServerPaymentSearch extends Arrange
 
     public function search()
     {
-        $query = (new Query())->from('arrange')
-            ->select([
-                'date',
-                'game_id',
-                'platform_id',
-                'server_id',
-                'sum(new) new_sum',
-                'sum(active) active_sum',
-                'sum(pay_man) pay_man_sum',
-                'sum(pay_money) pay_money_sum',
-                'sum(new_pay_man) new_pay_man_sum',
-                'sum(new_pay_money) new_pay_money_sum',
-            ])
-            ->where('date >= :from AND date < :to',
-                [
-                    ':from' => $this->from,
-                    ':to' => $this->to
-                ])
-            ->andFilterWhere(['game_id' => $this->game_id])
-            ->andFilterWhere(['platform_id' => $this->platform_id])
-            ->andFilterWhere(['server_id' => $this->server_id])
-            ->groupBy('platform_id,server_id')
-            ->orderBy('pay_money_sum DESC');
+        /* @var $query  */
+        $query = Arrange::getDataByServer($this->from, $this->to, $this->game_id, $this->platform_id, $this->server_id, 'platform_id,server_id', '', '', false);
 
         list($sql, $sqlParams) = Yii::$app->db->getQueryBuilder()->build($query);
         $count = count($query->column());

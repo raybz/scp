@@ -146,7 +146,7 @@ $this->title = '概况';
         'label' => '活跃用户',
         'hAlign' => 'center',
         'value' => function ($data) {
-            return $data['active_sum'];
+            return $data['active_sum'] + $data['new_sum'];
         },
         'pageSummary' => true,
     ],
@@ -170,8 +170,8 @@ $this->title = '概况';
     [
         'label' => '付费渗透率(%)',
         'value' => function ($data) {
-            if ($data['active_sum'] > 0) {
-                return Yii::$app->formatter->asDecimal($data['pay_man_sum'] / $data['active_sum'] * 100);
+            if (($data['active_sum'] + $data['new_sum'])  > 0) {
+                return Yii::$app->formatter->asDecimal($data['pay_man_sum'] / ($data['active_sum']+ $data['new_sum']) * 100);
             } else {
                 return '-';
             }

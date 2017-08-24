@@ -9,85 +9,85 @@ use kartik\grid\GridView;
 $this->title = 'Majors';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-<style>
-    .select2-container .select2-selection--single .select2-selection__rendered {
-        margin-top: 0;
-    }
-</style>
-<div class="box box-default">
-    <div class="box-body">
-        <div class="row">
-            <?php $form = \yii\widgets\ActiveForm::begin(
-                [
-                    'method' => 'get',
-                    'action' => '/major/index',
-                ]
-            ); ?>
+    <style>
+        .select2-container .select2-selection--single .select2-selection__rendered {
+            margin-top: 0;
+        }
+    </style>
+    <div class="box box-default">
+        <div class="box-body">
+            <div class="row">
+                <?php $form = \yii\widgets\ActiveForm::begin(
+                    [
+                        'method' => 'get',
+                        'action' => '/major/index',
+                    ]
+                ); ?>
 
-            <div class="col-md-12">
-                <div class="col-md-1">
-                    <?= $form->field($searchModel, 'game_id')->widget(
-                        \dosamigos\multiselect\MultiSelect::className(),
-                        [
-                            "options" => ['multiple' => "multiple"],
-                            'data' => \common\models\Game::gameDropDownData(),
-                            "clientOptions" =>
-                                [
-                                    'enableFiltering' => true,
-                                    "selectAllText" => '全选',
-                                    "includeSelectAllOption" => true,
-                                    'numberDisplayed' => false,
-                                    'maxHeight' => 0,
-                                    'nonSelectedText' => '选择游戏',
-                                ],
-                        ]
-                    )->label('游戏:') ?>
-                </div>
-                <div class="col-md-1">
-                    <div class="form-group">
-                        <label class="control-label">平台:</label>
-                        <?php if ($searchModel->platform_id): ?>
-                            <input type="hidden" value="<?= join(',', (array)$searchModel->platform_id); ?>"
-                                   id="selected_platform_id"/>
-                        <?php endif; ?>
-                        <?= \yii\helpers\Html::dropDownList(
-                            'MajorSearch[platform_id][]',
-                            null,
-                            [],
+                <div class="col-md-12">
+                    <div class="col-md-1">
+                        <?= $form->field($searchModel, 'game_id')->widget(
+                            \dosamigos\multiselect\MultiSelect::className(),
                             [
-                                'id' => 'major-search-platform',
-                                'multiple' => true,
+                                "options" => ['multiple' => "multiple"],
+                                'data' => \common\models\Game::gameDropDownData(),
+                                "clientOptions" =>
+                                    [
+                                        'enableFiltering' => true,
+                                        "selectAllText" => '全选',
+                                        "includeSelectAllOption" => true,
+                                        'numberDisplayed' => false,
+                                        'maxHeight' => 0,
+                                        'nonSelectedText' => '选择游戏',
+                                    ],
                             ]
-                        ); ?>
+                        )->label('游戏:') ?>
+                    </div>
+                    <div class="col-md-1">
+                        <div class="form-group">
+                            <label class="control-label">平台:</label>
+                            <?php if ($searchModel->platform_id): ?>
+                                <input type="hidden" value="<?= join(',', (array)$searchModel->platform_id); ?>"
+                                       id="selected_platform_id"/>
+                            <?php endif; ?>
+                            <?= \yii\helpers\Html::dropDownList(
+                                'MajorSearch[platform_id][]',
+                                null,
+                                [],
+                                [
+                                    'id' => 'major-search-platform',
+                                    'multiple' => true,
+                                ]
+                            ); ?>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <?= $form->field($searchModel, 'register_at')->widget(
+                            \kartik\daterange\DateRangePicker::className(),
+                            [
+                                'convertFormat' => true,
+                                'startAttribute' => 'from',
+                                'endAttribute' => 'to',
+                                'pluginOptions' => [
+                                    'locale' => ['format' => 'Y-m-d'],
+                                ],
+                            ]
+                        )->label('日期:') ?>
+                    </div>
+                    <div class="col-md-2">
+                        <?= $form->field($searchModel, 'uid')->textInput()->label('平台帐号:')?>
+                    </div>
+                    <div class="col-md-1">
+                        <?= \yii\helpers\Html::submitButton(
+                            '搜索',
+                            ['class' => 'btn btn-success btn-flat', 'style' => 'margin-top: 25px;']
+                        ) ?>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <?= $form->field($searchModel, 'register_at')->widget(
-                        \kartik\daterange\DateRangePicker::className(),
-                        [
-                            'convertFormat' => true,
-                            'startAttribute' => 'from',
-                            'endAttribute' => 'to',
-                            'pluginOptions' => [
-                                'locale' => ['format' => 'Y-m-d'],
-                            ],
-                        ]
-                    )->label('日期:') ?>
-                </div>
-                <div class="col-md-2">
-                    <?= $form->field($searchModel, 'uid')->textInput()->label('平台帐号:')?>
-                </div>
-                <div class="col-md-1">
-                    <?= \yii\helpers\Html::submitButton(
-                        '搜索',
-                        ['class' => 'btn btn-success btn-flat', 'style' => 'margin-top: 25px;']
-                    ) ?>
-                </div>
+                <?php \yii\widgets\ActiveForm::end() ?>
             </div>
-            <?php \yii\widgets\ActiveForm::end() ?>
         </div>
     </div>
-</div>
 <?php
 $columns = [
     ['class' => '\kartik\grid\SerialColumn',],

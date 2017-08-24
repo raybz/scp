@@ -51,6 +51,20 @@ class User extends \yii\db\ActiveRecord
         return $result;
     }
 
+    public static function getUserList($uid, $platform_id, $field = null)
+    {
+        $q = self::find();
+        if ($field) {
+            $q->select($field);
+        }
+
+        $result = $q->where(['platform_id' => $platform_id])
+            ->andWhere('uid = :uid', [':uid' => $uid])
+            ->column();
+
+        return $result;
+    }
+
     public static function saveUser($userData, $origin = null)
     {
         $platform = Platform::getPlatform($userData->platform);
@@ -82,7 +96,7 @@ class User extends \yii\db\ActiveRecord
 
     public static function newRegister($from, $to, $game_id, $platform_id = null, $server_id = null)
     {
-        $result = (new Query())->from('user u')
+        $result = User::find()->alias('u')
             ->leftJoin('user_game_server_relation s', 's.user_id = u.id')
             ->where(['u.platform_id' => $platform_id])
             ->andFilterWhere(['s.game_id' => $game_id])

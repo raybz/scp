@@ -137,7 +137,7 @@ $this->title = '概况';
         'label' => '活跃用户',
         'hAlign' => 'center',
         'value' => function ($data) {
-            return $data['active_sum'];
+            return $data['active_sum'] + $data['new_sum'];
         },
         'pageSummary' => true,
     ],
@@ -161,7 +161,9 @@ $this->title = '概况';
         'label' => '付费渗透率(%)',
         'value' => function ($data) {
             if ($data['active_sum'] > 0) {
-                return Yii::$app->formatter->asDecimal($data['pay_man_sum'] / $data['active_sum'] * 100);
+                return Yii::$app->formatter->asDecimal(
+                    $data['pay_man_sum'] / ($data['active_sum'] + $data['new_sum']) * 100
+                );
             } else {
                 return '-';
             }
@@ -207,6 +209,26 @@ $this->title = '概况';
         'hAlign' => 'center',
     ],
 ]; ?>
+<?php
+$fullExport = \kartik\export\ExportMenu::widget(
+    [
+        'dataProvider' => $dataProvider,
+        'columns' => $columns,
+        'fontAwesome' => true,
+        'target' => \kartik\export\ExportMenu::TARGET_BLANK,
+        'pjaxContainerId' => 'platform-payment-list-grid',
+        'asDropdown' => true,
+        'showColumnSelector' => false,
+        'dropdownOptions' => [
+            'label' => '导出数据',
+            'class' => 'btn btn-default',
+            'itemsBefore' => [
+                '<li class="dropdown-header">导出全部数据</li>',
+            ],
+        ],
+    ]
+);
+?>
 <?= GridView::widget(
     [
         'autoXlFormat' => true,
@@ -220,7 +242,7 @@ $this->title = '概况';
         'dataProvider' => $dataProvider,
         'pjax' => true,
         'toolbar' => [
-            $columns,
+            $fullExport,
         ],
         'id' => 'payment-game',
         'striped' => false,
@@ -233,7 +255,6 @@ $this->title = '概况';
             'heading' => '游戏收入概要',
             'type' => 'default',
             'after' => false,
-            'before' => false,
         ],
     ]
 ); ?>

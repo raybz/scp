@@ -58,7 +58,7 @@ class LogTable extends ActiveRecord
             'time' => $m->dateTime()->notNull()->defaultValue('0000-00-00 00:00:00'),
             'stamp' => $m->integer(10)->notNull(),
             'request_method' => $m->string()->notNull(),
-            'url' => $m->string()->notNull(),
+            'url' => $m->text()->notNull(),
             'status_code' => $m->smallInteger()->notNull(),
             'sent_bytes' => $m->integer()->notNull()->defaultValue(0),
             'referrer' => $m->string()->notNull()->defaultValue(''),
@@ -87,6 +87,8 @@ class LogTable extends ActiveRecord
 
         if($model->save()) {
             return $model->id;
+        } else{
+            var_dump($model->errors);exit;
         }
 
         return null;
@@ -135,6 +137,7 @@ class LogTable extends ActiveRecord
     public static function getDiffDay($from, $to)
     {
         $diff = (strtotime($to) - strtotime($from)) / 86400;
+//        var_dump($diff);
         $monthArr = self::logTableMonth($from, $to);
         $v_to = [];
         if ($diff > 1) {
@@ -142,7 +145,7 @@ class LogTable extends ActiveRecord
                 $v_to[] = $from;
             }
 
-            for ($i = 0; $i < ceil($diff); $i++) {
+            for ($i = 0; $i <= ceil($diff); $i++) {
                 $stamp = strtotime($to.(-floor($diff).' day').($i.' day'));
 
                 $tableDate = date('Ym', $stamp);
