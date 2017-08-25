@@ -5,6 +5,8 @@ use kartik\grid\GridView;
 \backend\assets\HighChartsAssets::register($this);
 $this->title = '概况';
 /* @var $searchModel \backend\models\search\ServerPaymentSearch */
+/* @var $platformStr string */
+/* @var $serverStr string */
 ?>
     <style>
         .select2-container .select2-selection--single .select2-selection__rendered {

@@ -2,11 +2,13 @@
 
 namespace console\models\platform;
 
+use common\definitions\UserIsAdult;
+
 class Platform4399 extends Platform
 {
     protected static function uniformPayData($newParam)
     {
-        $param_list = explode('|', $newParam['p']);
+        $param_list = explode('|', $newParam['p'] ?? '');
         $pay_num = array_shift($param_list);
         $pay_to_user = array_shift($param_list);
         $pay_gold = array_shift($param_list);
@@ -16,14 +18,14 @@ class Platform4399 extends Platform
         $channel = array_shift($param_list);
 
         $pay_data = array(
-            'uid' => $pay_to_user,
+            'uid' => $pay_to_user ?: null,
             'platform' => '4399',
             'gkey' => 'tlzj',
             'server_id' => str_replace('s', '', $newParam['serverid']  ?? 0),
-            'time' => $time,
-            'order_id' => $pay_num,
-            'coins' => $pay_gold,
-            'money' => $pay_rmb,
+            'time' => $time ?: null,
+            'order_id' => $pay_num ?: null,
+            'coins' => $pay_gold ?: 0,
+            'money' => $pay_rmb ?: 0,
         );
 
         return $pay_data;
@@ -37,15 +39,15 @@ class Platform4399 extends Platform
             $login_type = 'pc';
         }
         $login_data = array(
-            'uid' => $newParam['username'],
+            'uid' => $newParam['username'] ?? null,
             'platform' => '4399',
             'gkey' => 'tlzj',
             'server_id' => str_replace('s', '', $newParam['serverid']  ?? 0),
-            'time' => $newParam['time'],
-            'is_adult' => $newParam['cm'],
+            'time' => $newParam['time'] ?? null,
+            'is_adult' => $newParam['cm'] ?? UserIsAdult::OTHER,
             'back_url' => urldecode($back_url),
             'type' => $login_type,
-            'sign' => strtolower($newParam['flag']),
+            'sign' => strtolower($newParam['flag'] ?? ''),
         );
 
         return $login_data;

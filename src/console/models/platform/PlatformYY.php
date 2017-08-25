@@ -2,19 +2,21 @@
 
 namespace console\models\platform;
 
+use common\definitions\UserIsAdult;
+
 class PlatformYY extends Platform
 {
     protected static function uniformPayData($newParam)
     {
         $pay_data = array(
-            'uid' => $newParam['account'],
+            'uid' => $newParam['account'] ?? null,
             'platform' => 'yy',
             'gkey' => 'tlzj',
             'server_id' => str_replace('s', '', $newParam['server']  ?? 0),
-            'time' => $newParam['time'],
-            'order_id' => $newParam['orderid'],
-            'coins' => $newParam['num'],
-            'money' => $newParam['rmb'],
+            'time' => $newParam['time'] ?? null,
+            'order_id' => $newParam['orderid'] ?? null,
+            'coins' => $newParam['num'] ?? 0,
+            'money' => $newParam['rmb'] ?? 0,
         );
 
         return $pay_data;
@@ -23,22 +25,22 @@ class PlatformYY extends Platform
     protected static function uniformLoginData($newParam)
     {
         $login_type = 'web';
-        if ($newParam['client'] == 1) {
+        if (isset($newParam['client']) && $newParam['client'] == 1) {
             $login_type = 'pc';
-        } elseif ($newParam['client'] == 2) {
+        } elseif (isset($newParam['client']) && $newParam['client'] == 2) {
             $login_type = 'box';
         }
         $back_url = $newParam['backurl'] ?? '';
         $login_data = array(
-            'uid' => $newParam['account'],
+            'uid' => $newParam['account'] ?? null,
             'platform' => 'yy',
             'gkey' => 'tlzj',
             'server_id' => str_replace('s', '', $newParam['server']  ?? 0),
-            'time' => $newParam['time'],
-            'is_adult' => $newParam['fm'],
+            'time' => $newParam['time'] ?? null,
+            'is_adult' => $newParam['fm'] ?? UserIsAdult::OTHER,
             'back_url' => urldecode($back_url),
             'type' => $login_type,
-            'sign' => strtolower($newParam['sign']),
+            'sign' => strtolower($newParam['sign'] ?? ''),
         );
 
         return $login_data;

@@ -104,29 +104,62 @@ class OrderMatch extends \yii\db\ActiveRecord
         return false;
     }
 
-    public static function fileContext($file_name, $platform_id, $from, $to, $batch)
+    public static function fileContext($file_name, $platform_id, $from, $to)
     {
         $i = 2;
+        $have = [];
         do {
             $data = self::getFileLine($file_name, $i);
             if(!boolval($data)){
                 continue;
             }
-            echo $data.PHP_EOL;
+
             $e = explode(',', $data);
-            $result = Payment::getPayDetail(intval($platform_id), strtolower(trim($e[1], ' ')), $from, $to);
-            if ($result) {
-                $hav = self::getOrderMatch($result, 1);
-                if(!$hav){
-                    $id = self::saveOrderMatch($result, OrderMatchType::ALL_HAD, $batch);
-                    echo 'new ID: '.$id.PHP_EOL;
-                } else{
-                    echo 'old ID: '.$hav->id.PHP_EOL;
-                }
+//            var_dump($e);exit;
+            echo $e[1].PHP_EOL;
+//            var_dump()
+
+            if(isset($have[$e[1]])){
+                $have[$e[1]] = $i;
+            }else{
+                $have[$e[1]] = 1;
             }
+
+/*            $result = Payment::getPayDetail(intval($platform_id), strtolower(trim($e[1], ' ')), $from, $to);
+//            if ($result) {
+//                $hav = self::getOrderMatch($result, 1);
+//                if(!$hav){
+//                    $id = self::saveOrderMatch($result, OrderMatchType::ALL_HAD, $batch);
+//                    echo 'new ID: '.$id.PHP_EOL;
+//                } else{
+//                    echo 'old ID: '.$hav->id.PHP_EOL;
+//                }
+//            }
+            if (isset($e[1])){
+                $e[1] = "\t".$e[1];
+            }
+            $str = implode(',', $e);
+            if(!$result){
+                $filename = \Yii::getAlias('@backend').'/file/bbb.csv';
+                self::saveOrderMatchFile($filename, $str);
+            }*/
             $i++;
         } while (boolval($data));
 
+        foreach ($have as $k => $h){
+            if($h > 1){
+                $data = self::getFileLine($file_name, $h);
+                $filename = \Yii::getAlias('@backend').'/file/9377repeat07.csv';
+                $e = explode(',', $data);
+                echo 'repeat: '.$e[1].PHP_EOL;
+                if (isset($e[1])){
+                    $e[1] = "\t".$e[1];
+                }
+
+                $str = implode(',', $e);
+                self::saveOrderMatchFile($filename, $str);
+            }
+        }
         return true;
     }
 

@@ -7,6 +7,7 @@ use common\models\Game;
 use common\models\Payment;
 use common\models\Platform;
 use Yii;
+use yii\base\Object;
 use yii\db\Query;
 use yii\web\Controller;
 use yii\web\Response;
@@ -249,13 +250,12 @@ class ApiController extends Controller
     {
         $from = Yii::$app->request->post('from', date('Y-m-d'));
         $to = Yii::$app->request->post('to', date('Y-m-d', strtotime('tomorrow')));
-        $platform = Yii::$app->request->post('platform');
+        $platform = Yii::$app->request->post('platform', serialize(1));
         $gameId = Yii::$app->request->post('gid', 1001);
-        $server = Yii::$app->request->post('server');
+        $server = Yii::$app->request->post('server', serialize(1));
 
         $platformList = unserialize($platform);
         $serverList = unserialize($server);
-
         $rangeData = [];
         $sl = Arrange::getDataByServer(
             $from,
@@ -265,7 +265,8 @@ class ApiController extends Controller
             $serverList,
             'platform_id,server_id',
             'pay_money_sum DESC',
-            10
+            10,
+            false
         );
         $res = Arrange::getDataByPlatform($from, $to, $gameId, $platformList);
         $pay_sum_total = [];
@@ -281,7 +282,8 @@ class ApiController extends Controller
             '活跃用户数',
         ];
         $data = $data1 = $data2 = $data3 = [];
-        foreach ($sl as $r) {
+        /* @var $sl Object */
+        foreach ($sl->each() as $r) {
             $pf = Platform::findOne($r['platform_id']);
             $rangeData[] = isset($pf->name) ? $pf->name.' / '.$r['server_id'].'区' : '';
             $data1[] = round($r['pay_money_sum'] / array_sum($pay_sum_total) * 100, 2) ?: 0;

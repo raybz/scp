@@ -12,9 +12,9 @@ class OrderMatchController extends Controller
             $from = date('Y-m-01', strtotime('-1 month'));
             $to = date('Y-m-01', strtotime('now'));
         }
-        $filename = \Yii::getAlias('@backend').'/file/yy.csv';
+        $filename = \Yii::getAlias('@backend').'/file/9377cp.csv';
         $batch = mt_rand(100,999);
-//        OrderMatch::fileContext($filename, 14,$from, $to);
-        OrderMatch::weH($filename, 14,$from, $to, $batch);
+        OrderMatch::fileContext($filename, 3,$from, $to);
+//        OrderMatch::weH($filename, 14,$from, $to, $batch);
     }
 }

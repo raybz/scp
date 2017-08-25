@@ -173,11 +173,11 @@ class Payment extends \yii\db\ActiveRecord
                     'count(*) as cp',
                 ]
             )
+            ->andFilterWhere(['>=', 'time', $from])
+            ->andFilterWhere(['<', 'time', $to])
             ->andFilterWhere(['game_id' => $gameId])
             ->andFilterWhere(['platform_id' => $platformList])
             ->andFilterWhere(['server_id' => $serverList])
-            ->andFilterWhere(['>=', 'time', $from])
-            ->andFilterWhere(['<', 'time', $to])
             ->limit(50)
 //            ->createCommand()->rawSql;
             ->all();

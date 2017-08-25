@@ -9,9 +9,7 @@ use backend\models\search\PlatformPaymentSearch;
 use backend\models\search\ServerPaymentSearch;
 use common\models\Arrange;
 use common\models\Game;
-use common\models\OrderMatch;
 use common\models\Platform;
-use common\models\Server;
 use Yii;
 use yii\filters\VerbFilter;
 use yii\web\Controller;
@@ -138,12 +136,18 @@ class PaymentController extends Controller
         } else {
             $platformStr = serialize($searchModel->platform_id);
         }
-        $serverList = Arrange::getPaymentTopTenServer($searchModel->from, $searchModel->to, $searchModel->game_id, $searchModel->platform_id, '', 10, true);
 
         if ($searchModel->server_id == null) {
-            $searchModel->server_id = array_keys(
-                $serverList
+            $serverList = Arrange::getPaymentTopTenServer(
+                $searchModel->from,
+                $searchModel->to,
+                $searchModel->game_id,
+                $searchModel->platform_id,
+                '',
+                10,
+                true
             );
+            $searchModel->server_id = $serverList ?: [];
             $serverStr = serialize($searchModel->server_id);
         } else {
             $serverStr = serialize($searchModel->server_id);

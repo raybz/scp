@@ -41,7 +41,7 @@ $this->title = '概况';
                                        id="selected_platform_id"/>
                             <?php endif; ?>
                             <?= \yii\helpers\Html::dropDownList(
-                                'ServerPaymentSearch[platform_id][]',
+                                'PaymentAnalysisSearch[platform_id][]',
                                 null,
                                 [],
                                 [

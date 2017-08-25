@@ -16,6 +16,7 @@ Hcharts.prototype = {
     //条形图
     showBar: function () {
         var _this = this;
+        // console.log(this.param);
         $.post(this.api, this.param, function(data) {
             Highcharts.chart(_this.container, {
                 chart: {

@@ -280,13 +280,15 @@ class Arrange extends \yii\db\ActiveRecord
 //                    'sum(pay_money) pay_money_sum',
                 ]
             )
-            ->where(
-                'date >= :from AND date < :to',
-                [
-                    ':from' => $from,
-                    ':to' => $to,
-                ]
-            )
+//            ->where(
+//                'date >= :from AND date < :to',
+//                [
+//                    ':from' => $from,
+//                    ':to' => $to,
+//                ]
+//            )
+            ->andFilterWhere(['>=', 'date', $from])
+            ->andFilterWhere(['<', 'date', $to])
             ->andFilterWhere(['game_id' => $game_id])
             ->andFilterWhere(['platform_id' => $platform_id])
             ->andFilterWhere(['server_id' => $server_id])
@@ -294,7 +296,7 @@ class Arrange extends \yii\db\ActiveRecord
             ->orderBy('sum(pay_money) DESC');
 
         if ($limit) {
-            $query->limit(10);
+            $query->limit($limit);
         }
 
         if ($is_out_data) {

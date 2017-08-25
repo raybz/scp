@@ -2,9 +2,8 @@
 
 namespace console\models\platform;
 
-use common\models\Game;
-use common\models\Server;
 use common\models\Payment;
+use common\models\Server;
 use common\models\User;
 use console\models\LoginLogTable;
 use yii\base\Model;
@@ -41,7 +40,13 @@ class Platform extends Model
             'coins',
             'money',
         ];
-        $uData = static::uniformPayData(static::paramData());
+        $aData = static::uniformPayData(static::paramData());
+        $uData = array_filter(
+            $aData,
+            function ($v) {
+                return !is_null($v);
+            }
+        );
         foreach ($need as $item) {
             if (array_key_exists($item, $uData)) {
                 continue;
@@ -66,7 +71,13 @@ class Platform extends Model
             'type',
             'sign',
         ];
-        $uData = static::uniformLoginData(static::paramData());
+        $aData = static::uniformLoginData(static::paramData());
+        $uData = array_filter(
+            $aData,
+            function ($v) {
+                return !is_null($v);
+            }
+        );
         foreach ($need as $item) {
             if (array_key_exists($item, $uData)) {
                 continue;

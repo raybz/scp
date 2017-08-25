@@ -3,6 +3,7 @@
 namespace backend\controllers;
 
 use backend\models\search\PaymentAnalysisSearch;
+use common\models\Arrange;
 use common\models\Platform;
 use common\models\Server;
 use yii\web\Controller;
@@ -37,10 +38,16 @@ class PaymentAnalysisController extends Controller
         }
 
         if ($searchModel->server_id == null) {
-            $searchModel->server_id = array_keys(
-                [1,2,3,4]
-//                Server::ServerDataDropData($searchModel->game_id, $searchModel->platform_id)
+            $serverList = Arrange::getPaymentTopTenServer(
+                '',
+                '',
+                $searchModel->game_id,
+                $searchModel->platform_id,
+                '',
+                10,
+                true
             );
+            $searchModel->server_id = $serverList;
             $serverStr = serialize($searchModel->server_id);
         } else {
             $serverStr = serialize($searchModel->server_id);
