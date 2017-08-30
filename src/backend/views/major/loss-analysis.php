@@ -1,8 +1,8 @@
 <?php
 
+use common\models\Major;
 use common\models\MajorLoginHistory;
 use kartik\grid\GridView;
-use \common\models\Major;
 
 /* @var $this yii\web\View */
 /* @var $searchModel backend\models\search\MajorLossSearch */
@@ -79,20 +79,27 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
     </div>
     <div class="box box-default">
-    <!--双轴图-->
-    <div class="box-header with-border">
-        <h3 class="box-title">图表</h3>
-        <div class="box-tools pull-right">
-            <button class="btn btn-box-tool" data-widget="collapse">
-                <i class="fa fa-minus"></i>
-            </button>
-            <button class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+        <!--双轴图-->
+        <div class="box-header with-border">
+            <div class="btn-group" data-toggle="buttons" id="_type">
+                <label class="btn btn-primary active options" id="option1">
+                    <input type="radio" name="options" autocomplete="off" checked value="1"> 3日流失
+                </label>
+                <label class="btn btn-primary options">
+                    <input type="radio" name="options" id="option2" autocomplete="off" value="2"> 生命周期
+                </label>
+            </div>
+            <div class="box-tools pull-right">
+                <button class="btn btn-box-tool" data-widget="collapse">
+                    <i class="fa fa-minus"></i>
+                </button>
+                <button class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+            </div>
+        </div>
+        <div class="box-body">
+            <div id="loss-analysis-dual-container"></div>
         </div>
     </div>
-    <div class="box-body">
-        <div id="loss-analysis-dual-container"></div>
-    </div>
-</div>
 <?php
 $columns = [
     ['class' => '\kartik\grid\SerialColumn',],
@@ -111,8 +118,10 @@ $columns = [
     ],
     [
         'label' => '大户充值',
-        'value' => function ($data) {
-            return Yii::$app->formatter->asDecimal($data['pMoney'] / 100, 2);
+        'value' => function ($data) use ($searchModel) {
+            $t = date('Y-m-d', strtotime($data['date'].'+1 day'));
+
+            return Major::majorLossPay($searchModel->game_id, $searchModel->platform_id, '', $t, $data['date']);
         },
         'format' => 'raw',
     ],
@@ -206,7 +215,7 @@ $fullExport = \kartik\export\ExportMenu::widget(
         'dataProvider' => $dataProvider,
         'pjax' => true,
         'toolbar' => [
-            $columns,
+            $fullExport,
         ],
         'id' => 'server-payment',
         'striped' => false,
@@ -219,30 +228,57 @@ $fullExport = \kartik\export\ExportMenu::widget(
             'heading' => '大户列表',
             'type' => 'default',
             'after' => false,
-            'before' => false,
         ],
     ]
 ); ?>
 <?php
 $chart = <<<EOL
-        var param = {
-            api: '/api/major-loss-dual?',
-            title: {
-                text: '',
-                align: 'left',
-                x: 70
-            },
-            subtitle:'',
-            container: 'loss-analysis-dual-container',
-            param: {
-                gid: '{$searchModel->game_id}',
-                platform: '{$platformStr}',
-                from: '{$searchModel->from}',
-                to: '{$searchModel->to}',
+        $('.options').on('click', function () {
+            var _type = $(this).children('input').val();
+            if (_type == 1) {
+                var param = {
+                    api: '/api/major-loss-dual?',
+                    title: {
+                        text: '',
+                        align: 'left',
+                        x: 70
+                    },
+                    subtitle: '',
+                    container: 'loss-analysis-dual-container',
+                    param: {
+                        gid: '{$searchModel->game_id}',
+                        platform: '{$platformStr}',
+                        from: '{$searchModel->from}',
+                        to: '{$searchModel->to}'
+                    }
+                };
+                var chart = new Hcharts(param);
+                chart.showDualAxesLineColumn();
+            } else {
+                var param = {
+                    api: '/api/major-scatter-plot?',
+                    title: {
+                        text: '',
+                        align: 'left',
+                        x: 70
+                    },
+                    subtitle: '',
+                    container: 'loss-analysis-dual-container',
+                    param: {
+                        gid: '{$searchModel->game_id}',
+                        platform: '{$platformStr}',
+                        from: '{$searchModel->from}',
+                        to: '{$searchModel->to}'
+                    }
+                };
+                var chart = new Hcharts(param);
+                chart.showScatterPlot();
             }
-        };
-        var chart = new Hcharts(param);
-        chart.showDualAxesLineColumn();
+        });
+
+        $().ready(function () {
+            $('#option1').click();
+        });
 EOL;
 $this->registerJs($chart);
 ?>

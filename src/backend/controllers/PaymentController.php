@@ -96,9 +96,8 @@ class PaymentController extends Controller
         } else {
             $gidStr = serialize($searchModel->game_id);
         }
-
         if ($searchModel->platform_id == null) {
-            $searchModel->platform_id = array_keys(Platform::platformDropDownData());
+            $searchModel->platform_id = array_keys(Platform::platformDropDownDataOrderByPay());
             $platformStr = serialize($searchModel->platform_id);
         } else {
             $platformStr = serialize($searchModel->platform_id);

@@ -218,7 +218,7 @@ class ApiController extends Controller
         if ($platformList) {
             foreach ($rangeTime as $day) {
                 $rangeData[] = date('Y-m-d', strtotime($from.$day.' day'));
-                foreach ($platformList as $platform) {
+                foreach ($platformList as $k => $platform) {
                     if (is_numeric($platform)) {
 
                         $g = Platform::findOne($platform);
@@ -231,9 +231,8 @@ class ApiController extends Controller
                         $dataAll[$platform]['data'][] = isset($pTotal[$platform]['pay_money_sum']) ? intval(
                             $pTotal[$platform]['pay_money_sum']
                         ) : 0;
-                        arsort($pTotal[$platform]);
-                        dump($pTotal);
-                        $dataAll[$platform]['visible'] = false;
+
+                        $dataAll[$platform]['visible'] = $k > 5 ? false : true;
                     }
                 }
             }
@@ -607,6 +606,36 @@ class ApiController extends Controller
                 'series' => [
                     'left' => ['name' => '3日流失数', 'data' => $left, 'unit' => '(人)', 'text' => '3日流失数'],
                     'right' => ['name' => '3日流失率', 'data' => $right, 'unit' => '%', 'text' => '3日流失率'],
+                ],
+            ],
+        ];
+    }
+
+    public function actionMajorScatterPlot()
+    {
+        $from = Yii::$app->request->post('from', date('Y-m-d'));
+        $to = Yii::$app->request->post('to', date('Y-m-d', strtotime('tomorrow')));
+        $platform = Yii::$app->request->post('platform');
+        $gameId = Yii::$app->request->post('gid', 1001);
+        $platformList = unserialize($platform);
+        $left = $right = [];
+        $detail = Major::majorLossDetail($gameId, $platformList, '', $to, $from);
+        foreach ($detail as $m) {
+            $left[] = [intval($m['login_day']), intval($m['pay_total_money'])];
+            $right[] = [intval($m['login_day']), intval($m['pay_total_times'])];
+        }
+
+        return [
+            'code' => 200,
+            'data' => [
+                'title' => '流失大户'.count($detail).' 位',
+                'format' => [
+                    'x' => '天',
+                    'y' => '',
+                ],
+                'series' => [
+                    'left' => ['name' => '生命周期/付费金额', 'data' => $left],
+                    'right' => ['name' => '生命周期/付费次数', 'data' => $right],
                 ],
             ],
         ];

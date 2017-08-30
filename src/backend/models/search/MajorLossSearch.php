@@ -33,15 +33,6 @@ class MajorLossSearch extends MajorLoginHistory
         ];
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function scenarios()
-    {
-        // bypass scenarios() implementation in the parent class
-        return Model::scenarios();
-    }
-
     public function search()
     {
         $query = (new Query())->from('major_login_history h')
@@ -53,8 +44,6 @@ class MajorLossSearch extends MajorLoginHistory
             ->leftJoin('major m', 'h.major_id = m.id')
             ->groupBy('date')
             ->orderBy('date DESC');
-
-
 
         // add conditions that should always apply here
 

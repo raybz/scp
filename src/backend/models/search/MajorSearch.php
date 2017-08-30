@@ -2,13 +2,10 @@
 
 namespace backend\models\search;
 
-use common\models\User;
-use Yii;
-use yii\base\Model;
-use yii\data\ActiveDataProvider;
 use common\models\Major;
+use common\models\User;
+use yii\data\ActiveDataProvider;
 use yii\db\Query;
-use yii\helpers\Html;
 
 /**
  * MajorSearch represents the model behind the search form about `common\models\Major`.
@@ -41,14 +38,16 @@ class MajorSearch extends Major
 
         // add conditions that should always apply here
 
-        $dataProvider = new ActiveDataProvider([
-            'query' => $q,
-            'sort' => [
-                'attributes' => [
-                    'latest_login_at'
-                ]
+        $dataProvider = new ActiveDataProvider(
+            [
+                'query' => $q,
+                'sort' => [
+                    'attributes' => [
+                        'latest_login_at',
+                    ],
+                ],
             ]
-        ]);
+        );
 
         // grid filtering conditions
         $query->andFilterWhere([

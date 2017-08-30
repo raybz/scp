@@ -143,6 +143,7 @@ $this->title = '概况';
     ],
     [
         'label' => '充值金额',
+        'attribute' => 'pay_money_sum',
         'value' => function ($data) {
             return Yii::$app->formatter->asDecimal($data['pay_money_sum'], 2);
         },
@@ -151,6 +152,7 @@ $this->title = '概况';
     ],
     [
         'label' => '充值人数',
+        'attribute' => 'pay_man_sum',
         'hAlign' => 'center',
         'value' => function ($data) {
             return $data['pay_man_sum'];

@@ -113,12 +113,26 @@ class Platform extends \yii\db\ActiveRecord
         return $result;
     }
 
-    public static function platformDropDownData($order = null)
+    public static function platformDropDownData()
     {
         $result = self::find()
             ->select('name')
             ->where(['status' => Status::ACTIVE])
             ->indexBy('id')
+            ->column();
+
+        return $result ?: ['empty' => '暂无平台'];
+    }
+
+    public static function platformDropDownDataOrderByPay()
+    {
+        $result = self::find()
+            ->alias('p')
+            ->select(['name', 'p.id pid', 'SUM(pay_money) pm'])
+            ->leftJoin('arrange a', 'a.platform_id = p.id')
+            ->groupBy('p.id')
+            ->indexBy('pid')
+            ->orderBy('pm DESC')
             ->column();
 
         return $result ?: ['empty' => '暂无平台'];

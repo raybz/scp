@@ -233,6 +233,61 @@ Hcharts.prototype = {
             }]
         });
         }, 'json');
+    },
+    //散点图
+    showScatterPlot: function () {
+        var _this = this;
+        $.post(this.api, this.param, function (data) {
+            Highcharts.chart(_this.container, {
+                chart: {
+                    type: 'scatter',
+                    zoomType: 'xy'
+                },
+                title: {
+                    text: _this.title.text+data.data.title,
+                    align: _this.title.align,
+                    x: _this.title.x
+                },
+                subtitle: {
+                    text: data.data.subtitle
+                },
+                plotOptions: {
+                    scatter: {
+                        marker: {
+                            radius: 6,
+                            states: {
+                                hover: {
+                                    enabled: true,
+                                    lineColor: 'rgb(100,100,100)'
+                                }
+                            }
+                        },
+                        states: {
+                            hover: {
+                                marker: {
+                                    enabled: false
+                                }
+                            }
+                        },
+                        tooltip: {
+                            headerFormat: '<b>{series.name}</b><br>',
+                            pointFormat: '{point.x} '+data.data.format.x+', {point.y} '+data.data.format.y
+                        }
+                    }
+                },
+                series: [{
+                    name: data.data.series.left.name,
+                    color: 'rgba(223, 83, 83, .5)',
+                    data: data.data.series.left.data
+
+                }, {
+                    name: data.data.series.right.name,
+                    color: 'rgba(119, 152, 191, .5)',
+                    data: data.data.series.right.data,
+                    visible: false
+                }]
+            });
+        }, 'json');
     }
 };
 

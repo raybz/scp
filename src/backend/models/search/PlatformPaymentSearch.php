@@ -63,8 +63,15 @@ class PlatformPaymentSearch extends Arrange
             'totalCount' => $count,
             'sort' => [
                 'attributes' => [
+                    'pay_money_sum',
+                    'new_sum',
+                    'active_sum',
+                    'pay_man_sum',
+                    'new_pay_man_sum',
+                    'new_pay_money_sum',
                 ],
                 'defaultOrder' => [
+//                    'pay_money_sum DESC'
                 ],
             ],
             'pagination' => [

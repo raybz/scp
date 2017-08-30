@@ -67,7 +67,7 @@ class MajorController extends Controller
         $searchModel->attributes = Yii::$app->request->get('MajorLossSearch');
         if ($searchModel->from == null || $searchModel->to == null || $searchModel->game_id == null) {
             $searchModel->game_id = 1001;
-            $searchModel->from = date('Y-m-d', strtotime('-1 month'));
+            $searchModel->from = date('Y-m-d', strtotime('-1 week'));
             $searchModel->to = date('Y-m-d', strtotime('now'));
         }
         if ($searchModel->platform_id == null) {

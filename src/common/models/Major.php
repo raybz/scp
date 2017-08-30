@@ -131,6 +131,7 @@ class Major extends \yii\db\ActiveRecord
             ->andWhere(['platform_id'  => $platform_id])
             ->andFilterWhere(['>=', 'register_at', $from])
             ->andFilterWhere(['<', 'register_at', $to]);
+
         if ($out_count) {
             $result = $query->count();
         } else {
@@ -145,7 +146,7 @@ class Major extends \yii\db\ActiveRecord
         return self::find()->where(['id' => $majorList])->andWhere(['type' => MajorType::BACK])->count();
     }
 
-    public static function majorLTV($game_id, $platform_id, $from, $to, $date)
+    public static function majorLoss($game_id, $platform_id, $from, $to, $date)
     {
         $arr = $onArr = [];
         $majorList = self::getMajorList($game_id, $platform_id, $from, $to);
@@ -159,17 +160,39 @@ class Major extends \yii\db\ActiveRecord
             $to
         );
         foreach ($onMajorList as $major) {
-            $onArr[] = $major->id;
+            $onArr[] = $major->major_id;
         }
         $outMajorList = array_diff($arr, $onArr);
+
+        return $outMajorList;
+    }
+
+    public static function majorLossPay($game_id, $platform_id, $from, $to, $date)
+    {
+        $outMajorList = self::majorLoss($game_id, $platform_id, $from, $to, $date);
+
+        return round(MajorLoginHistory::majorTotalPaymentSum($outMajorList) / 100, 2);
+    }
+
+    public static function majorLTV($game_id, $platform_id, $from, $to, $date)
+    {
+        $outMajorList = self::majorLoss($game_id, $platform_id, $from, $to, $date);
         $majorCount = count($outMajorList);
 
         return $majorCount > 0 ? round(MajorLoginHistory::majorTotalPaymentSum($outMajorList) / $majorCount / 100, 2) : 0;
     }
 
+    public static function majorLossDetail($game_id, $platform_id, $from, $to, $date)
+    {
+        $outMajorList = self::majorLoss($game_id, $platform_id, $from, $to, $date);
+        $lossDetail = MajorLoginHistory::lossMajorLife($outMajorList, '', $to);
+
+        return $lossDetail;
+    }
+
     public static function getMajorOnList($game_id, $platform_id, $from = null, $to = null, $out_count = false)
     {
-        $f = date('Y-m-d', strtotime($from.'-2 day'));
+        $f = date('Y-m-d', strtotime($from.'-3 day'));
         $query = self::find()->alias('m')
             ->leftJoin('major_login_history h', 'h.major_id = m.id')
             ->where('m.game_id = :gid', [':gid' => $game_id])

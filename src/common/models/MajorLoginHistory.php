@@ -114,7 +114,7 @@ class MajorLoginHistory extends \yii\db\ActiveRecord
 
     public static function getMajorOnList($game_id, $platform_id, $from = null, $to = null, $out_count = false)
     {
-        $f = date('Y-m-d', strtotime($from.'-2 day'));
+        $f = date('Y-m-d', strtotime($from.'-3 day'));
         $query = self::find()->alias('h')
             ->leftJoin('major m', 'h.major_id = m.id')
             ->where('m.game_id = :gid', [':gid' => $game_id])
@@ -122,11 +122,31 @@ class MajorLoginHistory extends \yii\db\ActiveRecord
             ->andFilterWhere(['>=', 'date', $f])
             ->andFilterWhere(['<', 'date', $to])
             ->groupBy('major_id');
+
         if ($out_count) {
             $result = $query->count();
         } else {
             $result = $query->all();
         }
+
+        return $result;
+    }
+
+    public static function lossMajorLife($major_list, $from = null, $to = null)
+    {
+        $result = self::find()
+            ->select([
+                'major_id',
+                'SUM(money) pay_total_money',
+                'SUM(pay_times) pay_total_times',
+                'COUNT(*) login_day',
+            ])
+            ->where(['major_id' => $major_list])
+            ->andFilterWhere(['>=', 'date', $from])
+            ->andFilterWhere(['<', 'date', $to])
+            ->groupBy('major_id')
+            ->asArray()
+            ->all();
 
         return $result;
     }
