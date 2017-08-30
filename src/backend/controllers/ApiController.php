@@ -4,10 +4,11 @@ namespace backend\controllers;
 
 use common\models\Arrange;
 use common\models\Game;
+use common\models\Major;
+use common\models\MajorLoginHistory;
 use common\models\Payment;
 use common\models\Platform;
 use Yii;
-use yii\base\Object;
 use yii\db\Query;
 use yii\web\Controller;
 use yii\web\Response;
@@ -230,6 +231,9 @@ class ApiController extends Controller
                         $dataAll[$platform]['data'][] = isset($pTotal[$platform]['pay_money_sum']) ? intval(
                             $pTotal[$platform]['pay_money_sum']
                         ) : 0;
+                        arsort($pTotal[$platform]);
+                        dump($pTotal);
+                        $dataAll[$platform]['visible'] = false;
                     }
                 }
             }
@@ -436,7 +440,7 @@ class ApiController extends Controller
                 $f = date('Y-m-d', strtotime($from.$day.$limit));
                 $t = date('Y-m-d', strtotime($from.($day + 1).$limit));
                 $result = current(Arrange::getDataByServer($f, $t, $gameId, $platformList, $serverList));
-                if ($result) {
+                if ($result && ($result['active_sum'] + $result['new_sum']) > 0) {
                     $arr[] = round($result['pay_man_sum'] / ($result['active_sum'] + $result['new_sum']) * 100, 2);
                 } else {
                     $arr[] = 0;
@@ -567,6 +571,43 @@ class ApiController extends Controller
                 'title' => '',
                 'xAxis' => $rangeData,
                 'series' => $data,
+            ],
+        ];
+    }
+
+    public function actionMajorLossDual()
+    {
+        $from = Yii::$app->request->post('from', date('Y-m-d'));
+        $to = Yii::$app->request->post('to', date('Y-m-d', strtotime('tomorrow')));
+        $platform = Yii::$app->request->post('platform');
+        $gameId = Yii::$app->request->post('gid', 1001);
+        $left = $right = $rangeData = [];
+
+        $platformList = unserialize($platform);
+
+        //区间小于一天 直接查payment 表
+        $diff_m = intval((strtotime($to) - strtotime($from)) / 86400);
+        $rangeTime = range(0, $diff_m);
+        foreach ($rangeTime as $k => $day) {
+            $rangeData[] = date('Y-m-d', strtotime($from.$day.' day'));
+            $f = date('Y-m-d', strtotime($from.$day.' day'));
+            $t = date('Y-m-d', strtotime($from.($day + 1).' day'));
+            $major = Major::getMajorList($gameId, $platformList, '', $t, true);
+            $onMajor = MajorLoginHistory::getMajorOnList($gameId, $platformList, $f, $t, true);
+            $outMajor = $major - $onMajor;
+            $left[] = $outMajor;
+            $right[] = $major > 0 ? round($outMajor / $major * 100, 2) : 0;
+        }
+
+        return [
+            'code' => 200,
+            'data' => [
+                'title' => '',
+                'xAxis' => $rangeData,
+                'series' => [
+                    'left' => ['name' => '3日流失数', 'data' => $left, 'unit' => '(人)', 'text' => '3日流失数'],
+                    'right' => ['name' => '3日流失率', 'data' => $right, 'unit' => '%', 'text' => '3日流失率'],
+                ],
             ],
         ];
     }

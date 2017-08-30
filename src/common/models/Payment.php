@@ -118,8 +118,6 @@ class Payment extends \yii\db\ActiveRecord
 
     public static function getPerTimeMoney($game_id = null, $from = null, $to = null, $user_id = null, $platform_id = null, $server_id = null)
     {
-        $from = $from ?: strtotime(date('Y-m-d'));
-        $to = $to ?: strtotime(date('Y-m-d').'+1 hour');
         $data = Payment::find()
             ->alias('p')
             ->leftJoin('game g', 'g.id = p.game_id')
@@ -139,8 +137,6 @@ class Payment extends \yii\db\ActiveRecord
 
     public static function getPerTimeMan($game_id = null, $from = null, $to = null, $user_id = null, $platform_id = null, $server_id = null)
     {
-        $from = $from ?: strtotime(date('Y-m-d'));
-        $to = $to ?: strtotime(date('Y-m-d').'+1 hour');
         $data = Payment::find()->alias('p')
             ->leftJoin('game g', 'g.id = p.game_id')
             ->andFilterWhere(['>=', 'time', $from])
@@ -222,5 +218,35 @@ class Payment extends \yii\db\ActiveRecord
 
 
         return $data ?: [];
+    }
+
+//    public static function latestPayTime($game_id, $user_id)
+//    {
+//        $result = self::find()
+//            ->select('time')
+//            ->where('user_id = :uid', [':uid' => $user_id])
+//            ->orderBy('time DESC')
+//            ->scalar();
+//
+//        return $result;
+//    }
+
+    public static function getMajorPay($from, $to, $user_id)
+    {
+        $pay = (new Query())->from('payment')
+            ->select(
+                [
+                    '*',
+                    'sum(money) pMoney',
+                    'count(*) pay_times',
+                ]
+            )
+            ->where(['>=', 'time', $from])
+            ->andWhere(['<', 'time', $to])
+            ->andWhere('user_id = :uid', [':uid' => $user_id])
+            ->groupBy('user_id')
+            ->one();
+
+        return $pay;
     }
 }

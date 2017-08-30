@@ -108,17 +108,6 @@ class LoginLogTable extends LogTable
         return $result;
     }
 
-    public static function getUser($uid, $platform)
-    {
-        $result = self::find()
-            ->where('uid = :uid', [':uid' => $uid])
-            ->andWhere('platform = :p', [':p' => $platform])
-            ->orderBy('time ASC')
-            ->one();
-
-        return $result;
-    }
-
     public static function getUserLoginCount($uid, $platform, $from = null, $to = null)
     {
         $data = self::find()
@@ -126,16 +115,19 @@ class LoginLogTable extends LogTable
             ->andWhere('platform = :p', [':p' => $platform])
             ->andFilterWhere(['>=', 'time', $from])
             ->andFilterWhere(['<', 'time', $to])
+//            ->createCommand()->rawSql;
             ->count();
 
         return $data ?: 0;
     }
 
-    public static function getUserLatestLogin($uid, $platform)
+    public static function getUserLatestLogin($uid, $platform, $from = null, $to = null)
     {
-        $data = static::find()
+        $data = self::find()
             ->where('uid = :uid', [':uid' => $uid])
             ->andWhere('platform = :p', [':p' => $platform])
+            ->andFilterWhere(['>=', 'time', $from])
+            ->andFilterWhere(['<', 'time', $to])
             ->orderBy('time DESC')
             ->one();
 

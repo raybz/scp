@@ -2,13 +2,14 @@
 
 namespace console\controllers;
 
+use common\definitions\MajorType;
 use common\models\Major;
+use common\models\MajorLoginHistory;
 use common\models\Payment;
 use common\models\Platform;
 use common\models\User;
 use console\models\LoginLogTable;
 use yii\console\Controller;
-use yii\helpers\Json;
 
 class MajorController extends Controller
 {
@@ -26,19 +27,38 @@ class MajorController extends Controller
         }
 
         //记录日志
-        $this->payDo($from, $to);
+        $this->perDayDo($from, $to);
+    }
+
+    protected function perDayDo($from, $to)
+    {
+        $diff = ceil((strtotime($to) - strtotime($from)) / 86400);
+
+        for($i = 0; $i < $diff; $i++) {
+            $f = date('Y-m-d', strtotime($from.($i).' day'));
+            $t = date('Y-m-d', strtotime($from.($i + 1).' day'));
+            $this->payDo($f, $t);
+        }
+
     }
 
     protected function payDo($from, $to)
     {
-        $monthArr = LoginLogTable::logTableMonth($from, $to);
-        foreach ($monthArr as $month) {
-            $this->getUserPay($month, $from, $to);
+        try {
+            $this->getUserPay($from, $to);
+            $monthArr = LoginLogTable::logTableMonth($from, $to);
+            foreach ($monthArr as $month) {
+                $this->majorLogin($month, $from, $to);
+            }
+        } catch (\Exception $e) {
+            $this->stderr($e->getTraceAsString().$e->getLine().$e->getMessage().PHP_EOL);exit;
         }
+
     }
 
-    protected function getUserPay($month, $from, $to)
+    protected function getUserPay($from, $to)
     {
+        //查询新订单
         $pay = Payment::find()
             ->where(['>=', 'time', $from])
             ->andWhere(['<', 'time', $to]);
@@ -50,68 +70,60 @@ class MajorController extends Controller
             $major = Major::getMajor($user->id, $p->game_id);
             //is major
             if ($major) {
-                $res = $this->saveMajor($month, $major, $p, $user->uid, $to);
-                $this->stdout('old major ID:'.$res.PHP_EOL);
+                $res = Major::saveMajorPay($major, $p);
+                $this->stdout('old major ID: '.$res.' time: '.$from.PHP_EOL);
             } //to major
             else {
-                $res = $this->newMajor($month, $p, $user, $to);
+                $res = Major::newRunMajor($p, $user);
                 if ($res) {
-                    $this->stdout('new major ID: '.$res.PHP_EOL);
+                    $this->stdout('new major ID: '.$res.' time: '.$from.PHP_EOL);
                 }
             }
         }
-
     }
 
-    protected function saveMajor($month, Major $major, Payment $payment, $uid, $to, $money = null)
+    protected function majorLogin($month, $from, $to)
     {
-        LoginLogTable::$month = $month ?: date('Ym');
-        $platform = Platform::findOne($payment->platform_id);
-        $count = LoginLogTable::getUserLoginCount($uid, $platform->abbreviation, '', $to);
-        $latest_login_at = (LoginLogTable::getUserLatestLogin($uid, $platform->abbreviation)->time) ?? 0;
+        $this->stdout('from: '.$from.' - to: '.$to.PHP_EOL);
+        $majorAll = Major::find();
+        foreach ($majorAll->each() as $major) {
+            if ($major->created_at > $from) {
+                continue;
+            }
+            $user = User::findOne($major->user_id);
+            LoginLogTable::$month = $month ?: date('Ym');
+            $platform = Platform::findOne($major->platform_id);
+            $count = LoginLogTable::getUserLoginCount($user->uid, $platform->abbreviation, $from, $to);
+            $latest_login_at = (LoginLogTable::getUserLatestLogin(
+                    $user->uid,
+                    $platform->abbreviation,
+                    $from,
+                    $to
+                )->time) ?? '';
 
-        $major->login_count = $count;
-        $major->payment_count = Payment::getPerTimeMan(
-            $payment->game_id,
-            '',
-            $to,
-            $payment->user_id,
-            $payment->platform_id
-        );
-        $major->total_payment_amount = $money ? $money * 100 : Payment::getPerTimeMoney(
-                $payment->game_id,
-                '',
-                $to,
-                $payment->user_id,
-                $payment->platform_id
-            ) * 100;
-        $major->latest_login_at = strtotime($payment->time) > strtotime(
-            $latest_login_at
-        ) ? $payment->time : $latest_login_at;
+            $pay = Payment::getMajorPay($from, $to, $major->user_id);
 
-        if ($major->save()) {
-            return $major->id;
-        } else {
-            return Json::encode($major->errors);
+            $data['date'] = date('Y-m-d', strtotime($from));
+            $data['money'] = $pay['pMoney'] ?? 0;
+            $data['pay_times'] = $pay['pay_times'] ?? 0;
+
+            $data['major_id'] = $major->id;
+            $data['latest_login_at'] = $latest_login_at ?: '';
+            $data['login_count'] = $count;
+            //
+            $f = date('Y-m-d', strtotime($from.' -3 day'));
+            $had = MajorLoginHistory::getMajorHistoryExist($major->id, $to);
+            $exist = MajorLoginHistory::getMajorHistoryExist($major->id, $to, $f);
+
+            Major::upType($major->id, $had, $exist, $latest_login_at);
+            $this->stdout('update Major: '.$major->id.PHP_EOL);
+            if (!$latest_login_at) {
+                continue;
+            }
+
+            $newLogin = MajorLoginHistory::storeData($data);
+            $this->stdout('major ID: '.$major->id.' new login: '.$newLogin.PHP_EOL);
         }
     }
 
-    protected function newMajor($month, Payment $p, User $user, $to)
-    {
-        $money = Payment::getPerTimeMoney($p->game_id, '', $to, $p->user_id, $p->platform_id);
-        //大于等于3000
-        if ($money >= self::THRESHOLD) {
-            $major = new Major();
-            $major->user_id = $p->user_id;
-            $major->game_id = $p->game_id;
-            $major->platform_id = $p->platform_id;
-            $major->is_adult = $user->is_adult;
-            $major->register_at = $user->register_at;
-            $major->created_at = date('Y-m-d H:i:s');
-
-            return $this->saveMajor($month, $major, $p, $user->uid, $to, $money);
-        }
-
-        return null;
-    }
 }

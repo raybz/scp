@@ -25,7 +25,7 @@ class PayController extends Controller
     public function actionRun($from = null, $to = null)
     {
         if ($from == null || $to == null) {
-            $from = date('Y-m-d H:i', strtotime('-5 minute'));
+            $from = date('Y-m-d H:i', strtotime('-10 minute'));
             $to = date('Y-m-d H:i', strtotime('now'));
         } else {
             $from = date('Y-m-d H:i', strtotime($from));

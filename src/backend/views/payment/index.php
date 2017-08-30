@@ -99,7 +99,6 @@ $this->title = '概况';
             <div id="per-hour-money-container"></div>
         </div>
     </div>
-
     <div class="box box-default">
         <!--折线图-->
         <div class="box-header with-border">
@@ -218,7 +217,7 @@ $fullExport = \kartik\export\ExportMenu::widget(
         'asDropdown' => true,
         'showColumnSelector' => false,
         'dropdownOptions' => [
-            'label' => '导出数据',
+            'label' => '游戏收入概要',
             'class' => 'btn btn-default',
             'itemsBefore' => [
                 '<li class="dropdown-header">导出全部数据</li>',

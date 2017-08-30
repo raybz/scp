@@ -6,7 +6,7 @@ use kartik\grid\GridView;
 /* @var $searchModel backend\models\search\MajorSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Majors';
+$this->title = '大户列表';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <style>
@@ -157,18 +157,17 @@ $columns = [
     [
         'label' => '最后登录时间',
         'attribute' => 'latest_login_at',
-    ],
-    [
-        'label' => '未登录天数',
         'value' => function ($data) {
             $now = strtotime(date('Y-m-d'));
             $last = strtotime(date('Y-m-d', strtotime($data['latest_login_at'])));
             $diff = ($now - $last) / 86400;
             $btn = $diff > 3 ? 3 : $diff;
 
-            return \yii\helpers\Html::button($diff, ['class' => \common\definitions\Btn::getLabel($btn)]);
+            return \yii\helpers\Html::button($data['latest_login_at'], ['class' => \common\definitions\Btn::getLabel($btn)]).' '.
+                \yii\helpers\Html::button($diff, ['class' => \common\definitions\Btn::getLabel($btn)]);
         },
         'format' => 'raw',
+        'hAlign' => GridView::ALIGN_CENTER,
     ],
 ];
 $fullExport = \kartik\export\ExportMenu::widget(

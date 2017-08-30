@@ -220,7 +220,7 @@ $fullExport = \kartik\export\ExportMenu::widget(
         'asDropdown' => true,
         'showColumnSelector' => false,
         'dropdownOptions' => [
-            'label' => '导出数据',
+            'label' => '平台收入概要',
             'class' => 'btn btn-default',
             'itemsBefore' => [
                 '<li class="dropdown-header">导出全部数据</li>',
@@ -252,7 +252,7 @@ $fullExport = \kartik\export\ExportMenu::widget(
         'responsive' => true,
         'condensed' => true,
         'panel' => [
-            'heading' => '游戏收入概要',
+            'heading' => '平台收入概要',
             'type' => 'default',
             'after' => false,
         ],

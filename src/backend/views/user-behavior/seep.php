@@ -141,8 +141,14 @@ $this->title = '概况';
         'label' => '时间',
         'hAlign' => 'center',
         'value' => function ($data) {
+            if(Yii::$app->request->get('_type') == 2 && $data['date']) {
+                return $data['date'].' / '.date('Y-m-d', strtotime($data['date'].'+1 week'));
+            } elseif(Yii::$app->request->get('_type') == 3 && $data['date']) {
+                return $data['date'].' / '.date('Y-m-d', strtotime($data['date'].'+1 month'));
+            }
             return $data['date'];
         },
+        'format' => 'raw',
     ],
     [
         'label' => '活跃用户',
@@ -191,6 +197,26 @@ $this->title = '概况';
         'hAlign' => 'center',
     ],
 ]; ?>
+<?php
+$fullExport = \kartik\export\ExportMenu::widget(
+    [
+        'dataProvider' => $dataProvider,
+        'columns' => $columns,
+        'fontAwesome' => true,
+        'target' => \kartik\export\ExportMenu::TARGET_BLANK,
+        'pjaxContainerId' => 'user-behavior-list-grid',
+        'asDropdown' => true,
+        'showColumnSelector' => false,
+        'dropdownOptions' => [
+            'label' => '分析概要',
+            'class' => 'btn btn-default',
+            'itemsBefore' => [
+                '<li class="dropdown-header">导出全部数据</li>',
+            ],
+        ],
+    ]
+);
+?>
 <?= GridView::widget(
     [
         'autoXlFormat' => true,
@@ -204,7 +230,7 @@ $this->title = '概况';
         'dataProvider' => $dataProvider,
         'pjax' => true,
         'toolbar' => [
-            $columns,
+            $fullExport,
         ],
         'id' => 'payment-game',
         'striped' => false,
@@ -217,7 +243,6 @@ $this->title = '概况';
             'heading' => \yii\helpers\Html::a('', ['/user-behavior/seep'],['id' => '_ph']),
             'type' => 'default',
             'after' => false,
-            'before' => false,
             'footer' => false,
         ],
     ]
@@ -324,7 +349,7 @@ $this->registerJsFile(
 );
 $script = <<<EOL
     var Component = new IMultiSelect({
-        original: '#serverpaymentsearch-game_id',
+        original: '#userbehaviorsearch-game_id',
         aim: '#server-payment-search-platform',
         selected_values_id: '#selected_platform_id',
         url:'/api/get-platform-by-game'
@@ -339,7 +364,7 @@ $script = <<<EOL
         aim: '#server-payment-search-server',
         selected_values_id: '#selected_server_id',
         url:'/api/get-server-by-platform',
-        depend:'#serverpaymentsearch-game_id',
+        depend:'#userbehaviorsearch-game_id',
     });
     Component.start();
 EOL;

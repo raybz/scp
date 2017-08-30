@@ -80,9 +80,13 @@ class User extends \yii\db\ActiveRecord
             if(!$r) {
                 UserGameServerRelation::addRelation($user, $userData);
             }
+            if($user->is_adult != $userData->is_adult && $user->is_adult == UserIsAdult::OTHER) {
+                $user->is_adult = $userData->is_adult;
+            }
             //更新注册时间
             if (strtotime($user->register_at) > strtotime($userData->time)) {
                 $user->register_at = $userData->time;
+
                 $uid = $user->save();
 
                 return $uid->id ?? '';

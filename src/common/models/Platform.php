@@ -113,7 +113,7 @@ class Platform extends \yii\db\ActiveRecord
         return $result;
     }
 
-    public static function platformDropDownData()
+    public static function platformDropDownData($order = null)
     {
         $result = self::find()
             ->select('name')

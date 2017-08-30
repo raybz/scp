@@ -167,7 +167,7 @@ class Arrange extends \yii\db\ActiveRecord
     }
 
 
-    public static function getDataByPlatform($from, $to, $gid = null,$platform_id = null, $groupBy = null, $indexBy = null, $limit = null)
+    public static function getDataByPlatform($from, $to, $gid = null,$platform_id = null, $groupBy = null, $indexBy = null, $limit = null, $orderBy = null)
     {
         $query = (new Query())->from('arrange')
             ->select([
@@ -197,6 +197,9 @@ class Arrange extends \yii\db\ActiveRecord
             $query->indexBy('platform_id');
         } else {
             $query->indexBy($platform_id);
+        }
+        if($orderBy){
+            $query->orderBy($orderBy);
         }
         if ($limit) {
             $query->limit($limit);
@@ -264,6 +267,41 @@ class Arrange extends \yii\db\ActiveRecord
         return $result;
     }
 
+
+    public static function getPaymentTopTenPlatform(
+        $from,
+        $to,
+        $game_id,
+        $platform_id,
+        $limit = null,
+        $is_out_data = false
+    ) {
+        $query = self::find()
+            ->select(
+                [
+                    'platform_id'
+                ]
+            )
+            ->andFilterWhere(['>=', 'date', $from])
+            ->andFilterWhere(['<', 'date', $to])
+            ->andFilterWhere(['game_id' => $game_id])
+            ->andFilterWhere(['platform_id' => $platform_id])
+            ->groupBy('platform_id')
+            ->orderBy('sum(pay_money) DESC');
+
+        if ($limit) {
+            $query->limit($limit);
+        }
+
+        if ($is_out_data) {
+            $result = $query->asArray()->column();
+        } else {
+            $result = $query;
+        }
+
+        return $result;
+    }
+
     public static function getPaymentTopTenServer(
         $from,
         $to,
@@ -277,16 +315,8 @@ class Arrange extends \yii\db\ActiveRecord
             ->select(
                 [
                     'server_id'
-//                    'sum(pay_money) pay_money_sum',
                 ]
             )
-//            ->where(
-//                'date >= :from AND date < :to',
-//                [
-//                    ':from' => $from,
-//                    ':to' => $to,
-//                ]
-//            )
             ->andFilterWhere(['>=', 'date', $from])
             ->andFilterWhere(['<', 'date', $to])
             ->andFilterWhere(['game_id' => $game_id])

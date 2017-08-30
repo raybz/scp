@@ -7,6 +7,7 @@ use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use common\models\Major;
+use yii\db\Query;
 use yii\helpers\Html;
 
 /**
@@ -17,56 +18,43 @@ class MajorSearch extends Major
     public $from;
     public $to;
     public $uid;
+    public $latest_login_at ;
     /**
      * @inheritdoc
      */
     public function rules()
     {
         return [
-            [['id', 'user_id', 'is_adult', 'login_count', 'payment_count', 'total_payment_amount', 'status', 'created_by', 'updated_by'], 'integer'],
+            [['id', 'user_id', 'is_adult', 'payment_count', 'total_payment_amount', 'status', 'created_by', 'updated_by'], 'integer'],
             [['register_at', 'platform_id', 'game_id', 'latest_login_at', 'created_at', 'updated_at', 'from', 'to', 'uid'], 'safe'],
         ];
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function scenarios()
+    public function search()
     {
-        // bypass scenarios() implementation in the parent class
-        return Model::scenarios();
-    }
+        $query = (new Query())->from('major m')
+            ->select('m.*, h.latest_login_at')
+            ->leftJoin('major_login_history h', 'm.id = h.major_id')
+            ->orderBy('h.latest_login_at DESC');
 
-    /**
-     * Creates data provider instance with search query applied
-     *
-     * @param array $params
-     *
-     * @return ActiveDataProvider
-     */
-    public function search($params)
-    {
-        $query = Major::find();
+        $q = (new Query())->from(['q' => $query])->groupBy('q.user_id')->orderBy('q.latest_login_at DESC');
 
         // add conditions that should always apply here
 
         $dataProvider = new ActiveDataProvider([
-            'query' => $query,
+            'query' => $q,
+            'sort' => [
+                'attributes' => [
+                    'latest_login_at'
+                ]
+            ]
         ]);
-
-        $this->load($params);
-
-        if (!$this->validate()) {
-            // uncomment the following line if you do not want to return any records when validation fails
-            // $query->where('0=1');
-            return $dataProvider;
-        }
 
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
             'is_adult' => $this->is_adult,
-            'login_count' => $this->login_count,
+//            'login_count' => $this->login_count,
             'payment_count' => $this->payment_count,
             'total_payment_amount' => $this->total_payment_amount,
             'status' => $this->status,

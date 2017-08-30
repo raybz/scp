@@ -96,7 +96,7 @@ $this->title = '概况';
         'label' => '注册',
         'pageSummary' => function ($data, $key) {
             if (isset($key[0]) && isset($key[1]) && $key[0] > 0) {
-                $diff = $key[1] - $key[0];
+                $diff = intval($key[1]) - intval($key[0]);
                 $MoM = ($diff / $key[0]) * 100;
 
                 return Yii::$app->formatter->asDecimal($MoM);
@@ -150,8 +150,8 @@ $this->title = '概况';
         },
         'pageSummary' => function ($data, $key) {
             if (isset($key[0]) && isset($key[1]) && $key[0] > 0) {
-                $diff = $key[1] - $key[0];
-                $MoM = $diff / $key[0] * 100;
+                $diff = intval($key[1]) - intval($key[0]);
+                $MoM = $diff / intval($key[0]) * 100;
 
                 return Yii::$app->formatter->asDecimal($MoM);
             } else {

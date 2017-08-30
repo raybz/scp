@@ -182,7 +182,7 @@ Hcharts.prototype = {
         }, 'json');
     },
     //双轴 折线+柱状图
-    showDualAxesLineColumn:function () {
+    showDualAxesLineColumn: function () {
         var _this = this;
         $.post(this.api, this.param, function (data) {
             Highcharts.chart(_this.container, {
@@ -203,51 +203,33 @@ Hcharts.prototype = {
             }],
             yAxis: [{ // Primary yAxis
                 labels: {
-                    format: '{value}°C',
-                    style: {
-                        color: Highcharts.getOptions().colors[1]
-                    }
+                    format: '{value} '+data.data.series.right.unit
                 },
                 title: {
-                    text: 'Temperature',
-                    style: {
-                        color: Highcharts.getOptions().colors[1]
-                    }
-                }
-            }, { // Secondary yAxis
-                title: {
-                    text: 'Rainfall',
-                    style: {
-                        color: Highcharts.getOptions().colors[0]
-                    }
-                },
-                labels: {
-                    format: '{value} mm',
-                    style: {
-                        color: Highcharts.getOptions().colors[0]
-                    }
+                    text: data.data.series.right.text
                 },
                 opposite: true
+            }, { // Secondary yAxis
+                title: {
+                    text: data.data.series.left.text
+                },
+                labels: {
+                    format: '{value} '+data.data.series.left.unit
+                }
+
             }],
             tooltip: {
                 shared: true
             },
             series: [{
-                name: data.data.first.name,
+                name: data.data.series.left.name,
                 type: 'column',
                 yAxis: 1,
-                data: data.data.first.series,
-                tooltip: {
-                    valueSuffix: ' mm'
-                }
-
+                data: data.data.series.left.data
             }, {
-                name: data.data.second.name,
+                name: data.data.series.right.name,
                 type: 'spline',
-                data: data.data.second.series,
-                tooltip: {
-                    valueSuffix: '°C'
-                }
+                data: data.data.series.right.data
             }]
         });
         }, 'json');
