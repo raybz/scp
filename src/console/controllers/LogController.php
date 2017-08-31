@@ -19,7 +19,7 @@ class LogController extends Controller
     public function actionRun($from = null, $to = null)
     {
         if ($from == null || $to == null) {
-            $f = strtotime('-5 minute');
+            $f = strtotime('-10 minute');
             $t = strtotime('now');
             $from = date('Y-m', strtotime('now'));
             $to = date('Y-m-01', strtotime('+1 month'));

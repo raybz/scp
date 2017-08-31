@@ -24,8 +24,8 @@ class UserBehaviorSearch extends Arrange
     public function rules()
     {
         return [
-            [['id', 'game_id', 'platform_id', 'new', 'active', 'pay_man', 'new_pay_man'], 'integer'],
-            [['date', 'server_id', 'created_at', 'updated_at', 'from', 'to', 'time', 'go', '_type'], 'safe'],
+            [['id', 'new', 'active', 'pay_man', 'new_pay_man'], 'integer'],
+            [['date','game_id', 'platform_id', 'server_id', 'created_at', 'updated_at', 'from', 'to', 'time', 'go', '_type'], 'safe'],
             [['pay_money', 'new_pay_money'], 'number'],
         ];
     }

@@ -1,4 +1,5 @@
 ;
+
 /**
  *
  * @param args
@@ -17,13 +18,13 @@ Hcharts.prototype = {
     showBar: function () {
         var _this = this;
         // console.log(this.param);
-        $.post(this.api, this.param, function(data) {
+        $.post(this.api, this.param, function (data) {
             Highcharts.chart(_this.container, {
                 chart: {
                     type: 'bar'
                 },
                 title: {
-                    text: _this.title.text+data.data.title,
+                    text: _this.title.text + data.data.title,
                     align: _this.title.align,
                     x: _this.title.x
                 },
@@ -31,8 +32,7 @@ Hcharts.prototype = {
                     text: _this.subtitle
                 },
                 xAxis: {categories: data.data.xAxis},
-                yAxis: {
-                },
+                yAxis: {},
                 tooltip: {
                     shared: true
                 },
@@ -43,14 +43,14 @@ Hcharts.prototype = {
                         }
                     }
                 },
-                series:data.data.series
+                series: data.data.series
             });
         }, 'json');
     },
     //饼图
-    showPie: function(){
+    showPie: function () {
         var _this = this;
-        $.getJSON(this.api, this.param, function(data) {
+        $.getJSON(this.api, this.param, function (data) {
             Highcharts.chart(_this.container, {
                 chart: {
                     plotBackgroundColor: null,
@@ -85,12 +85,12 @@ Hcharts.prototype = {
         });
     },
     //折线图
-    showLine: function() {
+    showLine: function () {
         var _this = this;
-        $.post(this.api, this.param, function(data) {
+        $.post(this.api, this.param, function (data) {
             Highcharts.chart(_this.container, {
                 title: {
-                    text: _this.title.text+data.data.title,
+                    text: _this.title.text + data.data.title,
                     align: _this.title.align,
                     x: _this.title.x
                 },
@@ -98,8 +98,7 @@ Hcharts.prototype = {
                     text: _this.subtitle
                 },
                 xAxis: {categories: data.data.xAxis},
-                yAxis: {
-                },
+                yAxis: {},
                 tooltip: {
                     shared: true
                 },
@@ -110,20 +109,20 @@ Hcharts.prototype = {
                         }
                     }
                 },
-                series:data.data.series
+                series: data.data.series
             });
         }, 'json');
     },
     //曲线图
-    showSpline: function() {
+    showSpline: function () {
         var _this = this;
-        $.getJSON(this.api, this.param, function(data) {
+        $.getJSON(this.api, this.param, function (data) {
             Highcharts.chart(_this.container, {
                 chart: {
                     type: 'spline'
                 },
                 title: {
-                    text: _this.title.text+data.data.title,
+                    text: _this.title.text + data.data.title,
                     align: _this.title.align,
                     x: _this.title.x
                 },
@@ -131,8 +130,7 @@ Hcharts.prototype = {
                     text: _this.subtitle
                 },
                 xAxis: {categories: data.data.xAxis},
-                yAxis: {
-                },
+                yAxis: {},
                 tooltip: {
                     shared: true
                 },
@@ -143,7 +141,7 @@ Hcharts.prototype = {
                         }
                     }
                 },
-                series:data.data.series
+                series: data.data.series
             });
         });
     },
@@ -156,7 +154,7 @@ Hcharts.prototype = {
                     type: 'areaspline'
                 },
                 title: {
-                    text: _this.title.text+data.data.title,
+                    text: _this.title.text + data.data.title,
                     align: _this.title.align,
                     x: _this.title.x
                 },
@@ -177,7 +175,7 @@ Hcharts.prototype = {
                         }
                     }
                 },
-                series:data.data.series
+                series: data.data.series
             });
         }, 'json');
     },
@@ -186,52 +184,52 @@ Hcharts.prototype = {
         var _this = this;
         $.post(this.api, this.param, function (data) {
             Highcharts.chart(_this.container, {
-            chart: {
-                zoomType: 'xy'
-            },
-            title: {
-                text: _this.title.text+data.data.title,
-                align: _this.title.align,
-                x: _this.title.x
-            },
-            subtitle: {
-                text: data.data.subtitle
-            },
-            xAxis: [{
-                categories: data.data.xAxis,
-                crosshair: true
-            }],
-            yAxis: [{ // Primary yAxis
-                labels: {
-                    format: '{value} '+data.data.series.right.unit
+                chart: {
+                    zoomType: 'xy'
                 },
                 title: {
-                    text: data.data.series.right.text
+                    text: _this.title.text + data.data.title,
+                    align: _this.title.align,
+                    x: _this.title.x
                 },
-                opposite: true
-            }, { // Secondary yAxis
-                title: {
-                    text: data.data.series.left.text
+                subtitle: {
+                    text: data.data.subtitle
                 },
-                labels: {
-                    format: '{value} '+data.data.series.left.unit
-                }
+                xAxis: [{
+                    categories: data.data.xAxis,
+                    crosshair: true
+                }],
+                yAxis: [{ // Primary yAxis
+                    labels: {
+                        format: '{value} ' + data.data.series.right.unit
+                    },
+                    title: {
+                        text: data.data.series.right.text
+                    },
+                    opposite: true
+                }, { // Secondary yAxis
+                    title: {
+                        text: data.data.series.left.text
+                    },
+                    labels: {
+                        format: '{value} ' + data.data.series.left.unit
+                    }
 
-            }],
-            tooltip: {
-                shared: true
-            },
-            series: [{
-                name: data.data.series.left.name,
-                type: 'column',
-                yAxis: 1,
-                data: data.data.series.left.data
-            }, {
-                name: data.data.series.right.name,
-                type: 'spline',
-                data: data.data.series.right.data
-            }]
-        });
+                }],
+                tooltip: {
+                    shared: true
+                },
+                series: [{
+                    name: data.data.series.left.name,
+                    type: 'column',
+                    yAxis: 1,
+                    data: data.data.series.left.data
+                }, {
+                    name: data.data.series.right.name,
+                    type: 'spline',
+                    data: data.data.series.right.data
+                }]
+            });
         }, 'json');
     },
     //散点图
@@ -244,7 +242,7 @@ Hcharts.prototype = {
                     zoomType: 'xy'
                 },
                 title: {
-                    text: _this.title.text+data.data.title,
+                    text: _this.title.text + data.data.title,
                     align: _this.title.align,
                     x: _this.title.x
                 },
@@ -271,7 +269,7 @@ Hcharts.prototype = {
                         },
                         tooltip: {
                             headerFormat: '<b>{series.name}</b><br>',
-                            pointFormat: '{point.x} '+data.data.format.x+', {point.y} '+data.data.format.y
+                            pointFormat: '{point.x} ' + data.data.format.x + ', {point.y} ' + data.data.format.y
                         }
                     }
                 },

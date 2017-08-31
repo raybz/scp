@@ -15,9 +15,11 @@ class HighChartsAssets extends AssetBundle
         '//cdn.bootcss.com/highcharts/5.0.7/css/highcharts.css'
     ];
     public $js = [
-//        '//cdn.bootcss.com/highcharts/5.0.7/js/highcharts.js',
-        '//code.highcharts.com/highcharts.js',
-        '//code.highcharts.com/modules/exporting.js',
+        '//cdn.bootcss.com/highcharts/5.0.7/js/highcharts.js',
+//            '//cdn.bootcss.com/highcharts/5.0.14/highcharts.js',
+//        '//code.highcharts.com/highcharts.js',
+//        '//code.highcharts.com/2.2/highcharts-more.js',
+//        '//code.highcharts.com/modules/exporting.js',
         '/js/hcharts.js'
 
     ];

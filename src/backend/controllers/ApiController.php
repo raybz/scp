@@ -10,6 +10,7 @@ use common\models\Payment;
 use common\models\Platform;
 use Yii;
 use yii\db\Query;
+use yii\helpers\Json;
 use yii\web\Controller;
 use yii\web\Response;
 
@@ -460,6 +461,114 @@ class ApiController extends Controller
                 'series' => [$data],
             ],
         ];
+    }
+
+    public function actionUserHabitPayFreqBar()
+    {
+        $from = Yii::$app->request->post('from', date('Y-m-d'));
+        $to = Yii::$app->request->post('to', date('Y-m-d', strtotime('tomorrow')));
+        $platform = Yii::$app->request->post('platform', serialize(1));
+        $gameId = Yii::$app->request->post('gid', 1001);
+        $server = Yii::$app->request->post('server', serialize(1));
+        $platformList = Json::decode($platform);
+        $serverList = Json::decode($server);
+        $pays = Payment::payLi($from, $to, $gameId, $platformList, $serverList);
+        $data = [];
+        $range = [
+            1 => '1次',
+            2 => '2次',
+            3 => '3次',
+            4 => '4次',
+            5 => '5次',
+            10 => '6~10次',
+            20 => '11~20次',
+            30 => '21~30次',
+            40 => '31~40次',
+            50 => '41~50次',
+            51 => '>50次',
+        ];
+        foreach ($range as $k => $v){
+            $data[$k] = 0;
+        }
+        foreach ($pays as $pay) {
+            foreach ($range as $k => $r){
+                if(intval($pay['pay_times']) <= $k && intval($pay['pay_times']) < 51) {
+                    $data[$k]  += 1;
+                    break;
+                } else if(intval($pay['pay_times']) >= 51) {
+                    $data[51]  += 1;
+                    break;
+                }
+            }
+        }
+
+        $rangeData = array_values($range);
+        $data['data'] = array_values($data);
+        $data['name'] = '充值频次';
+
+        return [
+            'code' => 200,
+            'data' => [
+                'title' => '',
+                'xAxis' =>$rangeData,
+                'series' => [$data],
+            ],
+        ];
+    }
+
+    public function actionUserHabitPayQuotaBar()
+    {
+        $from = Yii::$app->request->post('from', date('Y-m-d'));
+        $to = Yii::$app->request->post('to', date('Y-m-d', strtotime('tomorrow')));
+        $platform = Yii::$app->request->post('platform', serialize(1));
+        $gameId = Yii::$app->request->post('gid', 1001);
+        $server = Yii::$app->request->post('server', serialize(1));
+        $platformList = Json::decode($platform);
+        $serverList = Json::decode($server);
+        $pays = Payment::payLi($from, $to, $gameId, $platformList, $serverList);
+        $data = [];
+        $range = [
+            10 => '0~10',
+            50 => '11~50',
+            100 => '51~100',
+            200 => '101~200',
+            500 => '201~500',
+            1000 => '501~1000',
+            2000 => '1001~2000',
+            2001 => '>2000',
+        ];
+        foreach ($range as $k => $v){
+            $data[$k] = 0;
+        }
+        foreach ($pays as $pay) {
+            foreach ($range as $k => $r){
+                if(intval($pay['pay_total_money']) <= $k && intval($pay['pay_total_money']) < 2001) {
+                    $data[$k]  += 1;
+                    break;
+                } else if(intval($pay['pay_total_money']) >= 2001) {
+                    $data[2001]  += 1;
+                    break;
+                }
+            }
+        }
+
+        $rangeData = array_values($range);
+        $data['data'] = array_values($data);
+        $data['name'] = '充值额度';
+
+        return [
+            'code' => 200,
+            'data' => [
+                'title' => '',
+                'xAxis' =>$rangeData,
+                'series' => [$data],
+            ],
+        ];
+    }
+
+    public function actionUserHabitPayGapBar()
+    {
+
     }
 
     public function actionUserSeepArpLine()

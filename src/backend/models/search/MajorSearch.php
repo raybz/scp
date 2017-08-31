@@ -65,7 +65,7 @@ class MajorSearch extends Major
         $to = isset($this->to) ? $this->to.' 23:59:59' : '';
         $query->andFilterWhere(['platform_id' => $this->platform_id])
             ->andFilterWhere(['game_id' => $this->game_id])
-            ->andFilterWhere(['user_id' => User::getUserList($this->uid, $this->platform_id) ?? ''])
+            ->andFilterWhere(['user_id' => User::getUserDetail($this->uid, $this->platform_id) ?? ''])
             ->andFilterWhere(['>=', 'register_at', $this->from])
             ->andFilterWhere(['<=', 'latest_login_at', $to]);
 

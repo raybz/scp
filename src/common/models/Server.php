@@ -106,9 +106,10 @@ class Server extends \yii\db\ActiveRecord
     public static function ServerDataDropData($game_id, $platform_id)
     {
         $res = self::find()
+            ->select('server')
             ->where('game_id = :g', [':g' => $game_id])
             ->andWhere(['platform_id' => $platform_id])
-            ->groupBy('server')
+            ->orderBy('platform_id,id')
             ->indexBy('id')
             ->column();
 

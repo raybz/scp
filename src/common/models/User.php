@@ -4,7 +4,6 @@ namespace common\models;
 
 use common\definitions\Status;
 use common\definitions\UserIsAdult;
-use yii\db\Query;
 use yii\helpers\Json;
 
 /**
@@ -51,7 +50,7 @@ class User extends \yii\db\ActiveRecord
         return $result;
     }
 
-    public static function getUserList($uid, $platform_id, $field = null)
+    public static function getUserDetail($uid, $platform_id, $field = null)
     {
         $q = self::find();
         if ($field) {
@@ -80,7 +79,7 @@ class User extends \yii\db\ActiveRecord
             if(!$r) {
                 UserGameServerRelation::addRelation($user, $userData);
             }
-            if($user->is_adult != $userData->is_adult && $user->is_adult == UserIsAdult::OTHER) {
+            if (isset($userData->is_adult) && $user->is_adult != $userData->is_adult && $user->is_adult == UserIsAdult::OTHER) {
                 $user->is_adult = $userData->is_adult;
             }
             //更新注册时间

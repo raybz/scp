@@ -249,4 +249,25 @@ class Payment extends \yii\db\ActiveRecord
 
         return $pay;
     }
+
+    public static function payLi($from, $to, $game_id = null, $platform_id = null, $server_id = null)
+    {
+        $result = (new Query())
+            ->select([
+                '*',
+                'COUNT(*) pay_times',
+                'SUM(money) pay_total_money'
+            ])
+            ->from('payment')
+            ->where(['>=', 'time', $from])
+            ->andWhere(['<=', 'time', $to])
+            ->andFilterWhere(['game_id' => $game_id])
+            ->andFilterWhere(['platform_id' => $platform_id])
+            ->andFilterWhere(['server_id' => $server_id])
+            ->groupBy('user_id')
+            ->orderBy('pay_times DESC')
+            ->all();
+
+        return $result;
+    }
 }
