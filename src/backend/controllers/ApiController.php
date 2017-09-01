@@ -2,6 +2,7 @@
 
 namespace backend\controllers;
 
+use common\models\Activity;
 use common\models\Arrange;
 use common\models\Game;
 use common\models\Major;
@@ -52,7 +53,6 @@ class ApiController extends Controller
         if ($data) {
             $series = [
                 'name' => '累计',
-                'colorByPoint' => true,
                 'data' => $data,
             ];
         }
@@ -61,6 +61,7 @@ class ApiController extends Controller
             'code' => 200,
             'data' => [
                 'title' => $total,
+                'marker' => false,
                 'xAxis' => $rangeData,
                 'series' => [$series],
             ],
@@ -89,7 +90,27 @@ class ApiController extends Controller
                     $f = date('Y-m-d', strtotime($from.$day.' day'));
                     $t = date('Y-m-d', strtotime($from.($day + 1).' day'));
                     if (!$man) {
-                        $dataAll[$game]['data'][] = intval(Payment::getPerTimeMoney($game, $f, $t, '', $platformList));
+                        $mark = Activity::lineMark($f, $t);
+//                        dump($mark);
+                        $mix = [];
+                        if (!empty($mark)) {
+                            $mix = [
+                                'y' => intval(Payment::getPerTimeMoney($game, $f, $t, '', $platformList)),
+                                'marker' => [
+                                    'radius' => 10,
+                                    'lineColor' => "#777",
+                                    'lineWidth' => 1,
+                                ],
+                                'dataLabels' => [
+                                    'enabled' => true,
+                                    'borderRadius' => 10,
+                                    'backgroundColor' => 'rgba(252, 255, 197, 0.7)',
+                                    'y' => -10,
+                                    'shadow' => true,
+                                ],
+                            ];
+                        }
+                        $dataAll[$game]['data'][] = $mark ? $mix : intval(Payment::getPerTimeMoney($game, $f, $t, '', $platformList));
                     } else {
                         $dataAll[$game]['data'][] = intval(Payment::getPerTimeMan($game, $f, $t, '', $platformList));
                     }
@@ -244,6 +265,7 @@ class ApiController extends Controller
             'code' => 200,
             'data' => [
                 'title' => '',
+                'marker' => false,
                 'xAxis' => $rangeData,
                 'series' => $data,
             ],
@@ -568,7 +590,66 @@ class ApiController extends Controller
 
     public function actionUserHabitPayGapBar()
     {
+        $from = Yii::$app->request->post('from', date('Y-m-d'));
+        $to = Yii::$app->request->post('to', date('Y-m-d', strtotime('tomorrow')));
+        $platform = Yii::$app->request->post('platform', serialize(1));
+        $gameId = Yii::$app->request->post('gid', 1001);
+        $server = Yii::$app->request->post('server', serialize(1));
+        $platformList = Json::decode($platform);
+        $serverList = Json::decode($server);
+        $data = $day = [];
+        $pays = Payment::find()->where(['>=', 'time', $from])
+            ->andWhere(['<=', 'time', $to])
+            ->andFilterWhere(['game_id' => $gameId])
+            ->andFilterWhere(['platform_id' => $platformList])
+            ->andFilterWhere(['server_id' => $serverList]);
+        foreach ($pays->each() as $pay) {
+            //首次充值
+            if (strtotime($pay->last_pay_time) < 0) {
+                $day[$pay->id] = 0;
+            } else {
+                $day[$pay->id] = ceil((strtotime($pay->time) - strtotime($pay->last_pay_time)) / 86400);
+            }
+        }
+        $range = [
+            0 => '首次充值',
+            1 => '1天',
+            3 => '3天',
+            5 => '5天',
+            7 => '7天',
+            30 => '1月',
+            90 => '3月',
+            180 => '6月',
+            366 => '1年',
+            367 => '1年以上',
+        ];
+        foreach ($range as $k => $v){
+            $data[$k] = 0;
+        }
+        foreach ($day as $d) {
+            foreach ($range as $k => $r){
+                if(intval($d) <= $k && intval($d) < 367) {
+                    $data[$k]  += 1;
+                    break;
+                } else if(intval($d) >= 367) {
+                    $data[367]  += 1;
+                    break;
+                }
+            }
+        }
 
+        $rangeData = array_values($range);
+        $data['data'] = array_values($data);
+        $data['name'] = '充值间隔';
+
+        return [
+            'code' => 200,
+            'data' => [
+                'title' => '',
+                'xAxis' =>$rangeData,
+                'series' => [$data],
+            ],
+        ];
     }
 
     public function actionUserSeepArpLine()

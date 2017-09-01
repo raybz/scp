@@ -19,7 +19,7 @@ class m170807_053805_platform extends Migration
             'updated_by' => $this->integer()->notNull()->defaultValue(0),
         ]);
 
-        $this->createIndex('platform_abbreviation', $this->tableName, ['abbreviation']);
+        $this->createIndex('platform_abbreviation_status', $this->tableName, ['abbreviation', 'status']);
         $this->addCommentOnTable($this->tableName, '平台表');
     }
     

@@ -215,7 +215,8 @@ class Platform extends Model
                     $p[1] = str_replace('s', '', $p[1]);
                 }
                 if (trim($p[0], ' ') == 'gkey') {
-                    if ($p[1] == 'tl') {
+                    $gKeyArr = ['tl', 'tlzj', '屠龙战记'];
+                    if (in_array($p[1], $gKeyArr)) {
                         $p[1] = 'tlzj';
                     }
                 }

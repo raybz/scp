@@ -21,6 +21,7 @@ class m170726_074004_payment extends Migration
                 'order_id' => $this->string()->notNull(),
                 'coins' => $this->integer()->notNull(),
                 'money' => $this->float()->notNull(),
+                'last_pay_time'=> $this->dateTime()->notNull()->defaultValue('0000-00-00 00:00:00')->comment('上次支付时间'),
                 'created_at' => $this->dateTime()->notNull(),
             ]
         );
@@ -28,6 +29,9 @@ class m170726_074004_payment extends Migration
         $this->createIndex('payment_gid_pid_sid_uid', 'payment', ['game_id', 'platform_id', 'server_id', 'user_id']);
         $this->createIndex('payment_gid_pid_uid', 'payment', ['game_id', 'platform_id', 'user_id']);
         $this->createIndex('payment_pid_oid_user_id', 'payment', ['platform_id', 'order_id', 'user_id']);
+        $this->createIndex('payment_time_gid_pid_sid', 'payment', ['time', 'game_id', 'platform_id', 'user_id']);
+        $this->createIndex('payment_lpt', 'payment', ['last_pay_time']);
+        $this->createIndex('payment_time_uid', 'payment', ['time', 'user_id']);
 
         $this->addCommentOnTable($this->tableName, '充值表');
     }

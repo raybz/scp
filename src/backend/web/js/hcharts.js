@@ -137,7 +137,7 @@ Hcharts.prototype = {
                 plotOptions: {
                     spline: {
                         marker: {
-                            enabled: false
+                            enabled: data.data.marker
                         }
                     }
                 },

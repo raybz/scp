@@ -18,6 +18,7 @@ use yii\helpers\Json;
  * @property string  $order_id
  * @property integer $coins
  * @property integer $money
+ * @property integer $last_pay_time
  * @property string  $created_at
  */
 class Payment extends \yii\db\ActiveRecord
@@ -39,7 +40,7 @@ class Payment extends \yii\db\ActiveRecord
             [['user_id', 'platform_id', 'server_id', 'game_id', 'time', 'order_id', 'coins', 'money'], 'required'],
             [['coins', 'game_id', 'user_id', 'platform_id', 'server_id'], 'integer'],
             [['money'], 'number'],
-            [['created_at', 'time',], 'safe'],
+            [['created_at', 'time', 'last_pay_time'], 'safe'],
             [['order_id'], 'string', 'max' => 255],
         ];
     }
@@ -69,9 +70,20 @@ class Payment extends \yii\db\ActiveRecord
         return $res;
     }
 
+    public static function getUserLastPay($time, $user_id)
+    {
+        $result = self::find()
+            ->where(['<', 'time', $time])
+            ->andWhere('user_id = :uid', [':uid' => $user_id])
+            ->orderBy('time DESC')
+            ->one();
+
+        return $result;
+    }
+
     public static function newData($data)
     {
-        $game = Game::findOne(['gkey' => $data->gkey]);
+        $game = Game::find()->where('gkey = :g', [':g' => $data->gkey])->one();
         if (!$game) {
             return 'lose gkey';
         }
@@ -83,8 +95,10 @@ class Payment extends \yii\db\ActiveRecord
         if (!$user) {
             return 'lose user';
         }
-
         $si = Server::getServer($game->id, $pf->id, $data->server_id);
+
+        $lastPay = self::getUserLastPay($data->time, $user->id);
+        $lastPayTime = $lastPay->time ?? 0;
         $model = new self;
         $model->user_id = $user->id;
         $model->platform_id = $pf->id;
@@ -94,7 +108,10 @@ class Payment extends \yii\db\ActiveRecord
         $model->order_id = $data->order_id;
         $model->coins = $data->coins;
         $model->money = $data->money;
+        $model->last_pay_time = $lastPayTime;
         if ($model->save()) {
+            var_dump('7:'.microtime());
+
             return $model->id;
         } else {
             return Json::encode($model->errors).Json::encode($model->attributes);
@@ -103,13 +120,22 @@ class Payment extends \yii\db\ActiveRecord
 
     public static function storeData($data)
     {
+        if (!isset($data->platform)) {
+            return ['', '', ''];
+        }
         $platform = Platform::getPlatform($data->platform);
         $res = self::find()
-            ->select('id, time')
             ->where('platform_id = :pid', [':pid' => $platform->id])
             ->andWhere('order_id = :oid', [':oid' => $data->order_id])
             ->one();
         if ($res) {
+            $lastPay = self::getUserLastPay($res->time, $res->user_id);
+            $lastPayTime = $lastPay->time ?? 0;
+            if ($lastPayTime && ($res->last_pay_time < $lastPayTime || $res->last_pay_time > $res->time)) {
+                $res->last_pay_time = $lastPayTime;
+                $res->save();
+            }
+
             return ['old', $res->id, $res->time];
         } else {
             return ['new', self::newData($data), $data->time];
