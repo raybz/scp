@@ -110,7 +110,6 @@ class Payment extends \yii\db\ActiveRecord
         $model->money = $data->money;
         $model->last_pay_time = $lastPayTime;
         if ($model->save()) {
-            var_dump('7:'.microtime());
 
             return $model->id;
         } else {
@@ -131,8 +130,11 @@ class Payment extends \yii\db\ActiveRecord
         if ($res) {
             $lastPay = self::getUserLastPay($res->time, $res->user_id);
             $lastPayTime = $lastPay->time ?? 0;
-            if ($lastPayTime && ($res->last_pay_time < $lastPayTime || $res->last_pay_time > $res->time)) {
+            if ($lastPayTime && (strtotime($res->last_pay_time) < strtotime($lastPayTime))) {
                 $res->last_pay_time = $lastPayTime;
+                $res->save();
+            } elseif (strtotime($res->last_pay_time) > strtotime($res->time)) {
+                $res->last_pay_time = 0;
                 $res->save();
             }
 
