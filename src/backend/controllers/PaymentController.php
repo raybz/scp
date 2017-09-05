@@ -9,6 +9,7 @@ use backend\models\search\PlatformPaymentSearch;
 use backend\models\search\ServerPaymentSearch;
 use common\models\Arrange;
 use common\models\Game;
+use common\models\Payment;
 use common\models\Platform;
 use Yii;
 use yii\filters\VerbFilter;
@@ -176,11 +177,22 @@ class PaymentController extends Controller
             $searchModel->platform_id = array_keys(Platform::platformDropDownData());
         }
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        $total_payment = Payment::getTotalCoinMoney(
+            $searchModel->from,
+            $searchModel->to,
+            $searchModel->game_id,
+            $searchModel->platform_id
+        );
 
-        return $this->render('list', [
-            'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
-        ]);
+        return $this->render(
+            'list',
+            [
+                'total_coins' => round($total_payment['total_coins'] ?? 0, 2),
+                'total_money' => round($total_payment['total_money'] ?? 0 / 100, 2),
+                'searchModel' => $searchModel,
+                'dataProvider' => $dataProvider,
+            ]
+        );
     }
 
     public function actionMatch()

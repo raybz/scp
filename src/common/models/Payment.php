@@ -144,6 +144,23 @@ class Payment extends \yii\db\ActiveRecord
         }
     }
 
+    public static function getTotalCoinMoney( $from = null, $to = null, $game_id = null, $platform_id = null)
+    {
+        $data = Payment::find()
+            ->select([
+                'SUM(coins) total_coins',
+                'SUM(money) total_money',
+            ])
+            ->andFilterWhere(['>=', 'time', $from])
+            ->andFilterWhere(['<', 'time', $to])
+            ->andFilterWhere(['game_id' => $game_id])
+            ->andFilterWhere(['platform_id' => $platform_id])
+            ->asArray()
+            ->one();
+
+        return $data ?? 0;
+    }
+
     public static function getPerTimeMoney($game_id = null, $from = null, $to = null, $user_id = null, $platform_id = null, $server_id = null)
     {
         $data = Payment::find()

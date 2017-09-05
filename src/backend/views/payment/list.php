@@ -7,6 +7,8 @@ $this->title = '概况';
 /* @var $searchModel \backend\models\search\PaymentSearch */
 /* @var $gidStr String */
 /* @var $platformStr String */
+/* @var $total_money String */
+/* @var $total_coins String */
 ?>
     <style>
         .select2-container .select2-selection--single .select2-selection__rendered {
@@ -84,7 +86,18 @@ $this->title = '概况';
             </div>
         </div>
     </div>
-
+    <div class="box box-default">
+        <div class="box-body">
+            <div class="row">
+                <div class="col-md-2">
+                    <label class="control-label">总充值金额：<?= $total_money?></label>
+                </div>
+                <div class="col-md-2">
+                    <label class="control-label">总元宝：<?= $total_coins?></label>
+                </div>
+            </div>
+        </div>
+    </div>
 
 <?php $columns = [
     ['class' => '\kartik\grid\SerialColumn', 'pageSummary' => '汇总',],
@@ -133,7 +146,7 @@ $this->title = '概况';
         'hAlign' => 'center',
     ],
     [
-        'label' => '交易币',
+        'label' => '元宝',
         'value' => function ($data) {
 
             return $data['coins'] ?? 0;
