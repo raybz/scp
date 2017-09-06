@@ -180,7 +180,7 @@ class PaymentController extends Controller
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
         $total_payment = Payment::getTotalCoinMoney(
             $searchModel->from,
-            $searchModel->to,
+            $searchModel->to.' 23:59:59',
             $searchModel->game_id,
             $searchModel->platform_id
         );

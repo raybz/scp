@@ -152,7 +152,7 @@ class Payment extends \yii\db\ActiveRecord
                 'SUM(money) total_money',
             ])
             ->andFilterWhere(['>=', 'time', $from])
-            ->andFilterWhere(['<', 'time', $to])
+            ->andFilterWhere(['<=', 'time', $to])
             ->andFilterWhere(['game_id' => $game_id])
             ->andFilterWhere(['platform_id' => $platform_id])
             ->asArray()
