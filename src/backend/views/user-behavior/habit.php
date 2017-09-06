@@ -35,38 +35,53 @@ $this->title = '概况';
                     </div>
                     <div class="col-md-1">
                         <div class="form-group">
-                            <label class="control-label">平台:</label>
                             <?php if ($searchModel->platform_id): ?>
                                 <input type="hidden" value="<?= join(',', (array)$searchModel->platform_id); ?>"
                                        id="selected_platform_id"/>
                             <?php endif; ?>
-                            <?= \yii\helpers\Html::dropDownList(
-                                'UserBehaviorSearch[platform_id][]',
-                                null,
-                                [],
+                            <?= $form->field($searchModel, 'platform_id')->widget(
+                                \dosamigos\multiselect\MultiSelect::className(),
                                 [
-                                    'id' => 'server-payment-search-platform',
-                                    'multiple' => true,
+                                    'data' => \common\models\Platform::platformDropDownData(),
+                                    "options" => ['multiple'=>"multiple", "width" => '200px'],
+                                    "clientOptions" =>
+                                        [
+                                            "includeSelectAllOption" => true,
+                                            'numberDisplayed' => 3,
+                                            'selectAllText' => '全选',
+                                            'filterPlaceholder' => '请选择...',
+                                            'nonSelectedText' => '未选择',
+                                            'buttonWidth' => '100px',
+                                        ],
                                 ]
-                            ); ?>
+                            )->label('平台:') ?>
                         </div>
                     </div>
                     <div class="col-md-1">
                         <div class="form-group">
-                            <label class="control-label">区服:</label>
                             <?php if ($searchModel->server_id): ?>
                                 <input type="hidden" value="<?= join(',', (array)$searchModel->server_id); ?>"
                                        id="selected_server_id"/>
                             <?php endif; ?>
-                            <?= \yii\helpers\Html::dropDownList(
-                                'UserBehaviorSearch[server_id][]',
-                                null,
-                                [],
+                            <?= $form->field($searchModel, 'server_id')->widget(
+                                \dosamigos\multiselect\MultiSelect::className(),
                                 [
-                                    'id' => 'server-payment-search-server',
-                                    'multiple' => true,
+                                    'data' => \common\models\Server::ServerDataDropData(
+                                        $searchModel->game_id,
+                                        $searchModel->platform_id
+                                    ),
+                                    "options" => ['multiple'=>"multiple"],
+                                    "clientOptions" =>
+                                        [
+                                            "includeSelectAllOption" => true,
+                                            'numberDisplayed' => 3,
+                                            'selectAllText'=> '全选',
+                                            'filterPlaceholder' => '请选择...',
+                                            'nonSelectedText' => '未选择',
+                                            'buttonWidth' => '100px',
+                                        ],
                                 ]
-                            ); ?>
+                            )->label('区服:') ?>
                         </div>
                     </div>
                     <div class="col-md-2">
@@ -218,7 +233,7 @@ $this->registerJsFile(
 $script = <<<EOL
     var Component = new IMultiSelect({
         original: '#userbehaviorsearch-game_id',
-        aim: '#server-payment-search-platform',
+        aim: '#userbehaviorsearch-platform_id',
         selected_values_id: '#selected_platform_id',
         url:'/api/get-platform-by-game'
     });
@@ -228,8 +243,8 @@ EOL;
 $this->registerJs($script);
 $script1 = <<<EOL
     var Component = new IMultiSelect({
-        original: '#selected_platform_id',
-        aim: '#server-payment-search-server',
+        original: '#userbehaviorsearch-platform_id',
+        aim: '#userbehaviorsearch-server_id',
         selected_values_id: '#selected_server_id',
         url:'/api/get-server-by-platform',
         depend:'#userbehaviorsearch-game_id',

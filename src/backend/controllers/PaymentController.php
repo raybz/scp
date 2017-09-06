@@ -152,6 +152,7 @@ class PaymentController extends Controller
         } else {
             $serverStr = serialize($searchModel->server_id);
         }
+
         $dataProvider = $searchModel->search();
 
         return $this->render(

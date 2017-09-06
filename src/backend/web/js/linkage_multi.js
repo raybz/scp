@@ -34,8 +34,7 @@ IMultiSelect.prototype = {
                     for (i; i < rData.length; i++) {
                         options += '<option value="' + rData[i]['id'] + '">' + rData[i]['name'] + '</option>';
                     }
-                    $(aim).html(options);
-                    $(aim).multiselect('rebuild');
+                    $(aim).html(options).multiselect('rebuild');
                 }
             });
         });
@@ -61,7 +60,6 @@ IMultiSelect.prototype = {
         var aim = this.aim;
         var url = this.url;
         $.getJSON(url, {originals: originals, depends: dependVal}, function (data) {
-            $(aim).empty();
             var rData = data.data;
             var options = '';
             if (rData) {
@@ -75,8 +73,7 @@ IMultiSelect.prototype = {
                     }
                     options += '<option value="' + rData[i]['id'] + '" ' + ch + '>' + rData[i]['name'] + '</option>';
                 }
-                $(aim).html(options);
-                $(aim).multiselect('rebuild');
+                $(aim).empty().html(options).multiselect('rebuild');
             }
         });
     },
