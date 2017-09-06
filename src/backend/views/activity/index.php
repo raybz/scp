@@ -10,6 +10,11 @@ use yii\helpers\Html;
 $this->title = '活动列表';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
+<style>
+    .select2-container .select2-selection--single .select2-selection__rendered{
+        margin-top: 0;
+    }
+</style>
 <div class="box box-default">
     <div class="box-body">
         <div class="row">
@@ -23,19 +28,9 @@ $this->params['breadcrumbs'][] = $this->title;
             <div class="col-md-12">
                 <div class="col-md-1">
                     <?= $form->field($searchModel, 'game_id')->widget(
-                        \dosamigos\multiselect\MultiSelect::className(),
+                        kartik\select2\Select2::className(),
                         [
-                            "options" => ['multiple' => "multiple"],
                             'data' => \common\models\Game::gameDropDownData(),
-                            "clientOptions" =>
-                                [
-                                    'enableFiltering' => true,
-                                    "selectAllText" => '全选',
-                                    "includeSelectAllOption" => true,
-                                    'numberDisplayed' => false,
-                                    'maxHeight' => 0,
-                                    'nonSelectedText' => '选择游戏',
-                                ],
                         ]
                     )?>
                 </div>
@@ -44,8 +39,8 @@ $this->params['breadcrumbs'][] = $this->title;
                         \kartik\daterange\DateRangePicker::className(),
                         [
                             'convertFormat' => true,
-                            'startAttribute' => $searchModel->start_at,
-                            'endAttribute' => $searchModel->end_at,
+                            'startAttribute' => 'start_at',
+                            'endAttribute' => 'end_at',
                             'pluginOptions' => [
                                 'locale' => ['format' => 'Y-m-d'],
                             ],

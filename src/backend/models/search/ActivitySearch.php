@@ -63,16 +63,11 @@ class ActivitySearch extends Activity
             [
                 'id' => $this->id,
                 'game_id' => $this->game_id,
-                'start_at' => $this->start_at,
-                'end_at' => $this->end_at,
                 'status' => $this->status,
-                'created_at' => $this->created_at,
-                'created_by' => $this->created_by,
-                'updated_at' => $this->updated_at,
-                'updated_by' => $this->updated_by,
             ]
         );
-
+        $query->andFilterWhere(['>=', 'start_at', $this->start_at]);
+        $query->andFilterWhere(['<=', 'end_at', $this->end_at]);
         $query->andFilterWhere(['like', 'desc', $this->desc]);
 
         return $dataProvider;
