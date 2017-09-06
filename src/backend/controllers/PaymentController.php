@@ -214,7 +214,7 @@ class PaymentController extends Controller
         if ($searchModel->from == null || $searchModel->to == null) {
             $searchModel->game_id = 1001;
             $searchModel->platform_id = 14;
-            $searchModel->batch = 744;
+            $searchModel->batch = 654;
             $searchModel->from = date('Y-m-01', strtotime('-1 month'));
             $searchModel->to = date('Y-m-01', strtotime('now'));
         }

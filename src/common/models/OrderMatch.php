@@ -2,6 +2,8 @@
 
 namespace common\models;
 
+use common\definitions\OrderMatchType;
+
 /**
  * This is the model class for table "order_match".
  *
@@ -225,15 +227,15 @@ class OrderMatch extends \yii\db\ActiveRecord
     }
 
     //与数据库对比导出csv
-    public static function fileMatchDB($file_name, $platform_id, $from, $to, $batch)
+    public static function fileMatchDB($file_name, int $order_column, $platform_id, $from, $to, $batch)
     {
         $payment = Payment::find()
             ->where('platform_id = :pid', [':pid' => $platform_id])
             ->andWhere(['>=', 'time', $from])
             ->andWhere(['<', 'time', $to]);
-        $i =2;
+        $line = 2;
         do {
-            $data = self::getFileLine($file_name, $i);
+            $data = self::getFileLine($file_name, $line);
             if(!boolval($data)){
                 continue;
             }
@@ -241,26 +243,25 @@ class OrderMatch extends \yii\db\ActiveRecord
 //            $a = trim($e[0], '"');
 //            $a = str_replace("\t", "",$a);
 //            $order_id =  $a;
-            $order_id =  strtolower(trim($e[1], ' '));
+            $order_id =  strtolower(trim($e[$order_column], ' '));
             echo $order_id.PHP_EOL;
             $arr[] = $order_id;
 
-            $i++;
+            $line++;
         } while (boolval($data));
         $pArr = [];
-        foreach ($payment->each() as $pay) {
-//            if (!in_array($pay->order_id, $arr)) {
-//                $hav = self::getOrderMatch($pay, $batch);
-//                if($hav){
-//                        echo 'old ID: '.$hav->id.PHP_EOL;
-//                    continue;
-//                }
-//
-//                $id = self::saveOrderMatch($pay, OrderMatchType::OTHER_LOSE, $batch);
-//                echo 'new ID: '.$id.PHP_EOL;
-//            } else{
-//                echo 'ha'.PHP_EOL;
-//            }
+        foreach ($payment->each() as $k => $pay) {
+            echo $k.PHP_EOL;
+            if (!in_array($pay->order_id, $arr)) {
+                $hav = self::getOrderMatch($pay, $batch);
+                if($hav){
+                        echo 'old ID: '.$hav->id.PHP_EOL;
+                    continue;
+                }
+
+                $id = self::saveOrderMatch($pay, OrderMatchType::OTHER_LOSE, $batch);
+                echo 'new ID: '.$id.PHP_EOL;
+            }
             $pArr[] = $pay->order_id;
         }
 //        $diff = array_diff($pArr, $arr);
