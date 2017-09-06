@@ -103,11 +103,11 @@ class ApiController extends Controller
                             $mix = [
                                 'y' => intval(Payment::getPerTimeMoney($game, $f, $t, '', $platformList)),
                                 'marker' => [
-                                    'radius' => 10 * (1 + ($weight * 0.2)),
+                                    'radius' => 10 * (1 + ($weight * 0.5)),
                                 ],
                                 'dataLabels' => [
                                     'enabled' => true,
-                                    'padding' => 5 * (1 + ($weight * 0.2)),
+                                    'padding' => 5 * (1 + ($weight * 0.5)),
                                     'format' => $aList,
                                     'y' => -10,
                                     'shadow' => true,
