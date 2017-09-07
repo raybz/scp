@@ -86,18 +86,25 @@ $this->title = '概况';
             </div>
         </div>
     </div>
+
     <div class="box box-default">
+        <div class="box-header with-border">
+            <h3 class="box-title">总计:</h3>
+        </div>
         <div class="box-body">
-            <div class="row">
-                <div class="col-md-2">
-                    <label class="control-label">总充值金额：<?= $total_money?></label>
-                </div>
-                <div class="col-md-2">
-                    <label class="control-label">总元宝：<?= $total_coins?></label>
-                </div>
-            </div>
+            <table class="table table-bordered table-striped table-condensed flip-content">
+                <tr>
+                    <th>总充值金额</th>
+                    <th>总元宝</th>
+                </tr>
+                <tr>
+                    <td><?= $total_money ?></td>
+                    <td><?= $total_coins ?></td>
+                </tr>
+            </table>
         </div>
     </div>
+
 
 <?php $columns = [
     ['class' => '\kartik\grid\SerialColumn', 'pageSummary' => '汇总',],

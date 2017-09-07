@@ -38,6 +38,10 @@ class ActivityController extends Controller
     public function actionIndex()
     {
         $searchModel = new ActivitySearch();
+        if ($searchModel->start_at == null || $searchModel->end_at) {
+            $searchModel->start_at = date('Y-m-d', strtotime('-1 month'));
+            $searchModel->end_at = date('Y-m-d', strtotime('now'));
+        }
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render(
