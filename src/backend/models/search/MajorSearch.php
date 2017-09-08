@@ -30,11 +30,11 @@ class MajorSearch extends Major
     public function search()
     {
         $query = (new Query())->from('major m')
-            ->select('m.*, h.latest_login_at')
+            ->select('m.*, latest_login_at')
             ->leftJoin('major_login_history h', 'm.id = h.major_id')
-            ->orderBy('h.latest_login_at DESC');
+            ->orderBy('latest_login_at DESC');
 
-        $q = (new Query())->from(['q' => $query])->groupBy('q.user_id')->orderBy('q.latest_login_at DESC');
+        $q = (new Query())->from(['q' => $query])->groupBy('q.user_id');
 
         // add conditions that should always apply here
 
@@ -44,7 +44,12 @@ class MajorSearch extends Major
                 'sort' => [
                     'attributes' => [
                         'latest_login_at',
+                        'total_payment_amount'
                     ],
+                    'defaultOrder' => [
+                        'latest_login_at' => 'DESC',
+                        'total_payment_amount' => 'DESC'
+                    ]
                 ],
             ]
         );

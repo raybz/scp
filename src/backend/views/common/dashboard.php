@@ -99,7 +99,7 @@ $this->title = '概况';
                 $diff = intval($key[1]) - intval($key[0]);
                 $MoM = ($diff / $key[0]) * 100;
 
-                return Yii::$app->formatter->asDecimal($MoM);
+                return round($MoM, 2);
             } else {
                 return '-';
             }
@@ -115,7 +115,7 @@ $this->title = '概况';
                 $diff = $key[1] - $key[0];
                 $MoM = ($diff / $key[0]) * 100;
 
-                return Yii::$app->formatter->asDecimal($MoM);
+                return round($MoM, 2);
             } else {
                 return '-';
             }
@@ -131,7 +131,7 @@ $this->title = '概况';
                 $diff = $key[1] - $key[0];
                 $MoM = ($diff / $key[0]) * 100;
 
-                return Yii::$app->formatter->asDecimal($MoM);
+                return round($MoM, 2);
             } else {
                 return '-';
             }
@@ -144,7 +144,7 @@ $this->title = '概况';
         'label' => '充值金额',
         'value' => function($data){
             if(is_numeric($data['pay_money_sum'])){
-                return Yii::$app->formatter->asDecimal($data['pay_money_sum']);
+                return round($data['pay_money_sum'], 2);
             }
             return $data['pay_money_sum'];
         },
@@ -153,7 +153,7 @@ $this->title = '概况';
                 $diff = intval($key[1]) - intval($key[0]);
                 $MoM = $diff / intval($key[0]) * 100;
 
-                return Yii::$app->formatter->asDecimal($MoM);
+                return round($MoM, 2);
             } else {
                 return '-';
             }
@@ -169,7 +169,7 @@ $this->title = '概况';
                 $diff = $key[1] - $key[0];
                 $MoM = ($diff / $key[0]) * 100;
 
-                return Yii::$app->formatter->asDecimal($MoM);
+                return round($MoM, 2);
             } else {
                 return '-';
             }

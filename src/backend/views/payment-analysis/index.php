@@ -47,7 +47,7 @@ $this->title = '概况';
                                     "clientOptions" =>
                                         [
                                             "includeSelectAllOption" => true,
-                                            'numberDisplayed' => 3,
+                                            'numberDisplayed' => 2,
                                             'selectAllText' => '全选',
                                             'filterPlaceholder' => '请选择...',
                                             'nonSelectedText' => '未选择',
@@ -57,7 +57,7 @@ $this->title = '概况';
                             )->label('平台:') ?>
                         </div>
                     </div>
-                    <div class="col-md-1">
+                    <div class="col-md-1" id="s_l" style="display: none">
                         <div class="form-group">
                             <?php if ($searchModel->server_id): ?>
                                 <input type="hidden" value="<?= join(',', (array)$searchModel->server_id); ?>"
@@ -74,7 +74,7 @@ $this->title = '概况';
                                     "clientOptions" =>
                                         [
                                             "includeSelectAllOption" => true,
-                                            'numberDisplayed' => 3,
+                                            'numberDisplayed' => 2,
                                             'selectAllText'=> '全选',
                                             'filterPlaceholder' => '请选择...',
                                             'nonSelectedText' => '未选择',
@@ -310,6 +310,8 @@ $script = <<<EOL
     var Component = new IMultiSelect({
         original: '#paymentanalysissearch-platform_id',
         aim: '#paymentanalysissearch-server_id',
+        append: '#s_l', 
+        append_show_max_length: 2,
         selected_values_id: '#selected_server_id',
         url:'/api/get-server-by-platform',
         depend:'#paymentanalysissearch-game_id',

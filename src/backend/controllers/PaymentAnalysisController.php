@@ -32,23 +32,14 @@ class PaymentAnalysisController extends Controller
 
         if ($searchModel->platform_id == null) {
             $searchModel->platform_id = array_keys(Platform::platformDropDownData());
-            $platformStr = serialize($searchModel->platform_id);
+            $platformStr = serialize('');
         } else {
             $platformStr = serialize($searchModel->platform_id);
         }
 
         if ($searchModel->server_id == null) {
-            $serverList = Arrange::getPaymentTopTenServer(
-                '',
-                '',
-                $searchModel->game_id,
-                $searchModel->platform_id,
-                '',
-                10,
-                true
-            );
-            $searchModel->server_id = $serverList;
-            $serverStr = serialize($searchModel->server_id);
+            $searchModel->server_id = Server::ServerDataDropData($searchModel->game_id, $searchModel->platform_id);
+            $serverStr = serialize('');
         } else {
             $serverStr = serialize($searchModel->server_id);
         }

@@ -113,6 +113,6 @@ class Server extends \yii\db\ActiveRecord
             ->indexBy('id')
             ->column();
 
-        return $res ?: ['empty' => '暂无区服'];
+        return $res ?: ['empty' => ''];
     }
 }

@@ -43,6 +43,10 @@ $this->title = '概况';
                         )->label('游戏:') ?>
                     </div>
                     <div class="col-md-1">
+                        <?php if ($searchModel->platform_id): ?>
+                            <input type="hidden" value="<?= join(',', (array)$searchModel->platform_id); ?>"
+                                   id="selected_platform_id"/>
+                        <?php endif; ?>
                         <?= $form->field($searchModel, 'platform_id')->widget(
                             \dosamigos\multiselect\MultiSelect::className(),
                             [
@@ -145,7 +149,7 @@ $this->title = '概况';
     [
         'attribute' => 'pay_money_sum',
         'value' => function ($data) {
-            return Yii::$app->formatter->asDecimal($data['pay_money_sum'], 2);
+            return round($data['pay_money_sum'], 2);
         },
         'hAlign' => 'center',
         'label' => '充值金额',
@@ -161,7 +165,7 @@ $this->title = '概况';
         'label' => '付费渗透率(%)',
         'value' => function ($data) {
             if (($data['active_sum'] + $data['new_sum'])  > 0) {
-                return Yii::$app->formatter->asDecimal($data['pay_man_sum'] / ($data['active_sum'] + $data['new_sum'])  * 100);
+                return round(($data['pay_man_sum'] / ($data['active_sum'] + $data['new_sum'])  * 100), 2);
             } else {
                 return '-';
             }
@@ -172,7 +176,7 @@ $this->title = '概况';
         'label' => 'ARPU(%)',
         'value' => function ($data) {
             if ($data['pay_man_sum'] > 0) {
-                return Yii::$app->formatter->asDecimal($data['pay_money_sum'] / $data['pay_man_sum'] * 100);
+                return round(($data['pay_money_sum'] / $data['pay_man_sum'] * 100), 2);
             } else {
                 return '-';
             }
@@ -182,7 +186,7 @@ $this->title = '概况';
     [
         'attribute' => 'new_pay_money_sum',
         'value' => function ($data) {
-            return Yii::$app->formatter->asDecimal($data['new_pay_money_sum'], 2);
+            return round($data['new_pay_money_sum'], 2);
         },
         'hAlign' => 'center',
         'label' => '新进充值金额',
@@ -198,7 +202,7 @@ $this->title = '概况';
         'label' => '新进充值占比(%)',
         'value' => function ($data) {
             if ($data['pay_man_sum'] > 0) {
-                return Yii::$app->formatter->asDecimal($data['new_pay_money_sum'] / $data['pay_money_sum'] * 100);
+                return round(($data['new_pay_money_sum'] / $data['pay_money_sum'] * 100), 2);
             } else {
                 return '-';
             }
@@ -314,8 +318,8 @@ $this->registerJsFile(
 );
 $script = <<<EOL
     var Component = new IMultiSelect({
-           original: '#platformpaymentsearch-game_id',
-           aim: '#platform_select_multi',
+           original: '#gamepaymentsearch-game_id',
+           aim: '#gamepaymentsearch-platform_id',
            selected_values_id: '#selected_platform_id',
            url:'/api/get-platform-by-game'
     });

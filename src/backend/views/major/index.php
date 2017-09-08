@@ -202,7 +202,7 @@ $fullExport = \kartik\export\ExportMenu::widget(
         'dataProvider' => $dataProvider,
         'pjax' => true,
         'toolbar' => [
-            $columns,
+            $fullExport,
         ],
         'id' => 'server-payment',
         'striped' => false,
@@ -215,7 +215,6 @@ $fullExport = \kartik\export\ExportMenu::widget(
             'heading' => '大户列表',
             'type' => 'default',
             'after' => false,
-            'before' => false,
         ],
     ]
 ); ?>

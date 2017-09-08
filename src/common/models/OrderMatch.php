@@ -227,18 +227,21 @@ class OrderMatch extends \yii\db\ActiveRecord
     }
 
     //与数据库对比导出csv
-    public static function fileMatchDB($file_name, int $order_column, $platform_id, $from, $to, $batch)
+    public static function fileMatchDB($file_name, int $order_column, $game_id, $platform_id, $from, $to, $batch)
     {
         $payment = Payment::find()
-            ->where('platform_id = :pid', [':pid' => $platform_id])
-            ->andWhere(['>=', 'time', $from])
-            ->andWhere(['<', 'time', $to]);
+            ->where(['>=', 'time', $from])
+            ->andWhere(['<', 'time', $to])
+            ->andWhere(['game_id' => $game_id])
+            ->andFilterWhere(['platform_id' => $platform_id]);
         $line = 2;
         do {
             $data = self::getFileLine($file_name, $line);
+            var_dump($data);
             if(!boolval($data)){
                 continue;
             }
+
             $e = explode(',', $data);
 //            $a = trim($e[0], '"');
 //            $a = str_replace("\t", "",$a);
@@ -259,8 +262,8 @@ class OrderMatch extends \yii\db\ActiveRecord
                     continue;
                 }
 
-                $id = self::saveOrderMatch($pay, OrderMatchType::OTHER_LOSE, $batch);
-                echo 'new ID: '.$id.PHP_EOL;
+//                $id = self::saveOrderMatch($pay, OrderMatchType::OTHER_LOSE, $batch);
+//                echo 'new ID: '.$id.PHP_EOL;
             }
             $pArr[] = $pay->order_id;
         }
