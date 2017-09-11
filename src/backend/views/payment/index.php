@@ -141,7 +141,7 @@ $this->title = '概况';
         'attribute' => 'active_sum',
         'hAlign' => 'center',
         'label' => '活跃用户数',
-        'value' => function($data){
+        'value' => function ($data) {
             return $data['active_sum'] + $data['new_sum'];
         },
         'pageSummary' => true,
@@ -164,8 +164,8 @@ $this->title = '概况';
     [
         'label' => '付费渗透率(%)',
         'value' => function ($data) {
-            if (($data['active_sum'] + $data['new_sum'])  > 0) {
-                return round(($data['pay_man_sum'] / ($data['active_sum'] + $data['new_sum'])  * 100), 2);
+            if (($data['active_sum'] + $data['new_sum']) > 0) {
+                return round(($data['pay_man_sum'] / ($data['active_sum'] + $data['new_sum']) * 100), 2);
             } else {
                 return '-';
             }
@@ -292,7 +292,24 @@ $charts = <<<EOL
                 align: 'left',
                 x: 70
             },
-            subtitle:'',
+            formatter: function () {
+                var s = '';
+                $.each(this.points, function (k, v) {
+                    if (typeof (v.point.text) != 'undefined') {
+                        $.each(v.point.text.desc, function (key, value) {
+                            s += v.series.name + ' :<div style="color: #ff0000;font-size: 12px;">' + value.name + '</div><br>';
+                            s += '开始时间：' + value.start + '<br>';
+                            s += '结束时间：' + value.end + '<br>';
+                            s += '充值金额：<span style="color: red">' + Highcharts.numberFormat(v.y, 0) + '</span><br>';
+                        });
+                    } else {
+                        s += '<div style="color: #ff0000;font-size: 12px;">' + v.series.name + '</div><br>';
+                        s += '充值金额：<span style="color: red">' + Highcharts.numberFormat(v.y, 0) + '</span><br>';
+                    }
+                });
+                return s;
+            },
+            subtitle: '',
             container: 'per-hour-man-container',
             xAxis: 'dateTimeLabelFormats',
             param: {
@@ -305,8 +322,8 @@ $charts = <<<EOL
         var chart = new Hcharts(param);
         chart.showSpline();
 EOL;
-$this->registerJs($charts);
-?>
+    $this->registerJs($charts);
+    ?>
 <?php
 $this->registerJsFile(
     '/js/linkage_multi.js',

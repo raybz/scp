@@ -94,29 +94,25 @@ class ApiController extends Controller
 
                         $mix = [];
                         if (!empty($mark)) {
-                            $aList = '';
+                            $aOne = '';
                             $weight = 0;
                             foreach ($mark as $m) {
                                 $weight += 1;
-                                $aList .= ($m->name ?? '').'<br>';
+                                $aOne[] = ['name' => $m->name ?? '', 'start' => $m->start_at ?? '', 'end' => $m->end_at];
                             }
                             $mix = [
                                 'y' => intval(Payment::getPerTimeMoney($game, $f, $t, '', $platformList)),
                                 'marker' => [
+                                    'fillColor' => 'red',
                                     'states' => [
                                         'hover' => [
-                                            'fillColor' => 'white',
                                             'lineColor' => 'red',
-                                            'lineWidth' => 2,
+                                            'lineWidth' => 4,
                                         ],
                                     ],
                                 ],
-                                'dataLabels' => [
-                                    'enabled' => true,
-                                    'padding' => 5 * (1 + ($weight * 0.5)),
-                                    'format' => $aList,
-                                    'y' => -10,
-                                    'shadow' => true,
+                                'text' => [
+                                    'desc' => $aOne,
                                 ],
                             ];
                         }

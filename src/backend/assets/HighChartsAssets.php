@@ -12,7 +12,7 @@ class HighChartsAssets extends AssetBundle
     public $basePath = '@webroot';
     public $baseUrl = '@web';
     public $css = [
-        '//cdn.bootcss.com/highcharts/5.0.14/css/highcharts.css'
+//        '//cdn.bootcss.com/highcharts/5.0.14/css/highcharts.css'
     ];
     public $js = [
 //        '//cdn.bootcss.com/highcharts/5.0.7/js/highcharts.js',

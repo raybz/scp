@@ -11,6 +11,7 @@ function Hcharts(args) {
     this.title = args.title;
     this.subtitle = args.subtitle;
     this.param = args.param;
+    this.formatter = args.formatter;
 }
 
 Hcharts.prototype = {
@@ -132,7 +133,8 @@ Hcharts.prototype = {
                 xAxis: {categories: data.data.xAxis},
                 yAxis: {},
                 tooltip: {
-                    shared: true
+                    shared: true,
+                    formatter: _this.formatter
                 },
                 plotOptions: {
                     spline: {

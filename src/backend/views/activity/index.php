@@ -77,6 +77,12 @@ $this->params['breadcrumbs'][] = $this->title;
             'attribute' => 'name',
         ],
         [
+            'attribute' => 'start_at'
+        ],
+        [
+            'attribute' => 'end_at'
+        ],
+        [
             'attribute' => 'desc',
             'format' => 'raw',
         ],
