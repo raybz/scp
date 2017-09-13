@@ -676,17 +676,17 @@ class ApiController extends Controller
         $type = Yii::$app->request->post('type', 1);
         switch ($type) {
             case 2:
-                $name = '周付费率';
+                $name = '周ARPU';
                 $limit = ' week';
                 $lT = 86400 * 7;
                 break;
             case 3:
-                $name = '月付费率';
+                $name = '月ARPU';
                 $limit = ' month';
                 $lT = 86400 * 30;
                 break;
             default:
-                $name = '日付费率';
+                $name = '日ARPU';
                 $limit = ' day';
                 $lT = 86400;
                 break;
@@ -697,7 +697,6 @@ class ApiController extends Controller
         $diff_day = intval(ceil((strtotime($to) - strtotime($from)) / $lT));
         $rangeData = $arr = [];
 
-//        if ($diff_day > 1) {
         $rangeTime = range(0, $diff_day);
         foreach ($rangeTime as $k => $day) {
             $rangeData[] = date('Y-m-d', strtotime($from.$day.$limit));
@@ -710,7 +709,7 @@ class ApiController extends Controller
                 $arr[] = 0;
             }
         }
-//        }
+
         $data = [
             'name' => $name,
             'data' => $arr,

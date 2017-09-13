@@ -71,6 +71,11 @@ HTML;
                             $model->isNewRecord ? '新增' : '更新',
                             ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']
                         ) ?>
+                        <?php if ($model->isNewRecord):
+                        echo Html::submitButton(
+                            $model->isNewRecord ? '保存并继续' : '更新',
+                            ['class' => $model->isNewRecord ? 'btn btn-info' : 'btn btn-primary', 'value'=>'1', 'name'=>'continue']
+                        ); endif;?>
                     </div>
                 </div>
                 <?php ActiveForm::end(); ?>

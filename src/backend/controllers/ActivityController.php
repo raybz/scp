@@ -95,9 +95,14 @@ class ActivityController extends Controller
     public function actionCreate()
     {
         $model = new Activity();
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+        $post = Yii::$app->request->post();
+        if ($model->load($post) && $model->save()) {
+            flash('添加成功');
+            if (isset($post['continue']) && $post['continue']) {
+                return $this->redirect(['create']);
+            } else {
+                return $this->redirect(['index']);
+            }
         } else {
             return $this->render(
                 'create',
@@ -120,7 +125,10 @@ class ActivityController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+            var_dump($_SESSION);
+            flash('修改成功', 'success');
+
+            return $this->redirect(['index']);
         } else {
             return $this->render(
                 'update',

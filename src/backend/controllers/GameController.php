@@ -55,6 +55,8 @@ class GameController extends Controller
     {
         $model = new Game();
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            flash('成功');
+
             return $this->redirect('index');
         } else {
             return $this->render('create', [
@@ -74,6 +76,8 @@ class GameController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            flash('修改成功');
+
             return $this->redirect(['index']);
         } else {
             return $this->render('update', [

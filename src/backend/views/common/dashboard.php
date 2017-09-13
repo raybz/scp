@@ -4,91 +4,100 @@ use kartik\grid\GridView;
 
 \backend\assets\HighChartsAssets::register($this);
 $this->title = '概况';
-/* @var $searchModel \backend\models\search\DashBoardSearch*/
-/* @var $threeDayDataProvider \backend\models\search\DashBoardSearch*/
-/* @var $monthDataProvider \backend\models\search\DashBoardSearch*/
+/* @var $searchModel \backend\models\search\DashBoardSearch */
+/* @var $threeDayDataProvider \backend\models\search\DashBoardSearch */
+/* @var $monthDataProvider \backend\models\search\DashBoardSearch */
 ?>
     <style>
-        .select2-container .select2-selection--single .select2-selection__rendered{
+        .select2-container .select2-selection--single .select2-selection__rendered {
             margin-top: 0;
         }
     </style>
-<div class="box box-default">
-    <!--折线图-->
-    <div class="box-header with-border">
-        <h3 class="box-title">图表</h3>
-        <div class="box-tools pull-right">
-            <button class="btn btn-box-tool" data-widget="collapse">
-                <i class="fa fa-minus"></i>
-            </button>
-            <button class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
-        </div>
-    </div>
-    <div class="box-body">
-        <div id="per-hour-money-container"></div>
-    </div>
-</div>
-
-<div class="box box-default">
-    <!--折线图-->
-    <div class="box-header with-border">
-        <h3 class="box-title">图表</h3>
-        <div class="box-tools pull-right">
-            <button class="btn btn-box-tool" data-widget="collapse">
-                <i class="fa fa-minus"></i>
-            </button>
-            <button class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
-        </div>
-    </div>
-    <div class="box-body">
-        <div id="per-hour-man-container"></div>
-    </div>
-</div>
-
-<div class="box box-default">
-    <div class="box-body">
-        <div class="row">
-            <?php $form = \yii\widgets\ActiveForm::begin(
-                [
-                    'method' => 'get',
-                    'action' => '/common/dashboard',
-                ]
-            ); ?>
-
-            <div class="col-md-12">
-
-                <div class="col-md-1">
-                    <?= $form->field($searchModel, 'game_id')->widget(\kartik\select2\Select2::className(),[
-                        'data' => \common\models\Game::gameDropDownData(),
-                        'options' => ['placeholder' => '请选择游戏'],
-                    ])->label('游戏:') ?>
-                </div>
-                <div class="col-md-1">
-                    <?= $form->field($searchModel, 'to')->widget(\kartik\date\DatePicker::className(),[
-                        'value' => '',
-                        'options' => ['placeholder' => '日期'],
-                        'type' => \kartik\date\DatePicker::TYPE_INPUT,
-                        'pluginOptions' => [
-                            'format' => 'yyyy-mm-dd',
-                            'autoclose' => true,
-                        ],
-                    ])->label('日期:') ?>
-                </div>
-                <div class="col-md-1">
-                    <?= \yii\helpers\Html::submitButton('搜索', ['class' => 'btn btn-success btn-flat', 'style' => 'margin-top: 25px;'])?>
-                </div>
+    <div class="box box-default">
+        <!--折线图-->
+        <div class="box-header with-border">
+            <h3 class="box-title">图表</h3>
+            <div class="box-tools pull-right">
+                <button class="btn btn-box-tool" data-widget="collapse">
+                    <i class="fa fa-minus"></i>
+                </button>
+                <button class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
             </div>
-            <?php \yii\widgets\ActiveForm::end()?>
+        </div>
+        <div class="box-body">
+            <div id="per-hour-money-container"></div>
         </div>
     </div>
-</div>
+
+    <div class="box box-default">
+        <!--折线图-->
+        <div class="box-header with-border">
+            <h3 class="box-title">图表</h3>
+            <div class="box-tools pull-right">
+                <button class="btn btn-box-tool" data-widget="collapse">
+                    <i class="fa fa-minus"></i>
+                </button>
+                <button class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+            </div>
+        </div>
+        <div class="box-body">
+            <div id="per-hour-man-container"></div>
+        </div>
+    </div>
+
+    <div class="box box-default">
+        <div class="box-body">
+            <div class="row">
+                <?php $form = \yii\widgets\ActiveForm::begin(
+                    [
+                        'method' => 'get',
+                        'action' => '/common/dashboard',
+                    ]
+                ); ?>
+
+                <div class="col-md-12">
+
+                    <div class="col-md-1">
+                        <?= $form->field($searchModel, 'game_id')->widget(
+                            \kartik\select2\Select2::className(),
+                            [
+                                'data' => \common\models\Game::gameDropDownData(),
+                                'options' => ['placeholder' => '请选择游戏'],
+                            ]
+                        )->label('游戏:') ?>
+                    </div>
+                    <div class="col-md-1">
+                        <?= $form->field($searchModel, 'to')->widget(
+                            \kartik\date\DatePicker::className(),
+                            [
+                                'value' => '',
+                                'options' => ['placeholder' => '日期'],
+                                'type' => \kartik\date\DatePicker::TYPE_INPUT,
+                                'pluginOptions' => [
+                                    'format' => 'yyyy-mm-dd',
+                                    'autoclose' => true,
+                                ],
+                            ]
+                        )->label('日期:') ?>
+                    </div>
+                    <div class="col-md-1">
+                        <?= \yii\helpers\Html::submitButton(
+                            '搜索',
+                            ['class' => 'btn btn-success btn-flat', 'style' => 'margin-top: 25px;']
+                        ) ?>
+                    </div>
+                </div>
+                <?php \yii\widgets\ActiveForm::end() ?>
+            </div>
+        </div>
+    </div>
 <?php $columns = [
     [
         'attribute' => 'date',
         'hAlign' => 'center',
         'label' => '日期',
         'width' => '16%',
-        'pageSummary' => '增幅'
+        'pageSummary' => '增幅',
     ],
     [
         'attribute' => 'new_sum',
@@ -98,8 +107,9 @@ $this->title = '概况';
             if (isset($key[0]) && isset($key[1]) && $key[0] > 0) {
                 $diff = intval($key[1]) - intval($key[0]);
                 $MoM = ($diff / $key[0]) * 100;
+                $result = round($MoM, 2);
 
-                return round($MoM, 2);
+                return $result > 0 ? '<span style="color: red">'.$result.'</span>' : '<span style="color: green">'.$result.'</span>';
             } else {
                 return '-';
             }
@@ -114,8 +124,9 @@ $this->title = '概况';
             if (isset($key[0]) && isset($key[1]) && $key[0] > 0) {
                 $diff = $key[1] - $key[0];
                 $MoM = ($diff / $key[0]) * 100;
+                $result = round($MoM, 2);
 
-                return round($MoM, 2);
+                return $result > 0 ? '<span style="color: red">'.$result.'</span>' : '<span style="color: green">'.$result.'</span>';
             } else {
                 return '-';
             }
@@ -130,8 +141,9 @@ $this->title = '概况';
             if (isset($key[0]) && isset($key[1]) && $key[0] > 0) {
                 $diff = $key[1] - $key[0];
                 $MoM = ($diff / $key[0]) * 100;
+                $result = round($MoM, 2);
 
-                return round($MoM, 2);
+                return $result > 0 ? '<span style="color: red">'.$result.'</span>' : '<span style="color: green">'.$result.'</span>';
             } else {
                 return '-';
             }
@@ -142,18 +154,20 @@ $this->title = '概况';
         'attribute' => 'pay_money_sum',
         'hAlign' => 'center',
         'label' => '充值金额',
-        'value' => function($data){
-            if(is_numeric($data['pay_money_sum'])){
+        'value' => function ($data) {
+            if (is_numeric($data['pay_money_sum'])) {
                 return round($data['pay_money_sum'], 2);
             }
+
             return $data['pay_money_sum'];
         },
         'pageSummary' => function ($data, $key) {
             if (isset($key[0]) && isset($key[1]) && $key[0] > 0) {
                 $diff = intval($key[1]) - intval($key[0]);
                 $MoM = $diff / intval($key[0]) * 100;
+                $result = round($MoM, 2);
 
-                return round($MoM, 2);
+                return $result > 0 ? '<span style="color: red">'.$result.'</span>' : '<span style="color: green">'.$result.'</span>';
             } else {
                 return '-';
             }
@@ -166,17 +180,18 @@ $this->title = '概况';
         'label' => '充值人数',
         'pageSummary' => function ($data, $key) {
             if (isset($key[0]) && isset($key[1]) && $key[0] > 0) {
-                $diff = $key[1] - $key[0];
+                $diff = intval($key[1]) - intval($key[0]);
                 $MoM = ($diff / $key[0]) * 100;
+                $result = round($MoM, 2);
 
-                return round($MoM, 2);
+                return $result > 0 ? '<span style="color: red">'.$result.'</span>' : '<span style="color: green">'.$result.'</span>';
             } else {
                 return '-';
             }
         },
         'format' => 'raw',
     ],
-];?>
+]; ?>
 <?= GridView::widget(
     [
         'autoXlFormat' => true,
@@ -267,7 +282,7 @@ $this->title = '概况';
         ],
     ]
 ); ?>
-<!--actionPlatformDateCharts-->
+    <!--actionPlatformDateCharts-->
 <?php
 //每时/充值走势图
 $pay_charts = <<<EOL

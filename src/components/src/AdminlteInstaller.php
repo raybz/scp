@@ -6,30 +6,22 @@ use yii\composer\Installer;
 
 class AdminlteInstaller extends Installer
 {
-    public static function initProject($event)
+    public static function initProject()
     {
-        static::formatAdminLTE($event);
+        static::formatAdminLTE();
     }
 
     /**
      * 替换 AmdinLTE 模板的google api, 原因嘛....
      * [@link](/member/link) http://www.cmsky.com/google-fonts-ssl-ustc/.
-     *
-     * @param $event
      */
-    public static function formatAdminLTE($event)
+    public static function formatAdminLTE()
     {
-        $composer = $event->getComposer();
-        $extra = $composer->getPackage()->getExtra();
-        if (isset($extra['asset-installer-paths']['vendor-path'])) {
-            $vendorPath = $extra['asset-installer-paths']['vendor-path'];
-            $cssFile[] = $vendorPath.'/almasaeed2010/adminlte/dist/css/AdminLTE.css';
-            $cssFile[] = $vendorPath.'/almasaeed2010/adminlte/dist/css/AdminLTE.min.css';
-            foreach ($cssFile as $css) {
-                self::replaceCss($css);
-            }
-        } else {
-            echo "'npm-asset-library' is not set.\n";
+        $vendorPath = 'vendor';
+        $cssFile[] = $vendorPath.'/almasaeed2010/adminlte/dist/css/AdminLTE.css';
+        $cssFile[] = $vendorPath.'/almasaeed2010/adminlte/dist/css/AdminLTE.min.css';
+        foreach ($cssFile as $css) {
+            self::replaceCss($css);
         }
     }
 

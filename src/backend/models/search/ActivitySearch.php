@@ -2,6 +2,7 @@
 
 namespace backend\models\search;
 
+use common\definitions\Status;
 use common\models\Activity;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
@@ -41,7 +42,7 @@ class ActivitySearch extends Activity
     public function search($params)
     {
         $query = Activity::find();
-
+        $query->where(['status' => Status::ACTIVE]);
         // add conditions that should always apply here
 
         $dataProvider = new ActiveDataProvider(
