@@ -9,6 +9,7 @@ use common\models\Major;
 use common\models\MajorLoginHistory;
 use common\models\Payment;
 use common\models\Platform;
+use common\models\Server;
 use Yii;
 use yii\db\Query;
 use yii\helpers\Json;
@@ -319,7 +320,8 @@ class ApiController extends Controller
         /* @var $sl Object */
         foreach ($sl->each() as $r) {
             $pf = Platform::findOne($r['platform_id']);
-            $rangeData[] = isset($pf->name) ? $pf->name.' / '.$r['server_id'].'区' : '';
+            $server = Server::findOne($r['server_id']);
+            $rangeData[] = isset($pf->name) ? $pf->name.' / '.($server->server ?? 0).'区' : '';
             $data1[] = round($r['pay_money_sum'] / array_sum($pay_sum_total) * 100, 2) ?: 0;
             $data2[] = round($r['new_sum'] / array_sum($new_sum_total) * 100, 2) ?: 0;
             $data3[] = intval($r['active_sum']) ?: 0;

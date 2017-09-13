@@ -18,7 +18,7 @@ class UserBehaviorController extends Controller
         if ($searchModel->from == null || $searchModel->to == null || $searchModel->game_id = null) {
             $searchModel->game_id = 1001;
             $searchModel->from = date('Y-m-d', strtotime('-1 month'));
-            $searchModel->to = date('Y-m-d', strtotime('now'));
+            $searchModel->to = date('Y-m-d', strtotime('yesterday'));
         }
         if($_type = \Yii::$app->request->get('_type')) {
 
@@ -46,6 +46,7 @@ class UserBehaviorController extends Controller
         } else {
             $serverStr = serialize($searchModel->server_id);
         }
+
         $dataProvider = $searchModel->search();
 
         return $this->render(

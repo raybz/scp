@@ -1,7 +1,6 @@
 <?php
 
 use kartik\grid\GridView;
-use \kartik\widgets\DateTimePicker;
 
 \backend\assets\HighChartsAssets::register($this);
 $this->title = '概况';
@@ -57,7 +56,7 @@ $this->title = '概况';
                             )->label('平台:') ?>
                         </div>
                     </div>
-                    <div class="col-md-1" style="display: none" id="s_l">
+                    <div class="col-md-1" id="s_l">
                         <div class="form-group">
                             <?php if ($searchModel->server_id): ?>
                                 <input type="hidden" value="<?= join(',', (array)$searchModel->server_id); ?>"
@@ -70,7 +69,7 @@ $this->title = '概况';
                                         $searchModel->game_id,
                                         $searchModel->platform_id
                                     ),
-                                    "options" => ['multiple'=>"multiple"],
+                                    "options" => ['multiple'=>"multiple", 'disabled' => 'disabled'],
                                     "clientOptions" =>
                                         [
                                             "includeSelectAllOption" => true,
@@ -279,80 +278,98 @@ $fullExport = \kartik\export\ExportMenu::widget(
         </div>
     </div>
 <?php
-$charts = <<<EOL
-    $('.options').on('click', function(){
-        var _type = $(this).children('input').val();
-        $('#_ph').attr('href', '/user-behavior/seep?_type='+_type).click();    
-        
-    //折线图
-        var param = {
-            api: '/api/user-seep-line?',
-            title: {
-                text: '付费率',
-                align: 'left',
-                x: 70
-            },
-            subtitle:'',
-            container: 'per-day-server-bar-container',
-            param: {
-                gid: '{$searchModel->game_id}',
-                platform: '{$platformStr}',
-                server:'{$serverStr}',
-                from: '{$from}',
-                to: '{$to}',
-                type: _type
+$script = <<<EOL
+$('.options').on('click', function () {
+    var changeUrlParam = function (name, value) {
+        var url = window.location.href;
+        var newUrl = "";
+        var reg = new RegExp("(^|)" + name + "=([^&]*)(|$)");
+        var tmp = name + "=" + value;
+        if (url.match(reg) != null) {
+            newUrl = url.replace(eval(reg), tmp);
+        } else {
+            if (url.match("[\?]")) {
+                newUrl = url + "&" + tmp;
             }
-        };
-        var chart = new Hcharts(param);
-        chart.showLine();
-    //折线图
-        var param = {
-            api: '/api/user-seep-arp-line?',
-            title: {
-                text: 'ARPU',
-                align: 'left',
-                x: 70
-            },
-            subtitle:'',
-            container: 'arp-line-container',
-            param: {
-                gid: '{$searchModel->game_id}',
-                platform: '{$platformStr}',
-                server:'{$serverStr}',
-                from: '{$from}',
-                to: '{$to}',
-                type: _type
+            else {
+                newUrl = url + "?" + tmp;
             }
-        };
-        var chart = new Hcharts(param);
-        chart.showLine();
-    });
-    //条形图
-    var param = {
-        api: '/api/platform-seep-bar?',
+        }
+        return newUrl;
+    };
+
+    var _type = $(this).children('input').val();
+    $('#_ph').attr('href', changeUrlParam('_type', _type)).click();
+
+    //折线图
+    var param1 = {
+        api: '/api/user-seep-line?',
         title: {
-            text: '',
+            text: '付费率',
             align: 'left',
             x: 70
         },
-        subtitle:'',
-        container: 'platform-bar-container',
+        subtitle: '',
+        container: 'per-day-server-bar-container',
         param: {
             gid: '{$searchModel->game_id}',
             platform: '{$platformStr}',
-            server:'{$serverStr}',
+            server: '{$serverStr}',
             from: '{$from}',
             to: '{$to}',
+            type: _type
         }
     };
-    var chart = new Hcharts(param);
-    chart.showBar();
-    
-    $().ready(function(){
-        $('#option1').click();
-    });
+    var chart1 = new Hcharts(param1);
+    chart1.showLine();
+    //折线图
+    var param2 = {
+        api: '/api/user-seep-arp-line?',
+        title: {
+            text: 'ARPU',
+            align: 'left',
+            x: 70
+        },
+        subtitle: '',
+        container: 'arp-line-container',
+        param: {
+            gid: '{$searchModel->game_id}',
+            platform: '{$platformStr}',
+            server: '{$serverStr}',
+            from: '{$from}',
+            to: '{$to}',
+            type: _type
+        }
+    };
+    var chart2 = new Hcharts(param2);
+    chart2.showLine();
+});
+//条形图
+var param3 = {
+    api: '/api/platform-seep-bar?',
+    title: {
+        text: '',
+        align: 'left',
+        x: 70
+    },
+    subtitle: '',
+    container: 'platform-bar-container',
+    param: {
+        gid: '{$searchModel->game_id}',
+        platform: '{$platformStr}',
+        server: '{$serverStr}',
+        from: '{$from}',
+        to: '{$to}',
+    }
+};
+var chart3 = new Hcharts(param3);
+chart3.showBar();
+
+$().ready(function () {
+    $('#option1').click();
+});
 EOL;
-$this->registerJs($charts);
+$this->registerJs($script);
 ?>
 <?php
 $this->registerJsFile(

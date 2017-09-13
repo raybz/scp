@@ -57,7 +57,7 @@ $this->title = '概况';
                             )->label('平台:') ?>
                         </div>
                     </div>
-                    <div class="col-md-1" style="display: none" id="s_l">
+                    <div class="col-md-1"  id="s_l">
                         <div class="form-group">
                             <?php if ($searchModel->server_id): ?>
                                 <input type="hidden" value="<?= join(',', (array)$searchModel->server_id); ?>"
@@ -70,7 +70,7 @@ $this->title = '概况';
                                         $searchModel->game_id,
                                         $searchModel->platform_id
                                     ),
-                                    "options" => ['multiple'=>"multiple"],
+                                    "options" => ['multiple'=>"multiple", 'disabled' => true],
                                     "clientOptions" =>
                                         [
                                             "includeSelectAllOption" => true,

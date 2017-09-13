@@ -75,7 +75,8 @@ class PaymentSearch extends Payment
         );
         $to = isset($this->to) ? $this->to.' 23:59:59' : '';
         $query->andFilterWhere(['>=', 'time', $this->from])
-            ->andFilterWhere(['<=', 'time', $to]);
+            ->andFilterWhere(['<=', 'time', $to])
+            ->orderBy('time DESC');
 
         $query->andFilterWhere(['like', 'order_id', $this->order_id]);
 

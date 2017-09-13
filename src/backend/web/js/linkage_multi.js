@@ -43,7 +43,7 @@ IMultiSelect.prototype = {
                     for (i; i < rData.length; i++) {
                         options += '<option value="' + rData[i]['id'] + '">' + rData[i]['name'] + '</option>';
                     }
-                    $(aim).empty().html(options).multiselect('rebuild');
+                    $(aim).empty().html(options).multiselect('rebuild').multiselect('enable');
                 }
             });
         });

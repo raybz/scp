@@ -172,7 +172,7 @@ class PaymentController extends Controller
         if ($searchModel->from == null || $searchModel->to == null) {
             $searchModel->game_id = 1001;
             $searchModel->from = date('Y-m-d', strtotime('-1 month'));
-            $searchModel->to = date('Y-m-d', strtotime('now'));
+            $searchModel->to = date('Y-m-d', strtotime('yesterday'));
         }
         if ($searchModel->platform_id == null) {
             $searchModel->platform_id = array_keys(Platform::platformDropDownData());
