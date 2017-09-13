@@ -164,7 +164,7 @@ $this->title = '概况';
     [
         'label' => '充值金额',
         'value' => function ($data) {
-            return Yii::$app->formatter->asDecimal($data['pay_money_sum'], 2);
+            return round($data['pay_money_sum'], 2);
         },
         'hAlign' => 'center',
         'pageSummary' => true,
@@ -181,7 +181,7 @@ $this->title = '概况';
         'label' => '付费渗透率(%)',
         'value' => function ($data) {
             if (($data['active_sum']+$data['new_sum']) > 0) {
-                return Yii::$app->formatter->asDecimal($data['pay_man_sum'] / ($data['active_sum']+$data['new_sum']) * 100);
+                return round($data['pay_man_sum'] / ($data['active_sum']+$data['new_sum']) * 100, 2);
             } else {
                 return '-';
             }
@@ -192,7 +192,7 @@ $this->title = '概况';
         'label' => 'ARPU(%)',
         'value' => function ($data) {
             if ($data['pay_man_sum'] > 0) {
-                return Yii::$app->formatter->asDecimal($data['pay_money_sum'] / $data['pay_man_sum'] * 100);
+                return round($data['pay_money_sum'] / $data['pay_man_sum'] * 100, 2);
             } else {
                 return '-';
             }
@@ -211,7 +211,7 @@ $this->title = '概况';
         'attribute' => '新增充值金额',
         'hAlign' => 'center',
         'value' => function ($data) {
-            return Yii::$app->formatter->asDecimal($data['new_pay_money_sum'], 2);
+            return round($data['new_pay_money_sum'], 2);
         },
         'pageSummary' => true,
     ],
@@ -219,7 +219,7 @@ $this->title = '概况';
         'label' => '新进充值占比(%)',
         'value' => function ($data) {
             if ($data['pay_man_sum'] > 0) {
-                return Yii::$app->formatter->asDecimal($data['new_pay_money_sum'] / $data['pay_money_sum'] * 100);
+                return round($data['new_pay_money_sum'] / $data['pay_money_sum'] * 100, 2);
             } else {
                 return '-';
             }

@@ -112,7 +112,7 @@ $columns = [
         'label' => '充值总额',
         'attribute' => 'total_payment_amount',
         'value' => function ($data) {
-            return Yii::$app->formatter->asDecimal($data['total_payment_amount'] / 100, 2);
+            return round($data['total_payment_amount'] / 100, 2);
         },
         'format' => 'raw',
     ],
