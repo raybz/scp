@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+use common\definitions\PayStatus;
 use yii\behaviors\TimestampBehavior;
 use yii\db\Query;
 use yii\helpers\Json;
@@ -18,6 +19,7 @@ use yii\helpers\Json;
  * @property string  $order_id
  * @property integer $coins
  * @property integer $money
+ * @property integer $flag
  * @property integer $last_pay_time
  * @property string  $created_at
  */
@@ -38,7 +40,7 @@ class Payment extends \yii\db\ActiveRecord
     {
         return [
             [['user_id', 'platform_id', 'server_id', 'game_id', 'time', 'order_id', 'coins', 'money'], 'required'],
-            [['coins', 'game_id', 'user_id', 'platform_id', 'server_id'], 'integer'],
+            [['coins', 'game_id', 'user_id', 'platform_id', 'server_id', 'flag'], 'integer'],
             [['money'], 'number'],
             [['created_at', 'time', 'last_pay_time'], 'safe'],
             [['order_id'], 'string', 'max' => 255],
@@ -314,5 +316,24 @@ class Payment extends \yii\db\ActiveRecord
             ->all();
 
         return $result;
+    }
+
+    public static function updateFlag($platform, $order_id, $errNo)
+    {
+        $p = Platform::getPlatform($platform);
+        $payment = self::getPayDetail($p->id, $order_id);
+        if (!$payment) {
+            return null;
+        }
+        if ($payment->flag === PayStatus::SUCCESS) {
+
+        } else {
+            $payment->flag = $errNo;
+            if ($payment->save()) {
+                return $payment->id;
+            }
+        }
+
+        return null;
     }
 }

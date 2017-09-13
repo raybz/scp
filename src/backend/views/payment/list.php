@@ -1,6 +1,9 @@
 <?php
 
 use kartik\grid\GridView;
+use common\definitions\PayStatus;
+use common\definitions\Btn;
+use yii\helpers\html;
 
 \backend\assets\HighChartsAssets::register($this);
 $this->title = '概况';
@@ -171,11 +174,26 @@ $this->title = '概况';
     ],
     [
         'label' => '下单时间',
+        'attribute' => 'time',
         'value' => function ($data) {
             return $data['time'] ?? 0;
         },
         'hAlign' => 'center',
     ],
+    [
+        'label' => '订单状态',
+        'value' => function ($data) {
+            if (!is_null($data['flag'])) {
+                $btn = $data['flag'] >= 0 ? $data['flag'] : Btn::DANGER;
+
+                return Html::button(PayStatus::getLabel($data['flag']), ['class' => Btn::getLabel($btn)]);
+            } else {
+                return '-';
+            }
+        },
+        'hAlign' => 'center',
+        'format' => 'raw'
+    ]
 ]; ?>
 <?php
 
