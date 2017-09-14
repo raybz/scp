@@ -34,8 +34,8 @@ class Server extends \yii\db\ActiveRecord
         return [
             [['game_id', 'platform_id', 'server'], 'required'],
             [['game_id', 'platform_id', 'status'], 'integer'],
-            [['created_at',], 'safe'],
-            [['server'], 'string', 'max' => 255],
+            [['created_at', 'server'], 'safe'],
+//            [['server'], 'string', 'max' => 255],
         ];
     }
 

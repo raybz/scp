@@ -2,7 +2,9 @@
 
 namespace console\controllers;
 
+use common\models\api\TLZJGame2144;
 use console\models\LogTable;
+use console\models\platform\Platform2144;
 use console\models\platform\Platform37;
 use console\models\platform\Platform4399;
 use console\models\platform\PlatformDefault;
@@ -46,19 +48,38 @@ class PayController extends Controller
                 $f = current($diff);
                 $t = next($diff);
                 if ($f && $t){
-//                    var_dump($f,$t);
-                    $this->SlaveUrl(date('Ym', strtotime($f)), $f, $t);
+                    $this->slaveUrl(date('Ym', strtotime($f)), $f, $t);
+                    $this->slaveApi($f, $t);
                 }
             }
         } else {
             $monthArr = LogTable::logTableMonth($from, $to);
             foreach ($monthArr as $month) {
-                $this->SlaveUrl($month, $from, $to);
+                $this->slaveUrl($month, $from, $to);
+                $this->slaveApi($from, $to);
             }
         }
     }
 
-    protected function SlaveUrl($month = null, $from = null, $to = null)
+    protected function slaveApi($from, $to)
+    {
+        $api = new TLZJGame2144();
+        $api->from = strtotime($from);
+        $api->to = strtotime($to);
+        $result = $api->getOrder();
+        if (isset($result->code) && $result->code == 200) {
+            foreach ($result->data as $line) {
+                Platform2144::$url_param = $line;
+                $this->stdout('===========================start==============================='.PHP_EOL);
+                $result = Platform2144::savePay();
+                $this->stdout(
+                    $result[0].' payment ID: '.$result[1].' info: '.$result[2].(isset($result[3]) && $result[3] ? ' new_uid:'.$result[3] : '').PHP_EOL
+                );
+            }
+        }
+    }
+
+    protected function slaveUrl($month = null, $from = null, $to = null)
     {
         LogTable::$month = $month ?: date('Ym');
         $data = LogTable::find()

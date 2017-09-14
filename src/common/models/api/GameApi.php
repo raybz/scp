@@ -1,10 +1,11 @@
 <?php
-namespace common\models\online;
+
+namespace common\models\api;
 
 use Components\Utils\Http;
 use yii\db\ActiveRecord;
 
-class GameOnline extends ActiveRecord
+class GameApi extends ActiveRecord
 {
     public $from;
     public $to;
@@ -21,24 +22,31 @@ class GameOnline extends ActiveRecord
         $this->key = $this->param['key'];
     }
 
-    public function onLine()
+    public function cUrl($index = 0)
     {
-        $this->url = $this->param['url'].'?'.http_build_query($this->query());
-        return Http::get($this->url);
-    }
+        if (is_array($this->param['url'])) {
+            $domain = $this->param['url'][$index] ?? '';
+        } else {
+            $domain = $this->param['url'];
+        }
+        $this->url = $domain.'?'.http_build_query($this->query());
 
-    protected function sign()
-    {
-        return md5($this->gKey.$this->from.$this->to.$this->key);
+        return Http::get($this->url);
     }
 
     public function query()
     {
-        return  [
+        return [
             'gkey' => $this->gKey,
             'from' => $this->from,
             'to' => $this->to,
             'sign' => $this->sign(),
         ];
     }
+
+    protected function sign()
+    {
+        return md5($this->gKey.$this->from.$this->to.$this->key);
+    }
 }
+

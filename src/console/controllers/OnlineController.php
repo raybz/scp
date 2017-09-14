@@ -3,7 +3,7 @@
 namespace console\controllers;
 
 use common\models\Game;
-use common\models\online\TLZJGameOnline;
+use common\models\api\TLZJGameOnline;
 use common\models\OnlineData;
 use yii\console\Controller;
 

@@ -45,5 +45,12 @@ return [
         //http://app.server.tlzj.pksky.com/apiserver/plat_online?gkey=tlzj&sign=a5c548fe133e48b651a8527840f85e6f&from=1501516800&to=1504248662&pid=10001
         'url' => 'http://app.server.tlzj.pksky.com/apiserver/plat_online',
         'key' => 'rTafBeECKI6ZmZV7tJWpRaco3OowpchC',
-    ]
+    ],
+    'tulong' => [
+        'url' => [
+            'http://adweb.2144.cn/api/loginLog',
+            'http://adweb.2144.cn/api/orderLog'
+        ],
+        'key' => 'KA3kUWV8uUmLNHpvFEeHW9wg3s5N9h64',
+    ],
 ];
