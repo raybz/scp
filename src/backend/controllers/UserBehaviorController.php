@@ -17,7 +17,7 @@ class UserBehaviorController extends Controller
         $searchModel->attributes = (\Yii::$app->request->get('UserBehaviorSearch'));
         if ($searchModel->from == null || $searchModel->to == null || $searchModel->game_id = null) {
             $searchModel->game_id = 1001;
-            $searchModel->from = date('Y-m-d', strtotime('-1 month'));
+            $searchModel->from = date('Y-m-01');
             $searchModel->to = date('Y-m-d', strtotime('yesterday'));
         }
         if($_type = \Yii::$app->request->get('_type')) {
@@ -26,23 +26,14 @@ class UserBehaviorController extends Controller
         }
         if ($searchModel->platform_id == null) {
             $searchModel->platform_id = array_keys(Platform::platformDropDownData());
-            $platformStr = serialize($searchModel->platform_id);
+            $platformStr = serialize('');
         } else {
             $platformStr = serialize($searchModel->platform_id);
         }
 
         if ($searchModel->server_id == null) {
-            $serverList = Arrange::getPaymentTopTenServer(
-                '',
-                '',
-                $searchModel->game_id,
-                $searchModel->platform_id,
-                '',
-                10,
-                true
-            );
-            $searchModel->server_id = $serverList;
-            $serverStr = serialize($searchModel->server_id);
+            $searchModel->server_id = Server::ServerDataDropData($searchModel->game_id, $searchModel->platform_id);
+            $serverStr = serialize('');
         } else {
             $serverStr = serialize($searchModel->server_id);
         }
@@ -68,7 +59,7 @@ class UserBehaviorController extends Controller
         $searchModel->load(\Yii::$app->request->get());
         if ($searchModel->from == null || $searchModel->to == null || $searchModel->game_id == null) {
             $searchModel->game_id = 1001;
-            $searchModel->from = date('Y-m-d', strtotime('-1 month'));
+            $searchModel->from = date('Y-m-01');
             $searchModel->to = date('Y-m-d', strtotime('now'));
         }
         if($_type = \Yii::$app->request->get('_type')) {

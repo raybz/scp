@@ -49,6 +49,11 @@ class PaymentSearch extends Payment
         $dataProvider = new ActiveDataProvider(
             [
                 'query' => $query,
+                'sort' => [
+                    'defaultOrder' => [
+                        'time' => 'DESC'
+                    ]
+                ]
             ]
         );
 
@@ -75,8 +80,7 @@ class PaymentSearch extends Payment
         );
         $to = isset($this->to) ? $this->to.' 23:59:59' : '';
         $query->andFilterWhere(['>=', 'time', $this->from])
-            ->andFilterWhere(['<=', 'time', $to])
-            ->orderBy('time DESC');
+            ->andFilterWhere(['<=', 'time', $to]);
 
         $query->andFilterWhere(['like', 'order_id', $this->order_id]);
 

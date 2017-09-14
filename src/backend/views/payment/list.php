@@ -121,6 +121,7 @@ $this->title = '概况';
     ],
     [
         'label' => '平台',
+        'attribute' => 'platform_id',
         'value' => function ($data) {
             $platform = \common\models\Platform::findOne($data['platform_id']);
 
@@ -130,6 +131,7 @@ $this->title = '概况';
     ],
     [
         'label' => '游戏',
+        'attribute' => 'game_id',
         'value' => function ($data) {
             $game = \common\models\Game::findOne($data['game_id']);
 
@@ -139,6 +141,7 @@ $this->title = '概况';
     ],
     [
         'label' => '区服',
+        'attribute' => 'server_id',
         'value' => function ($data) {
             $server = \common\models\Server::findOne($data['server_id']);
 
@@ -157,6 +160,7 @@ $this->title = '概况';
     ],
     [
         'label' => '元宝',
+        'attribute' => 'coins',
         'value' => function ($data) {
 
             return $data['coins'] ?? 0;
@@ -166,6 +170,7 @@ $this->title = '概况';
     ],
     [
         'label' => '金额',
+        'attribute' => 'money',
         'value' => function ($data) {
             return $data['money'] ?? 0;
         },

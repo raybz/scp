@@ -336,4 +336,22 @@ class Payment extends \yii\db\ActiveRecord
 
         return null;
     }
+
+    public static function updateAllFlagByPlatform($platform, $from, $to)
+    {
+        $p = Platform::getPlatform($platform);
+        if ($p) {
+            return self::updateAll(
+                ['flag' => PayStatus::SUCCESS],
+                [
+                    'and',
+                    ['platform_id' => $p->id],
+                    ['>=', 'time', $from],
+                    ['<', 'time', $to],
+                ]
+            );
+        } else {
+            return false;
+        }
+    }
 }
