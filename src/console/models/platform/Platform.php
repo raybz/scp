@@ -2,6 +2,7 @@
 
 namespace console\models\platform;
 
+use common\definitions\UserIsAdult;
 use common\models\Payment;
 use common\models\Server;
 use common\models\User;
@@ -20,12 +21,35 @@ class Platform extends Model
 
     protected static function uniformPayData($param)
     {
-        return $param;
+        $pay_data = array(
+            'uid' => $param['uid'] ?? null,
+            'platform' => $param['platform'] ?? null,
+            'gkey' => 'tlzj',
+            'server_id' => $param['server_id']  ?? 0,
+            'time' => $param['time'] ?? null,
+            'order_id' => $param['order_id'] ?? null,
+            'coins' => $param['coins'] ?? 0,
+            'money' => $param['money'] ?? 0,
+        );
+
+        return $pay_data;
     }
 
     protected static function uniformLoginData($param)
     {
-        return $param;
+        $login_data = array(
+            'uid' => $param['uid'] ?? null,
+            'platform' => $param['platform'] ?? null,
+            'gkey' => 'tlzj',
+            'server_id' => $param['server']  ?? 0,
+            'time' => $param['time'] ?? null,
+            'is_adult' => $param['is_adult'] ?? UserIsAdult::OTHER,
+            'back_url' => urldecode($param['back_url'] ?? ''),
+            'type' => $param['type'] ?? '',
+            'sign' => strtolower($param['sign'] ?? ''),
+        );
+
+        return $login_data;
     }
 
     protected static function VerifyPayData()
@@ -104,10 +128,8 @@ class Platform extends Model
             array_push($result, $res);
 
             return $result;
-        }catch (\Exception $e) {
-            $error = $e->getMessage().$e->getFile().$e->getLine();
-            var_dump($error);
-            file_put_contents(\Yii::getAlias('@console').'/runtime/errors/pay_error.log', $error.$e->getTraceAsString().PHP_EOL, FILE_APPEND);
+        } catch (\Exception $e) {
+            self::errLog($e, 'pay_error');
 
             return null;
         }
@@ -133,20 +155,32 @@ class Platform extends Model
                     static::$id = $result;
                     $mod->_eventAfter();
 
-                    return ['new', $result, static::$user_id];
+                    return [date('Y-m-d H:i:s',$loginObj->time).' new', $result, static::$user_id];
                 }
 
-                return ['old', '', ''];
+                return [date('Y-m-d H:i:s',$loginObj->time).' old', '', ''];
 
             } catch (\Exception $e) {
-                $error = $e->getMessage().$e->getFile().$e->getLine().PHP_EOL;
-                var_dump($error);
-                file_put_contents(\Yii::getAlias('@console').'/runtime/errors/login_error.log', $error.$e->getTraceAsString().PHP_EOL, FILE_APPEND);
+                self::errLog($e, 'login_error');
+
                 return ['', '', ''];
             }
         }
 
         return ['', '', ''];
+    }
+
+    protected static function errLog(\Exception $e, $logFilename)
+    {
+        $error = $e->getMessage().$e->getFile().$e->getLine().PHP_EOL;
+        var_dump($error);
+        $dir = \Yii::getAlias('@console').'/runtime/errors/';
+        if (!is_dir($dir)) {
+            mkdir($dir);
+            chmod($dir, 0777);
+        }
+        $file = $dir.$logFilename.'.log';
+        file_put_contents($file, date('YmdHis').$error.$e->getTraceAsString().PHP_EOL, FILE_APPEND);
     }
 
     protected function _eventBefore($data)
@@ -213,12 +247,6 @@ class Platform extends Model
                 }
                 if (trim($p[0], ' ') == 'server_id') {
                     $p[1] = str_replace('s', '', $p[1]);
-                }
-                if (trim($p[0], ' ') == 'gkey') {
-                    $gKeyArr = ['tl', 'tlzj', '屠龙战记'];
-                    if (in_array($p[1], $gKeyArr)) {
-                        $p[1] = 'tlzj';
-                    }
                 }
                 $newParam[trim($p[0], ' ')] = $p[1];
             }

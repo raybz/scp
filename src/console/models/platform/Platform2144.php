@@ -2,6 +2,8 @@
 
 namespace console\models\platform;
 
+use common\definitions\UserIsAdult;
+
 class Platform2144 extends Platform
 {
     protected static function uniformPayData($newParam)
@@ -14,7 +16,7 @@ class Platform2144 extends Platform
             'time' => $newParam['time'] ?? null,
             'order_id' => $newParam['order'] ?? null,
             'coins' => $newParam['coins'] ?? 0,
-            'money' => $newParam['money'] ?? 0,
+            'money' => $newParam['money'] / 100 ?? 0,
         );
 
         return $pay_data;
@@ -28,10 +30,10 @@ class Platform2144 extends Platform
             'gkey' => 'tlzj',
             'server_id' => $newParam['server']  ?? 0,
             'time' => $newParam['time'] ?? null,
-            'is_adult' => $newParam['is_adult'],
-            'back_url' => urldecode($newParam['back_url']),
-            'type' => $newParam['type'],
-            'sign' => strtolower($newParam['sign']),
+            'is_adult' => $newParam['is_adult'] ?? UserIsAdult::OTHER,
+            'back_url' => urldecode($newParam['back_url'] ?? ''),
+            'type' => $newParam['type'] ?? '',
+            'sign' => strtolower($newParam['sign'] ?? ''),
         );
 
         return $login_data;
