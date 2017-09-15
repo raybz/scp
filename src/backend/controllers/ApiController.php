@@ -706,7 +706,7 @@ class ApiController extends Controller
             $t = date('Y-m-d', strtotime($from.($day + 1).$limit));
             $result = current(Arrange::getDataByServer($f, $t, $gameId, $platformList, $serverList));
             if ($result) {
-                $arr[] = round($result['pay_money_sum'] / $result['pay_man_sum'] * 100, 2);
+                $arr[] = round($result['pay_money_sum'] / $result['pay_man_sum'], 2);
             } else {
                 $arr[] = 0;
             }

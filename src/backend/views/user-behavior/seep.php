@@ -277,7 +277,7 @@ $fullExport = \kartik\export\ExportMenu::widget(
         </div>
         <div class="box-body">
             <div id="platform-bar-container" <?php
-            $pc = count($searchModel->platform_id);
+            $pc = count($searchModel->platform_id ?? []);
             $total = 34;
             $sin = sin(pi() / 2 * ($pc / $total));
             echo 'style="height: '.(1400 * $sin + 100).'px"' ?>></div>
