@@ -41,7 +41,7 @@ class Platform extends Model
             'uid' => $param['uid'] ?? null,
             'platform' => $param['platform'] ?? null,
             'gkey' => 'tlzj',
-            'server_id' => $param['server']  ?? 0,
+            'server_id' => $param['server_id']  ?? 0,
             'time' => $param['time'] ?? null,
             'is_adult' => $param['is_adult'] ?? UserIsAdult::OTHER,
             'back_url' => urldecode($param['back_url'] ?? ''),
