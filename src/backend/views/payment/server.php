@@ -1,6 +1,7 @@
 <?php
 
 use kartik\grid\GridView;
+use common\models\Server;
 
 \backend\assets\HighChartsAssets::register($this);
 $this->title = '概况';
@@ -46,6 +47,7 @@ $this->title = '概况';
                                     "clientOptions" =>
                                         [
                                             "includeSelectAllOption" => true,
+                                            'enableFiltering' => true,
                                             'numberDisplayed' => 2,
                                             'selectAllText'=> '全选',
                                             'filterPlaceholder' => '请选择...',
@@ -73,6 +75,7 @@ $this->title = '概况';
                                     "clientOptions" =>
                                         [
                                             "includeSelectAllOption" => true,
+                                            'enableFiltering' => true,
                                             'numberDisplayed' => 2,
                                             'selectAllText'=> '全选',
                                             'filterPlaceholder' => '请选择...',
@@ -141,7 +144,7 @@ $this->title = '概况';
     [
         'label' => '区服',
         'value' => function ($data) {
-            return $data['server_id'];
+            return Server::findOne($data['server_id'])->server ?? '';
         },
         'hAlign' => 'center',
     ],
@@ -189,10 +192,10 @@ $this->title = '概况';
         'hAlign' => 'center',
     ],
     [
-        'label' => 'ARPU(%)',
+        'label' => 'ARPU',
         'value' => function ($data) {
             if ($data['pay_man_sum'] > 0) {
-                return round($data['pay_money_sum'] / $data['pay_man_sum'] * 100, 2);
+                return round($data['pay_money_sum'] / $data['pay_man_sum'], 2);
             } else {
                 return '-';
             }

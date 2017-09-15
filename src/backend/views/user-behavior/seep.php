@@ -47,6 +47,7 @@ $this->title = '概况';
                                         [
                                             "includeSelectAllOption" => true,
                                             'numberDisplayed' => 2,
+                                            'enableFiltering' => true,
                                             'selectAllText' => '全选',
                                             'filterPlaceholder' => '请选择...',
                                             'nonSelectedText' => '未选择',
@@ -73,6 +74,7 @@ $this->title = '概况';
                                     "clientOptions" =>
                                         [
                                             "includeSelectAllOption" => true,
+                                            'enableFiltering' => true,
                                             'numberDisplayed' => 2,
                                             'selectAllText'=> '全选',
                                             'filterPlaceholder' => '请选择...',
@@ -200,10 +202,10 @@ $this->title = '概况';
         'hAlign' => 'center',
     ],
     [
-        'label' => 'ARPU(%)',
+        'label' => 'ARPU',
         'value' => function ($data) {
             if ($data['pay_man_sum'] > 0) {
-                return round($data['pay_money_sum'] / $data['pay_man_sum'] * 100, 2);
+                return round($data['pay_money_sum'] / $data['pay_man_sum'], 2);
             } else {
                 return '-';
             }
@@ -274,7 +276,11 @@ $fullExport = \kartik\export\ExportMenu::widget(
             </div>
         </div>
         <div class="box-body">
-            <div id="platform-bar-container" style="height: 560px;"></div>
+            <div id="platform-bar-container" <?php
+            $pc = count($searchModel->platform_id);
+            $total = 34;
+            $sin = sin(pi() / 2 * ($pc / $total));
+            echo 'style="height: '.(1400 * $sin + 100).'px"' ?>></div>
         </div>
     </div>
 <?php

@@ -49,6 +49,7 @@ $this->title = '概况';
                                             "includeSelectAllOption" => true,
                                             'numberDisplayed' => 2,
                                             'selectAllText' => '全选',
+                                            'enableFiltering' => true,
                                             'filterPlaceholder' => '请选择...',
                                             'nonSelectedText' => '未选择',
                                             'buttonWidth' => '100px',
@@ -74,6 +75,7 @@ $this->title = '概况';
                                     "clientOptions" =>
                                         [
                                             "includeSelectAllOption" => true,
+                                            'enableFiltering' => true,
                                             'numberDisplayed' => 2,
                                             'selectAllText'=> '全选',
                                             'filterPlaceholder' => '请选择...',

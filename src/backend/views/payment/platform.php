@@ -173,10 +173,10 @@ $this->title = '概况';
         'hAlign' => 'center',
     ],
     [
-        'label' => 'ARPU(%)',
+        'label' => 'ARPU',
         'value' => function ($data) {
             if ($data['pay_man_sum'] > 0) {
-                return round($data['pay_money_sum'] / $data['pay_man_sum'] * 100, 2);
+                return round($data['pay_money_sum'] / $data['pay_man_sum'], 2);
             } else {
                 return '-';
             }
