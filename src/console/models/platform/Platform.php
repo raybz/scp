@@ -12,11 +12,13 @@ use yii\base\Model;
 class Platform extends Model
 {
     const EVENT_BEFORE_CREATE = 'before_create';
+
     const EVENT_AFTER_CREATE =  'after_create';
 
     public static $url_param;
 
     protected static $id;
+
     protected static $user_id;
 
     protected static function uniformPayData($param)
@@ -65,21 +67,8 @@ class Platform extends Model
             'money',
         ];
         $aData = static::uniformPayData(static::paramData());
-        $uData = array_filter(
-            $aData,
-            function ($v) {
-                return !is_null($v);
-            }
-        );
-        foreach ($need as $item) {
-            if (array_key_exists($item, $uData)) {
-                continue;
-            }
 
-            return null;
-        }
-
-        return $uData;
+        return static::sameVerify($need, $aData);
     }
 
     protected static function VerifyLoginData()
@@ -96,6 +85,12 @@ class Platform extends Model
             'sign',
         ];
         $aData = static::uniformLoginData(static::paramData());
+
+        return static::sameVerify($need, $aData);
+    }
+
+    protected static function sameVerify(array $need, array $aData)
+    {
         $uData = array_filter(
             $aData,
             function ($v) {
@@ -106,6 +101,10 @@ class Platform extends Model
             if (array_key_exists($item, $uData)) {
                 continue;
             }
+
+            return null;
+        }
+        if(strtotime(date('Y-m-d H:i:s', $uData['time'])) != $uData['time']) {
 
             return null;
         }
