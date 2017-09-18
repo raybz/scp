@@ -104,7 +104,8 @@ class Platform extends Model
 
             return null;
         }
-        if(strtotime(date('Y-m-d H:i:s', $uData['time'])) != $uData['time']) {
+        //验证时间戳
+        if(!preg_match("/^[\d+]{10}$/", $uData['time']) || strtotime(date('Y-m-d H:i:s', $uData['time'])) != $uData['time']) {
 
             return null;
         }
