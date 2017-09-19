@@ -56,8 +56,8 @@ class PayController extends Controller
             $monthArr = LogTable::logTableMonth($from, $to);
             foreach ($monthArr as $month) {
                 $this->slaveUrl($month, $from, $to);
-                $this->slaveApi($from, $to);
             }
+            $this->slaveApi($from, $to);
         }
     }
 
@@ -100,6 +100,7 @@ class PayController extends Controller
                     continue;
                 }
                 PlatformSoGou::$url_param = urldecode($v->post_data);
+                $this->stdout('===========================start==============================='.PHP_EOL);
                 $result = PlatformSoGou::savePay();
                 $this->stdout(
                     $result[0].' payment ID: '.$result[1].' info: '.$result[2].(isset($result[3]) && $result[3] ? ' new_uid:'.$result[3] : '').PHP_EOL
@@ -112,6 +113,7 @@ class PayController extends Controller
             foreach ($this->map() as $k => $class) {
                 if (stristr($urlArr[0], $k)) {
                     $class::$url_param = urldecode($urlArr[1]);
+                    $this->stdout('===========================start==============================='.PHP_EOL);
                     $result = $class::savePay();
                     $this->stdout(
                         $result[0].' payment ID: '.$result[1].' info: '.$result[2].(isset($result[3]) && $result[3] ? ' new_uid:'.$result[3] : '').PHP_EOL

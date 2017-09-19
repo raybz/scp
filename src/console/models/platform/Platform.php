@@ -174,12 +174,11 @@ class Platform extends Model
     {
         $error = $e->getMessage().$e->getFile().$e->getLine().PHP_EOL;
         var_dump($error);
-        $dir = \Yii::getAlias('@console').'/runtime/errors/';
-        if (!is_dir($dir)) {
-            mkdir($dir);
-            chmod($dir, 0777);
+        $path = \Yii::getAlias('@console').'/runtime/errors/';
+        if (!is_dir($path)) {
+            mkdir($path, 0775, true);
         }
-        $file = $dir.$logFilename.'.log';
+        $file = $path.$logFilename.'.log';
         file_put_contents($file, date('YmdHis').$error.$e->getTraceAsString().PHP_EOL, FILE_APPEND);
     }
 

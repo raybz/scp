@@ -56,8 +56,8 @@ class LoginController extends Controller
             $monthArr = LogTable::logTableMonth($from, $to);
             foreach ($monthArr as $month) {
                 $this->slaveUrl($month, $from, $to);
-                $this->slaveApi($from, $to);
             }
+            $this->slaveApi($from, $to);
         }
     }
 
