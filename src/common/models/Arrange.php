@@ -181,7 +181,7 @@ class Arrange extends \yii\db\ActiveRecord
                 'sum(new_pay_man) new_pay_man_sum',
                 'sum(new_pay_money) new_pay_money_sum',
             ])
-            ->where('date >= :from AND date < :to',
+            ->where('date >= :from AND date <= :to',
                 [
                     ':from' => $from,
                     ':to' => $to
@@ -236,7 +236,7 @@ class Arrange extends \yii\db\ActiveRecord
                 ]
             )
             ->where(
-                'date >= :from AND date < :to',
+                'date >= :from AND date <= :to',
                 [
                     ':from' => $from,
                     ':to' => $to,
@@ -283,7 +283,7 @@ class Arrange extends \yii\db\ActiveRecord
                 ]
             )
             ->andFilterWhere(['>=', 'date', $from])
-            ->andFilterWhere(['<', 'date', $to])
+            ->andFilterWhere(['<=', 'date', $to])
             ->andFilterWhere(['game_id' => $game_id])
             ->andFilterWhere(['platform_id' => $platform_id])
             ->groupBy('platform_id')
@@ -318,7 +318,7 @@ class Arrange extends \yii\db\ActiveRecord
                 ]
             )
             ->andFilterWhere(['>=', 'date', $from])
-            ->andFilterWhere(['<', 'date', $to])
+            ->andFilterWhere(['<=', 'date', $to])
             ->andFilterWhere(['game_id' => $game_id])
             ->andFilterWhere(['platform_id' => $platform_id])
             ->andFilterWhere(['server_id' => $server_id])

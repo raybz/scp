@@ -81,7 +81,7 @@ class UserBehaviorSearch extends Arrange
                 'sum(new_pay_man) new_pay_man_sum',
                 'sum(new_pay_money) new_pay_money_sum',
             ])
-            ->where('date >= :from AND date < :to',
+            ->where('date >= :from AND date <= :to',
                 [
                     ':from' => $this->from,
                     ':to' => $this->to
