@@ -15,7 +15,7 @@ class PaymentAnalysisController extends Controller
         $searchModel = new PaymentAnalysisSearch();
 
         $searchModel->attributes = (\Yii::$app->request->get('PaymentAnalysisSearch'));
-        if ($searchModel->from == null || $searchModel->to == null || $searchModel->game_id = null) {
+        if ($searchModel->from == null || $searchModel->to == null || $searchModel->game_id == null) {
             $searchModel->game_id = 1001;
             $searchModel->from = date('Y-m-d 00:00', strtotime('now'));
             $searchModel->to = date('Y-m-d H:i', strtotime('now'));

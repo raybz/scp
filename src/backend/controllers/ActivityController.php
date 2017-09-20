@@ -38,7 +38,7 @@ class ActivityController extends Controller
     public function actionIndex()
     {
         $searchModel = new ActivitySearch();
-        if ($searchModel->start_at == null || $searchModel->end_at) {
+        if ($searchModel->start_at == null || $searchModel->end_at == null) {
             $searchModel->start_at = date('Y-m-d', strtotime('-1 month'));
             $searchModel->end_at = date('Y-m-d', strtotime('now'));
         }
@@ -125,7 +125,6 @@ class ActivityController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            var_dump($_SESSION);
             flash('修改成功', 'success');
 
             return $this->redirect(['index']);

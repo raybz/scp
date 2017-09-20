@@ -15,7 +15,7 @@ class UserBehaviorController extends Controller
     {
         $searchModel = new UserBehaviorSearch();
         $searchModel->attributes = (\Yii::$app->request->get('UserBehaviorSearch'));
-        if ($searchModel->from == null || $searchModel->to == null || $searchModel->game_id = null) {
+        if ($searchModel->from == null || $searchModel->to == null || $searchModel->game_id == null) {
             $searchModel->game_id = 1001;
             $searchModel->from = date('Y-m-01');
             $searchModel->to = date('Y-m-d', strtotime('yesterday'));

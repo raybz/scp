@@ -121,7 +121,7 @@ class PaymentController extends Controller
     {
         $searchModel = new ServerPaymentSearch();
         $searchModel->attributes = Yii::$app->request->get('ServerPaymentSearch');
-        if ($searchModel->from == null || $searchModel->go == null || $searchModel->game_id = null) {
+        if ($searchModel->from == null || $searchModel->go == null || $searchModel->game_id == null) {
             $searchModel->game_id = 1001;
             $searchModel->from = date('Y-m-d', strtotime('-1 week'));
             $searchModel->go = date('Y-m-d', strtotime('now'));
