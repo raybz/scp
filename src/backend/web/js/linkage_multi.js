@@ -43,7 +43,7 @@ IMultiSelect.prototype = {
                     for (i; i < rData.length; i++) {
                         options += '<option value="' + rData[i]['id'] + '">' + rData[i]['name'] + '</option>';
                     }
-                    $(aim).empty().html(options).multiselect('rebuild').multiselect('enable');
+                    $(aim).empty().html(options).multiselect('rebuild');
                 }
             });
         });
@@ -51,10 +51,17 @@ IMultiSelect.prototype = {
     common: function () {
         var originalArr = $(this.original).val();
         var originals = '';
+        var append = this.append;
         var depend = this.depend;
         var dependVal = $(depend).val();
+        var _length = this.append_show_max_length;
         if (this.isArray(originalArr)) {
             if (originalArr && originalArr.length > 0) {
+                if(originalArr.length > _length) {
+                    $(append).hide();
+                } else {
+                    $(append).show();
+                }
                 originals = originalArr.join();
             }
         } else {

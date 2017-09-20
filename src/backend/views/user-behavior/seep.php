@@ -7,6 +7,8 @@ $this->title = '概况';
 /* @var $searchModel \backend\models\search\ServerPaymentSearch */
 /* @var $platformStr string */
 /* @var $serverStr string */
+/* @var $to string */
+/* @var $from string */
 ?>
     <style>
         .select2-container .select2-selection--single .select2-selection__rendered {
@@ -42,7 +44,7 @@ $this->title = '概况';
                                 \dosamigos\multiselect\MultiSelect::className(),
                                 [
                                     'data' => \common\models\Platform::platformDropDownData(),
-                                    "options" => ['multiple'=>"multiple", "width" => '200px'],
+                                    "options" => ['multiple' => "multiple", "width" => '200px'],
                                     "clientOptions" =>
                                         [
                                             "includeSelectAllOption" => true,
@@ -57,7 +59,7 @@ $this->title = '概况';
                             )->label('平台:') ?>
                         </div>
                     </div>
-                    <div class="col-md-1" id="s_l">
+                    <div class="col-md-1" id="s_l" style="display: none">
                         <div class="form-group">
                             <?php if ($searchModel->server_id): ?>
                                 <input type="hidden" value="<?= join(',', (array)$searchModel->server_id); ?>"
@@ -70,13 +72,13 @@ $this->title = '概况';
                                         $searchModel->game_id,
                                         $searchModel->platform_id
                                     ),
-                                    "options" => ['multiple'=>"multiple", 'disabled' => 'disabled'],
+                                    "options" => ['multiple' => "multiple"],
                                     "clientOptions" =>
                                         [
                                             "includeSelectAllOption" => true,
                                             'enableFiltering' => true,
                                             'numberDisplayed' => 2,
-                                            'selectAllText'=> '全选',
+                                            'selectAllText' => '全选',
                                             'filterPlaceholder' => '请选择...',
                                             'nonSelectedText' => '未选择',
                                             'buttonWidth' => '100px',
@@ -115,7 +117,7 @@ $this->title = '概况';
         <div class="box-header with-border">
             <div class="btn-group" data-toggle="buttons" id="_type">
                 <label class="btn btn-primary active options" id="option1">
-                    <input type="radio" name="options"  autocomplete="off" checked value="1"> 按日
+                    <input type="radio" name="options" autocomplete="off" checked value="1"> 按日
                 </label>
                 <label class="btn btn-primary options">
                     <input type="radio" name="options" id="option2" autocomplete="off" value="2"> 按周
@@ -132,7 +134,7 @@ $this->title = '概况';
             </div>
         </div>
         <div class="box-body">
-            <div id="per-day-server-bar-container" ></div>
+            <div id="per-day-server-bar-container"></div>
         </div>
     </div>
     <div class="box box-default">
@@ -157,11 +159,12 @@ $this->title = '概况';
         'label' => '时间',
         'hAlign' => 'center',
         'value' => function ($data) {
-            if(Yii::$app->request->get('_type') == 2 && $data['date']) {
+            if (Yii::$app->request->get('_type') == 2 && $data['date']) {
                 return $data['date'].' / '.date('Y-m-d', strtotime($data['date'].'+1 week'));
-            } elseif(Yii::$app->request->get('_type') == 3 && $data['date']) {
+            } elseif (Yii::$app->request->get('_type') == 3 && $data['date']) {
                 return $data['date'].' / '.date('Y-m-d', strtotime($data['date'].'+1 month'));
             }
+
             return $data['date'];
         },
         'format' => 'raw',
@@ -256,7 +259,7 @@ $fullExport = \kartik\export\ExportMenu::widget(
         'responsive' => true,
         'condensed' => true,
         'panel' => [
-            'heading' => \yii\helpers\Html::a('', ['/user-behavior/seep'],['id' => '_ph']),
+            'heading' => \yii\helpers\Html::a('', ['/user-behavior/seep'], ['id' => '_ph']),
             'type' => 'default',
             'after' => false,
             'footer' => false,

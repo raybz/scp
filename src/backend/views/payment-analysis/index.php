@@ -8,6 +8,8 @@ $this->title = '概况';
 /* @var $searchModel \backend\models\search\ServerPaymentSearch */
 /* @var $platformStr string */
 /* @var $serverStr string */
+/* @var $from string */
+/* @var $to string */
 ?>
     <style>
         .select2-container .select2-selection--single .select2-selection__rendered {
@@ -43,7 +45,7 @@ $this->title = '概况';
                                 \dosamigos\multiselect\MultiSelect::className(),
                                 [
                                     'data' => \common\models\Platform::platformDropDownData(),
-                                    "options" => ['multiple'=>"multiple", "width" => '200px'],
+                                    "options" => ['multiple' => "multiple", "width" => '200px'],
                                     "clientOptions" =>
                                         [
                                             "includeSelectAllOption" => true,
@@ -58,7 +60,7 @@ $this->title = '概况';
                             )->label('平台:') ?>
                         </div>
                     </div>
-                    <div class="col-md-1" id="s_l">
+                    <div class="col-md-1" id="s_l" style="display: none">
                         <div class="form-group">
                             <?php if ($searchModel->server_id): ?>
                                 <input type="hidden" value="<?= join(',', (array)$searchModel->server_id); ?>"
@@ -71,13 +73,13 @@ $this->title = '概况';
                                         $searchModel->game_id,
                                         $searchModel->platform_id
                                     ),
-                                    "options" => ['multiple'=>"multiple", "width" => '200px', 'disabled' => true],
+                                    "options" => ['multiple' => "multiple", "width" => '200px',],
                                     "clientOptions" =>
                                         [
                                             "includeSelectAllOption" => true,
                                             'enableFiltering' => true,
                                             'numberDisplayed' => 2,
-                                            'selectAllText'=> '全选',
+                                            'selectAllText' => '全选',
                                             'filterPlaceholder' => '请选择...',
                                             'nonSelectedText' => '未选择',
                                             'buttonWidth' => '100px',
@@ -88,7 +90,8 @@ $this->title = '概况';
                     </div>
                     <div class="col-md-2">
                         <?= $form->field($searchModel, 'from')->widget(
-                            DateTimePicker::className(),[
+                            DateTimePicker::className(),
+                            [
                                 'options' => ['placeholder' => '开始日期'],
                                 'type' => DateTimePicker::TYPE_COMPONENT_PREPEND,
                                 'convertFormat' => true,
@@ -96,13 +99,14 @@ $this->title = '概况';
                                     'format' => 'yyyy-MM-dd HH:i',
                                     'todayHighlight' => true,
                                     'autoclose' => true,
-                                ]
+                                ],
                             ]
                         )->label('开始') ?>
                     </div>
                     <div class="col-md-2">
                         <?= $form->field($searchModel, 'to')->widget(
-                            DateTimePicker::className(),[
+                            DateTimePicker::className(),
+                            [
                                 'options' => ['placeholder' => '结束日期'],
                                 'type' => DateTimePicker::TYPE_COMPONENT_PREPEND,
                                 'convertFormat' => true,
@@ -110,7 +114,7 @@ $this->title = '概况';
                                     'format' => 'yyyy-MM-dd HH:i',
                                     'todayHighlight' => true,
                                     'autoclose' => true,
-                                ]
+                                ],
                             ]
                         )->label('结束') ?>
                     </div>
@@ -186,8 +190,8 @@ $this->title = '概况';
     [
         'label' => '付费渗透率(%)',
         'value' => function ($data) {
-            if (($data['active_sum'] + $data['new_sum'])  > 0) {
-                return round($data['pay_man_sum'] / ($data['active_sum']+ $data['new_sum']) * 100, 2);
+            if (($data['active_sum'] + $data['new_sum']) > 0) {
+                return round($data['pay_man_sum'] / ($data['active_sum'] + $data['new_sum']) * 100, 2);
             } else {
                 return '-';
             }

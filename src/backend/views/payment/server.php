@@ -1,7 +1,7 @@
 <?php
 
-use kartik\grid\GridView;
 use common\models\Server;
+use kartik\grid\GridView;
 
 \backend\assets\HighChartsAssets::register($this);
 $this->title = '概况';
@@ -43,13 +43,13 @@ $this->title = '概况';
                                 \dosamigos\multiselect\MultiSelect::className(),
                                 [
                                     'data' => \common\models\Platform::platformDropDownData(),
-                                    "options" => ['multiple'=>"multiple"],
+                                    "options" => ['multiple' => "multiple"],
                                     "clientOptions" =>
                                         [
                                             "includeSelectAllOption" => true,
                                             'enableFiltering' => true,
                                             'numberDisplayed' => 2,
-                                            'selectAllText'=> '全选',
+                                            'selectAllText' => '全选',
                                             'filterPlaceholder' => '请选择...',
                                             'nonSelectedText' => '未选择',
                                             'buttonWidth' => '100px',
@@ -58,7 +58,7 @@ $this->title = '概况';
                             )->label('平台:') ?>
                         </div>
                     </div>
-                    <div class="col-md-1"  id="s_l">
+                    <div class="col-md-1" id="s_l" style="display: none">
                         <div class="form-group">
                             <?php if ($searchModel->server_id): ?>
                                 <input type="hidden" value="<?= join(',', (array)$searchModel->server_id); ?>"
@@ -71,13 +71,13 @@ $this->title = '概况';
                                         $searchModel->game_id,
                                         $searchModel->platform_id
                                     ),
-                                    "options" => ['multiple'=>"multiple", 'disabled' => true],
+                                    "options" => ['multiple' => "multiple",],
                                     "clientOptions" =>
                                         [
                                             "includeSelectAllOption" => true,
                                             'enableFiltering' => true,
                                             'numberDisplayed' => 2,
-                                            'selectAllText'=> '全选',
+                                            'selectAllText' => '全选',
                                             'filterPlaceholder' => '请选择...',
                                             'nonSelectedText' => '未选择',
                                             'buttonWidth' => '100px',
@@ -183,8 +183,8 @@ $this->title = '概况';
     [
         'label' => '付费渗透率(%)',
         'value' => function ($data) {
-            if (($data['active_sum']+$data['new_sum']) > 0) {
-                return round($data['pay_man_sum'] / ($data['active_sum']+$data['new_sum']) * 100, 2);
+            if (($data['active_sum'] + $data['new_sum']) > 0) {
+                return round($data['pay_man_sum'] / ($data['active_sum'] + $data['new_sum']) * 100, 2);
             } else {
                 return '-';
             }

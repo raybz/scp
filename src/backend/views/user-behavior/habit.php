@@ -1,13 +1,11 @@
 <?php
 
-use kartik\grid\GridView;
-use \kartik\widgets\DateTimePicker;
-
 \backend\assets\HighChartsAssets::register($this);
 $this->title = '概况';
 /* @var $searchModel \backend\models\search\PaymentAnalysisSearch */
 /* @var $platformStr string */
 /* @var $serverStr string */
+/* @var $to string */
 ?>
     <style>
         .select2-container .select2-selection--single .select2-selection__rendered {
@@ -43,7 +41,7 @@ $this->title = '概况';
                                 \dosamigos\multiselect\MultiSelect::className(),
                                 [
                                     'data' => \common\models\Platform::platformDropDownData(),
-                                    "options" => ['multiple'=>"multiple", "width" => '200px'],
+                                    "options" => ['multiple' => "multiple", "width" => '200px'],
                                     "clientOptions" =>
                                         [
                                             "includeSelectAllOption" => true,
@@ -58,7 +56,7 @@ $this->title = '概况';
                             )->label('平台:') ?>
                         </div>
                     </div>
-                    <div class="col-md-1"  id="s_l">
+                    <div class="col-md-1" id="s_l" style="display: none">
                         <div class="form-group">
                             <?php if ($searchModel->server_id): ?>
                                 <input type="hidden" value="<?= join(',', (array)$searchModel->server_id); ?>"
@@ -71,13 +69,13 @@ $this->title = '概况';
                                         $searchModel->game_id,
                                         $searchModel->platform_id
                                     ),
-                                    "options" => ['multiple'=>"multiple", 'disabled' => true],
+                                    "options" => ['multiple' => "multiple",],
                                     "clientOptions" =>
                                         [
                                             "includeSelectAllOption" => true,
                                             'enableFiltering' => true,
                                             'numberDisplayed' => 2,
-                                            'selectAllText'=> '全选',
+                                            'selectAllText' => '全选',
                                             'filterPlaceholder' => '请选择...',
                                             'nonSelectedText' => '未选择',
                                             'buttonWidth' => '100px',
@@ -123,7 +121,7 @@ $this->title = '概况';
             </div>
         </div>
         <div class="box-body">
-            <div id="freq-bar-container" ></div>
+            <div id="freq-bar-container"></div>
         </div>
     </div>
     <div class="box box-default">

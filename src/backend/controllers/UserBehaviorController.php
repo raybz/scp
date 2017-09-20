@@ -1,11 +1,8 @@
 <?php
 namespace backend\controllers;
 
-use backend\models\search\PaymentAnalysisSearch;
 use backend\models\search\UserBehaviorSearch;
-use common\models\Arrange;
 use common\models\Platform;
-use common\models\Server;
 use yii\helpers\Json;
 use yii\web\Controller;
 
@@ -32,7 +29,7 @@ class UserBehaviorController extends Controller
         }
 
         if ($searchModel->server_id == null) {
-            $searchModel->server_id = array_keys(Server::ServerDataDropData($searchModel->game_id, $searchModel->platform_id));
+//            $searchModel->server_id = array_keys(Server::ServerDataDropData($searchModel->game_id, $searchModel->platform_id));
             $serverStr = serialize('');
         } else {
             $serverStr = serialize($searchModel->server_id);
@@ -72,7 +69,7 @@ class UserBehaviorController extends Controller
             $platformStr = Json::encode($searchModel->platform_id);
         }
         if ($searchModel->server_id == null) {
-            $searchModel->server_id = array_keys(Server::ServerDataDropData($searchModel->game_id, $searchModel->platform_id));
+//            $searchModel->server_id = array_keys(Server::ServerDataDropData($searchModel->game_id, $searchModel->platform_id));
             $serverStr = Json::encode('');
         } else {
             $serverStr = Json::encode($searchModel->server_id);

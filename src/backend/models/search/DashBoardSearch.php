@@ -75,8 +75,7 @@ class DashBoardSearch extends Arrange
 
     protected function arrangeDay($f, $t)
     {
-        $td = date('Y-m-d', strtotime($t.' +1 day'));
-        $rows = Arrange::getDataByPlatform($f, $td, $this->game_id, '', 'game_id');
+        $rows = Arrange::getDataByPlatform($f, $t, $this->game_id, '', 'game_id');
         $row = current($rows);
         $output = [
             'new_sum',
