@@ -522,6 +522,7 @@ class ApiController extends Controller
         foreach ($range as $k => $v) {
             $data[$k] = 0;
         }
+        $arr = [];
         foreach ($pays as $pay) {
             foreach ($range as $k => $r) {
                 if (intval($pay['pay_times']) <= $k && intval($pay['pay_times']) < 51) {
@@ -535,7 +536,13 @@ class ApiController extends Controller
                 }
             }
         }
-
+        $total_time = array_sum($data);
+        foreach ($data as $key => $item) {
+            $arr[$key]['y'] = $item;
+            $arr[$key]['total'] = $total_time;
+        }
+        unset($data);
+        $data = $arr;
         $rangeData = array_values($range);
         $data['data'] = array_values($data);
         $data['name'] = '充值频次';
@@ -587,7 +594,14 @@ class ApiController extends Controller
                 }
             }
         }
-
+        $arr = [];
+        $total_time = array_sum($data);
+        foreach ($data as $key => $item) {
+            $arr[$key]['y'] = $item;
+            $arr[$key]['total'] = $total_time;
+        }
+        unset($data);
+        $data = $arr;
         $rangeData = array_values($range);
         $data['data'] = array_values($data);
         $data['name'] = '充值额度';
@@ -653,7 +667,14 @@ class ApiController extends Controller
                 }
             }
         }
-
+        $arr = [];
+        $total_time = array_sum($data);
+        foreach ($data as $key => $item) {
+            $arr[$key]['y'] = $item;
+            $arr[$key]['total'] = $total_time;
+        }
+        unset($data);
+        $data = $arr;
         $rangeData = array_values($range);
         $data['data'] = array_values($data);
         $data['name'] = '充值间隔';

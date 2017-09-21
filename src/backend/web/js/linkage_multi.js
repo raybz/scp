@@ -1,6 +1,5 @@
-// !(function ($) {
-//     "use strict";
 function IMultiSelect(args) {
+    'use strict';
     this.original = args.original;
     this.aim = args.aim;
     this.selected_values_id = args.selected_values_id;
@@ -12,12 +11,14 @@ function IMultiSelect(args) {
 
 IMultiSelect.prototype = {
     originalChangeEvent: function () {
+        'use strict';
         var aim = this.aim;
         var append = this.append;
         var url = this.url;
         var _isArray = this.isArray;
         var depend = this.depend;
         var _length = this.append_show_max_length;
+        /*jshint -W117 */
         $(this.original).on('change', function () {
             var originalArr = $(this).val();
             var dependVal = $(depend).val();
@@ -41,6 +42,7 @@ IMultiSelect.prototype = {
                 if (rData) {
                     var i = 0;
                     for (i; i < rData.length; i++) {
+                        /*jshint -W069 */
                         options += '<option value="' + rData[i]['id'] + '">' + rData[i]['name'] + '</option>';
                     }
                     $(aim).empty().html(options).multiselect('rebuild');
@@ -49,6 +51,8 @@ IMultiSelect.prototype = {
         });
     },
     common: function () {
+        'use strict';
+        /*jshint -W117 */
         var originalArr = $(this.original).val();
         var originals = '';
         var append = this.append;
@@ -84,6 +88,7 @@ IMultiSelect.prototype = {
                 for (i; i < rData.length; i++) {
                     var ch = '';
                     if (selectedArr.length > 0) {
+                        /*jshint -W069 */
                         if ($.inArray(rData[i]['id'], selectedArr) > -1) {
                             ch = 'selected';
                         }
@@ -99,6 +104,8 @@ IMultiSelect.prototype = {
         return Object.prototype.toString.call(o) == '[object Array]';
     },
     start: function () {
+        'use strict';
+        /*jshint -W117 */
         this.common();
         this.originalChangeEvent();
         $(this.aim).multiselect(
@@ -113,4 +120,3 @@ IMultiSelect.prototype = {
         );
     }
 };
-// })(window.jQuery);

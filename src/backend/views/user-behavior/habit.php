@@ -121,7 +121,7 @@ $this->title = '概况';
             </div>
         </div>
         <div class="box-body">
-            <div id="freq-bar-container"></div>
+            <div id="freq-bar-container" style="height: 500px;"></div>
         </div>
     </div>
     <div class="box box-default">
@@ -136,7 +136,7 @@ $this->title = '概况';
             </div>
         </div>
         <div class="box-body">
-            <div id="quota-bar-container" style="height: 560px;"></div>
+            <div id="quota-bar-container" style="height: 400px;"></div>
         </div>
     </div>
     <div class="box box-default">
@@ -151,7 +151,7 @@ $this->title = '概况';
             </div>
         </div>
         <div class="box-body">
-            <div id="gap-bar-container" style="height: 560px;"></div>
+            <div id="gap-bar-container" style="height: 470px;"></div>
         </div>
     </div>
 <?php
@@ -163,6 +163,15 @@ $charts = <<<EOL
             text: '',
             align: 'left',
             x: 70
+        },
+        formatter: function () {
+            var s = '';
+            $.each(this.points, function (k, v) {
+                s += '<div>' + v.x + '</div><br>';
+                s += '充值金额：<span style="color: red">' + Highcharts.numberFormat(v.y, 0) + '</span><br>';
+                s += '充值占比：<span style="color: red">' + Highcharts.numberFormat(v.y / v.total * 100, 2) + ' %</span><br>';
+            });
+            return s;
         },
         subtitle:'',
         container: 'freq-bar-container',
@@ -185,6 +194,15 @@ $charts = <<<EOL
             align: 'left',
             x: 70
         },
+        formatter: function () {
+            var s = '';
+            $.each(this.points, function (k, v) {
+                s += '<div>' + v.x + '</div><br>';
+                s += '充值金额：<span style="color: red">' + Highcharts.numberFormat(v.y, 0) + '</span><br>';
+                s += '充值占比：<span style="color: red">' + Highcharts.numberFormat(v.y / v.total * 100, 2) + ' %</span><br>';
+            });
+            return s;
+        },
         subtitle:'',
         container: 'quota-bar-container',
         param: {
@@ -205,6 +223,15 @@ $charts = <<<EOL
             text: '',
             align: 'left',
             x: 70
+        },
+        formatter: function () {
+            var s = '';
+            $.each(this.points, function (k, v) {
+                s += '<div>' + v.x + '</div><br>';
+                s += '充值金额：<span style="color: red">' + Highcharts.numberFormat(v.y, 0) + '</span><br>';
+                s += '充值占比：<span style="color: red">' + Highcharts.numberFormat(v.y / v.total * 100, 2) + ' %</span><br>';
+            });
+            return s;
         },
         subtitle:'',
         container: 'gap-bar-container',

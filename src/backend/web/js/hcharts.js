@@ -17,8 +17,9 @@ function Hcharts(args) {
 Hcharts.prototype = {
     //条形图
     showBar: function () {
+        "use strict";
         var _this = this;
-        // console.log(this.param);
+        /*jshint -W117 */
         $.post(this.api, this.param, function (data) {
             Highcharts.chart(_this.container, {
                 chart: {
@@ -35,7 +36,8 @@ Hcharts.prototype = {
                 xAxis: {categories: data.data.xAxis},
                 yAxis: {},
                 tooltip: {
-                    shared: true
+                    shared: true,
+                    formatter: _this.formatter
                 },
                 plotOptions: {
                     bar: {
@@ -50,6 +52,8 @@ Hcharts.prototype = {
     },
     //饼图
     showPie: function () {
+        "use strict";
+        /*jshint -W117 */
         var _this = this;
         $.getJSON(this.api, this.param, function (data) {
             Highcharts.chart(_this.container, {
@@ -87,6 +91,8 @@ Hcharts.prototype = {
     },
     //折线图
     showLine: function () {
+        "use strict";
+        /*jshint -W117 */
         var _this = this;
         $.post(this.api, this.param, function (data) {
             Highcharts.chart(_this.container, {
@@ -116,6 +122,8 @@ Hcharts.prototype = {
     },
     //曲线图
     showSpline: function () {
+        "use strict";
+        /*jshint -W117 */
         var _this = this;
         $.getJSON(this.api, this.param, function (data) {
             Highcharts.chart(_this.container, {
@@ -149,6 +157,8 @@ Hcharts.prototype = {
     },
     //区域图
     showAreaSpline: function () {
+        "use strict";
+        /*jshint -W117 */
         var _this = this;
         $.post(this.api, this.param, function (data) {
             Highcharts.chart(_this.container, {
@@ -183,6 +193,8 @@ Hcharts.prototype = {
     },
     //双轴 折线+柱状图
     showDualAxesLineColumn: function () {
+        "use strict";
+        /*jshint -W117 */
         var _this = this;
         $.post(this.api, this.param, function (data) {
             Highcharts.chart(_this.container, {
@@ -236,6 +248,8 @@ Hcharts.prototype = {
     },
     //散点图
     showScatterPlot: function () {
+        "use strict";
+        /*jshint -W117 */
         var _this = this;
         $.post(this.api, this.param, function (data) {
             Highcharts.chart(_this.container, {

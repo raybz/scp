@@ -3,10 +3,12 @@
 namespace console\controllers;
 
 use common\models\api\TLZJGame2144;
+use common\models\api\TLZJGame6255;
 use console\models\LogTable;
 use console\models\platform\Platform2144;
 use console\models\platform\Platform37;
 use console\models\platform\Platform4399;
+use console\models\platform\Platform6255;
 use console\models\platform\PlatformDefault;
 use console\models\platform\PlatformPPS;
 use console\models\platform\PlatformSoGou;
@@ -63,6 +65,7 @@ class LoginController extends Controller
 
     protected function slaveApi($from, $to)
     {
+        //2144
         $api = new TLZJGame2144();
         $api->from = strtotime($from);
         $api->to = strtotime($to);
@@ -72,6 +75,21 @@ class LoginController extends Controller
                 Platform2144::$url_param = $line;
                 $this->stdout('===========================start==============================='.PHP_EOL);
                 $result = Platform2144::saveLogin();
+                $this->stdout(
+                    $result[0].' Login ID: '.$result[1].($result[0] == 'new' ? ' New User ID: '.$result[2] : '').($result[3] ?? '').PHP_EOL
+                );
+            }
+        }
+        //6255
+        $api2 = new TLZJGame6255();
+        $api2->from = strtotime($from);
+        $api2->to = strtotime($to);
+        $result = $api2->getLogin();
+        if (isset($result->code) && $result->code == 200) {
+            foreach ($result->data as $line) {
+                Platform6255::$url_param = $line;
+                $this->stdout('===========================start==============================='.PHP_EOL);
+                $result = Platform6255::saveLogin();
                 $this->stdout(
                     $result[0].' Login ID: '.$result[1].($result[0] == 'new' ? ' New User ID: '.$result[2] : '').($result[3] ?? '').PHP_EOL
                 );

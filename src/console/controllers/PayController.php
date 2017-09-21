@@ -3,10 +3,12 @@
 namespace console\controllers;
 
 use common\models\api\TLZJGame2144;
+use common\models\api\TLZJGame6255;
 use console\models\LogTable;
 use console\models\platform\Platform2144;
 use console\models\platform\Platform37;
 use console\models\platform\Platform4399;
+use console\models\platform\Platform6255;
 use console\models\platform\PlatformDefault;
 use console\models\platform\PlatformPPS;
 use console\models\platform\PlatformSoGou;
@@ -41,7 +43,6 @@ class PayController extends Controller
     public function logPay($from, $to)
     {
         $diff = LogTable::getDiffDay($from, $to);
-//        var_dump($diff);
         //搜索大于1天
         if (!empty($diff)){
             foreach ($diff as $k => $v) {
@@ -63,6 +64,7 @@ class PayController extends Controller
 
     protected function slaveApi($from, $to)
     {
+        //2144
         $api = new TLZJGame2144();
         $api->from = strtotime($from);
         $api->to = strtotime($to);
@@ -77,6 +79,22 @@ class PayController extends Controller
                 );
             }
         }
+        //6255
+        $api2 = new TLZJGame6255();
+        $api2->from = strtotime($from);
+        $api2->to = strtotime($to);
+        $result = $api2->getOrder();
+        if (isset($result->code) && $result->code == 200) {
+            foreach ($result->data as $line) {
+                Platform6255::$url_param = $line;
+                $this->stdout('===========================start==============================='.PHP_EOL);
+                $result = Platform6255::savePay();
+                $this->stdout(
+                    $result[0].' payment ID: '.$result[1].' info: '.$result[2].(isset($result[3]) && $result[3] ? ' new_uid:'.$result[3] : '').PHP_EOL
+                );
+            }
+        }
+
     }
 
     protected function slaveUrl($month = null, $from = null, $to = null)
