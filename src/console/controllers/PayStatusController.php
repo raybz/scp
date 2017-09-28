@@ -29,6 +29,7 @@ class PayStatusController extends Controller
             $t = date('Y-m-d', strtotime($from.($i + 1).' day'));
             $this->urlMix($f, $t);
             Payment::updateAllFlagByPlatform('2144', $f, $t);
+            Payment::updateAllFlagByPlatform('6255', $f, $t);
         }
     }
 

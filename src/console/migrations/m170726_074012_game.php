@@ -19,7 +19,7 @@ class m170726_074012_game extends Migration
             'updated_at' => $this->dateTime()->notNull()->defaultValue('0000-00-00 00:00:00'),
             'updated_by' => $this->integer()->notNull()->defaultValue(0),
         ]);
-
+        $this->createIndex('game_gk_s', $this->tableName, ['gkey', 'status']);
         $this->execute("ALTER TABLE ".$this->tableName." AUTO_INCREMENT= 1001");
     }
     
